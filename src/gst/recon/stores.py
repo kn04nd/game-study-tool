@@ -20,6 +20,15 @@ except ImportError:  # pragma: no cover
     winreg = None  # type: ignore[assignment]
 
 
+def build_id(value) -> str | None:
+    """A store's build/version string reduced to [A-Za-z0-9._+-]. It names sibling workspaces (``<slug>@<build>``)
+    and snapshot folders, and Epic/GOG let the publisher write anything there."""
+    if value in (None, ""):
+        return None
+    cleaned = re.sub(r"[^A-Za-z0-9._+-]+", "_", str(value)).strip("._")[:64]
+    return cleaned or None
+
+
 def vdf(text: str) -> dict:
     """Minimal Valve KeyValues parser (libraryfolders.vdf, appmanifest_*.acf)."""
     tokens = re.findall(r'"((?:[^"\\]|\\.)*)"|([{}])', text)
@@ -112,7 +121,7 @@ def steam_games() -> list[dict]:
                 workshop = apps / "workshop" / "content" / (appid or "")
                 games.append({
                     "store": "steam", "appid": appid, "name": st.get("name"), "path": str(path),
-                    "buildid": st.get("buildid"), "last_updated": st.get("LastUpdated"),
+                    "buildid": build_id(st.get("buildid")), "last_updated": st.get("LastUpdated"),
                     "size_on_disk": int(st.get("SizeOnDisk") or 0),
                     "workshop": str(workshop) if appid and workshop.is_dir() else None,
                 })
@@ -130,7 +139,7 @@ def epic_games() -> list[dict]:
         p = d.get("InstallLocation", "")
         if p and Path(p).is_dir():
             out.append({"store": "epic", "appid": d.get("AppName"), "name": d.get("DisplayName"), "path": p,
-                        "buildid": d.get("AppVersionString")})
+                        "buildid": build_id(d.get("AppVersionString"))})
     return out
 
 
@@ -148,7 +157,7 @@ def gog_games() -> list[dict]:
                 name = _reg(winreg.HKEY_LOCAL_MACHINE, f"{base}\\{sub}", "gameName")
                 if path and Path(path).is_dir():
                     out.append({"store": "gog", "appid": sub, "name": name or Path(path).name, "path": path,
-                                "buildid": _reg(winreg.HKEY_LOCAL_MACHINE, f"{base}\\{sub}", "ver")})
+                                "buildid": build_id(_reg(winreg.HKEY_LOCAL_MACHINE, f"{base}\\{sub}", "ver"))})
     except OSError:
         pass
     return out

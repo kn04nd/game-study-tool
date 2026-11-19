@@ -2,7 +2,7 @@
 name: study-recon
 description: Reconnaissance of an installed game before deeper study - engine and version, code type (managed .NET/Mono, IL2CPP, native C++, Java, Lua or other script VMs), protections (anti-cheat, DRM wrapper, anti-tamper, encrypted containers) and the resulting policy verdict, middleware, debug symbols, user-data folders, and the public reverse-engineering knowledge that already exists. Produces recon/RECON.md, recon/protections.md and a layer plan in STUDY.md.
 when_to_use: At the start of a game study, or when asked which engine a game uses, whether it is protected, or what can be studied in it. Examples - "which engine does <game> use", "is <game> protected", "does <game> have anti-cheat", "recon <game>", "what can I study in <game>", "qual engine o <jogo> usa", "o <jogo> tem anti-cheat", "reconhecimento do <jogo>", "dá pra estudar o <jogo>".
-allowed-tools: Bash(gst *) PowerShell(gst *) WebSearch WebFetch
+allowed-tools: Bash(gst *) PowerShell(gst *) WebSearch
 ---
 
 # Study recon

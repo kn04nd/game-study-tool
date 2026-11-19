@@ -134,7 +134,10 @@ def check(game: dict, action: str, target: str | None = None) -> Decision:
     if action == "extract":
         return ALLOW
     if action == "decrypt":
-        for key in game.get("keys", []):
+        keys = game.get("keys")
+        for key in keys if isinstance(keys, list) else []:  # a malformed game.json must not crash the guard
+            if not isinstance(key, dict):
+                continue
             if key.get("scheme") in PUBLIC_SCHEMES or str(key.get("source", "")).startswith(("http://", "https://")):
                 return ALLOW
         return Decision(False, "encrypted content: only community-published keys (with source URL) or public schemes", 4)

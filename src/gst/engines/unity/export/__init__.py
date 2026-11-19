@@ -66,7 +66,8 @@ class Writer:
         name = f"{safe_name(stem or 'unnamed')}{ext}"
         path = folder / name
         if str(path).lower() in self.used:
-            path = folder / f"{safe_name(stem or 'unnamed', 60)}__{key}{ext}"
+            # key can be a name from the game (a MonoScript class name): it goes through safe_name too
+            path = folder / f"{safe_name(stem or 'unnamed', 60)}__{safe_name(str(key), 80)}{ext}"
         self.used.add(str(path).lower())
         return path
 

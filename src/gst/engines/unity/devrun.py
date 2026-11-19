@@ -132,7 +132,7 @@ def _run_subprocess(name: str, unit: Unit, args) -> dict:
     spec_dir.mkdir(parents=True, exist_ok=True)
     spec = spec_dir / f"{abs(hash((name, unit.id)))}.json"
     spec.write_text(json.dumps({"extractor": name, "unit": asdict(unit)}), encoding="utf-8")
-    cmd = [sys.executable, "-X", "utf8", "-m", "gst.engines.unity.devrun", str(args.install), str(args.workspace),
+    cmd = [sys.executable, "-P", "-X", "utf8", "-m", "gst.engines.unity.devrun", str(args.install), str(args.workspace),
            "--unit-json", str(spec)]
     for flag in ("file", "name", "limit"):
         if getattr(args, flag) is not None:

@@ -71,10 +71,25 @@ def workspace_settings(ws: Path, game: dict) -> dict:
     deny = [f"Edit({install}/**)"]
     for shell in ("Bash", "PowerShell"):
         deny += [f"{shell}(git add *)", f"{shell}(git commit *)", f"{shell}(git init *)"]
+    # Edit(<ws>/**) plus Bash(gst *) would let text from a game file (read by the model) write a file and run it
+    # with no prompt. "ask" wins over "allow": these always ask.
+    #   fmt roundtrip   imports the reader .py written in the workspace
+    #   config set      can point tools_dir/gs_home at a folder the model wrote
+    #   tools install, setup, mcp   install or configure programs that run later
+    #   rg --pre        runs any program per file
+    #   ast-grep -U     rewrites files outside the workspace
+    risky = ["fmt roundtrip", "config set", "config unset", "tools install", "setup", "mcp"]
+    ask = []
+    for prefix in ("Bash(gst", "PowerShell(gst", f"PowerShell({gs_call()}"):
+        ask += [f"{prefix} {sub} *)" for sub in risky] + [f"{prefix} {sub})" for sub in risky]
+    for shell in ("Bash", "PowerShell"):
+        ask += [f"{shell}(rg *--pre*)"]
+    ask += ["Bash(ast-grep *-U*)", "Bash(ast-grep *--update-all*)", "Bash(ast-grep *--interactive*)"]
     return {
         "env": {"CLAUDE_CODE_USE_POWERSHELL_TOOL": "1", "GST_GAME": game["slug"],
                 "GST_EXE": (Path.home() / ".local" / "bin" / "gst.exe").as_posix()},
-        "permissions": {"allow": allow, "deny": deny, "additionalDirectories": [Path(game["install_dir"]).as_posix()]},
+        "permissions": {"allow": allow, "ask": ask, "deny": deny,
+                        "additionalDirectories": [Path(game["install_dir"]).as_posix()]},
         "enabledMcpjsonServers": [],
     }
 

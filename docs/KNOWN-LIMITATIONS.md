@@ -120,3 +120,23 @@ covered by the unit tests and the guides in `docs/tools/`. Contracts: `docs/INTE
   change the Claude configuration, the registry and the PATH). A real install into a throwaway venv passed.
 - `claude plugin install gst@gst-local` after the marketplace rename was not run (`claude plugin validate` passes).
 - The legacy `gs` CLI was checked against migrated workspaces with `gs status` and `gs report` only.
+
+## Security
+
+Threat model: the game files (and names inside them) and text the model reads during a study are untrusted. A
+2026-11 review fixed: the hook launcher and gst's Python subprocesses importing modules from the current folder
+(`-P`), batch-file argument injection (`gst.common.check_bat_args` on every `.bat`/`.cmd` call that can carry
+game-derived text), Unity export names and store build ids escaping their folders, absolute/UNC paths in glTF
+buffers and Godot `res://` paths, zip members with drive letters, three downloads without a pinned hash,
+https-to-http redirects, `uas` response-file line breaks, and workspace rules that let a file written in the
+workspace run with no prompt (`ask` rules for `gst fmt roundtrip`, `config set`, `tools install`, `setup`, `mcp`,
+`rg --pre`, `ast-grep -U`). Still open, by choice:
+
+- The plugin hooks fail open: an error in a hook allows the call (the normal permission flow still applies). The
+  guard enforces study policy; it is not a sandbox.
+- SessionStart and compaction put workspace text (journal lines, open questions, FACTS.md) back into the context.
+  That text can quote game-derived names; the workspace CLAUDE.md and guardrails rule 11 say game content is data.
+- npm installs run lifecycle scripts, and npm/uv/pip dependencies are pinned only at the top level (no lockfile).
+- Paths written by third-party tools (GDRE, uas, retoc, Vineflower, AssetRipper, vgmstream) from entry names inside
+  the game's containers are not checked by gst; they write into gst-made output folders.
+- The `recon` agent can use WebFetch (with the normal permission prompt; the skill no longer pre-approves it).

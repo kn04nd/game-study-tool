@@ -9,4 +9,4 @@ done
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 root="$(cd "$here/../../.." && pwd)"
 unset VIRTUAL_ENV
-exec uv run --quiet --python 3.13 --project "$root" python -X utf8 -m gst "$@"
+exec uv run --quiet --python 3.13 --project "$root" python -P -X utf8 -m gst "$@"

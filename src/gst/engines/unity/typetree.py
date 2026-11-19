@@ -41,7 +41,9 @@ def backup_dirs(install: Path) -> list[Path]:
 
 def snapshot_backup(src: Path, workspace: Path, build: str) -> Path:
     """Copy the BackUp ``Managed`` DLLs into the workspace once per build (read-only on the install)."""
-    dest = Path(workspace) / "decomp" / "il2cpp" / f"managed-backup@{build or 'unknown'}"
+    from gst.recon.stores import build_id
+
+    dest = Path(workspace) / "decomp" / "il2cpp" / f"managed-backup@{build_id(build) or 'unknown'}"
     if (dest / "MANIFEST.json").is_file():
         return dest
     partial = dest.with_name(dest.name + ".partial")

@@ -24,8 +24,13 @@ def _quote(token: str) -> str:
 
 
 def response_file(path: Path, args: list[str]) -> Path:
-    from gst.common import write_text
+    """One token per line. Filters carry names from the game's paks: a line break would split a token into extra
+    arguments and a leading ``@`` could name another response file, so both are refused."""
+    from gst.common import GsError, write_text
 
+    for a in args:
+        if any(c in a for c in "\r\n\x00") or a.startswith("@"):
+            raise GsError(f"uas argument refused (line break, NUL or leading @): {a[:120]!r}")
     write_text(path, "\n".join(_quote(a) for a in args) + "\n")
     return path
 

@@ -34,13 +34,20 @@ def assets_dir(ws: Path) -> Path:
 def safe_name(name: str, max_len: int = 80) -> str:
     """File-system safe and short (MAX_PATH matters while LongPathsEnabled=0)."""
     cleaned = re.sub(r'[<>:"/\\|?*\x00-\x1f]+', "_", name).strip(" .") or "unnamed"
-    return cleaned[:max_len].rstrip(" .")
+    cleaned = cleaned[:max_len].rstrip(" .") or "unnamed"
+    if cleaned.split(".", 1)[0].upper() in WINDOWS_RESERVED:  # CON, NUL, COM1...: not creatable as files
+        cleaned = "_" + cleaned[:max_len - 1]
+    return cleaned
+
+
+WINDOWS_RESERVED = frozenset({"CON", "PRN", "AUX", "NUL", *(f"COM{i}" for i in range(1, 10)),
+                              *(f"LPT{i}" for i in range(1, 10))})
 
 
 def unique_path(folder: Path, stem: str, ext: str, key: str) -> Path:
     path = folder / f"{safe_name(stem)}{ext}"
     if path.exists() or Path(str(path) + SIDECAR).exists():
-        path = folder / f"{safe_name(stem, 60)}__{key}{ext}"
+        path = folder / f"{safe_name(stem, 60)}__{safe_name(str(key), 80)}{ext}"
     return path
 
 
