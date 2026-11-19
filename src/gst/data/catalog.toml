@@ -1,0 +1,506 @@
+# Game Study Toolkit - third-party tool catalog (versions verified 2026-10-05/07).
+#
+# kind:
+#   winget      winget install --id <winget> -e --version <version>   (hash verified by winget)
+#   zip         download <url>, verify <sha256>, extract to <tools_dir>/<id>/<version>
+#   file        download a single file (exe/jar) to <tools_dir>/<id>/<version>
+#   dotnet-tool dotnet tool install -g <package> --version <version>
+#   uv-tool     uv tool install --python 3.13 <package>==<version>
+#   npm         npm install --prefix <tools_dir>/<id>/<version> <spec> (spec = <package>@<version>; GST_<ID>_SPEC or
+#               the config key <id>_spec selects another spec - an npm/GitHub spec or a local tarball -
+#               installed in <tools_dir>/<id>/custom-<hash>)
+#   builtin     ships with Windows or Visual Studio; only detected
+#   guided      never installed automatically; `gst tools install <id>` and `gst tools info <id>` print the steps
+# sha256: a hex digest, "github" (digest published on the GitHub release page) or "tofu"
+#   (trust on first use: recorded in tools.lock.json, verified afterwards).
+# search: glob patterns (forward slashes, env vars allowed) used to find binaries of installers
+#   that do not report their install dir.
+# policy: tags checked by gst before use - runtime (attaches to a live process), injection
+#   (drops DLLs into a game folder: sandbox only), kernel-driver.
+
+[tools."7zip"]
+title = "7-Zip"
+kind = "winget"
+winget = "7zip.7zip"
+version = "26.04"
+profiles = ["formats"]
+bins = ["7z.exe"]
+search = ["C:/Program Files/7-Zip/7z.exe"]
+version_cmd = ["{bin}"]
+version_re = '7-Zip (?:\(a\) )?([\d.]+)'
+admin = true
+license = "LGPL-2.1+ / BSD-3"
+home = "https://www.7-zip.org/"
+purpose = "generic archive extraction (zip/7z/rar/cab), apitrace and other .7z releases"
+
+[tools.ripgrep]
+title = "ripgrep"
+kind = "winget"
+winget = "BurntSushi.ripgrep.MSVC"
+version = "15.2.0"
+profiles = ["core"]
+bins = ["rg.exe"]
+version_cmd = ["{bin}", "--version"]
+version_re = 'ripgrep ([\d.]+)'
+license = "MIT / Unlicense"
+home = "https://github.com/BurntSushi/ripgrep"
+purpose = "fast text search over decompiled trees (gst q grep)"
+
+[tools.die]
+title = "Detect It Easy"
+kind = "winget"
+winget = "horsicq.DIE-engine"
+version = "3.21"
+profiles = ["core"]
+bins = ["diec.exe"]
+version_cmd = ["{bin}", "--version"]
+version_re = '([\d]+\.[\d]+)'
+license = "MIT"
+home = "https://github.com/horsicq/DIE-engine"
+purpose = "compiler/packer/protector detection (Denuvo, SteamStub, Themida, VMProtect) for gst recon"
+
+[tools.temurin21]
+title = "Eclipse Temurin JDK 21 (portable)"
+kind = "zip"
+version = "21.0.12.1"
+url = "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12.1%2B1/OpenJDK21U-jdk_x64_windows_hotspot_21.0.12.1_1.zip"
+sha256 = "f9d6e191ab098c0d416e7d588a24420a8621cd2f4720dab2459b8b7b2d2d8b4e"
+profiles = ["core"]
+bins = ["jdk-21*/bin/java.exe"]
+search = ["C:/Program Files/Eclipse Adoptium/jdk-21*/bin/java.exe"]
+version_cmd = ["{bin}", "-version"]
+version_re = 'version "([\d._]+)"'
+license = "GPL-2.0 with Classpath Exception"
+home = "https://adoptium.net/"
+purpose = "Java runtime for Ghidra, Vineflower, jadx, unluac, FFDec, Kaitai"
+
+[tools.ghidra]
+title = "Ghidra"
+kind = "zip"
+version = "12.1.4"
+url = "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip"
+sha256 = "ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db"
+root = "ghidra_12.1.4_PUBLIC"
+profiles = ["core"]
+bins = ["support/analyzeHeadless.bat", "ghidraRun.bat"]
+requires = ["temurin21"]
+version_file = "Ghidra/application.properties"
+version_re = 'application\.version=([\d.]+)'
+license = "Apache-2.0"
+home = "https://github.com/NationalSecurityAgency/ghidra"
+purpose = "native disassembly/decompilation, headless export (gst decompile native)"
+
+[tools.ilspycmd]
+title = "ilspycmd"
+kind = "dotnet-tool"
+package = "ilspycmd"
+version = "11.1.0.9782"
+profiles = ["core"]
+bins = ["ilspycmd.exe"]
+search = ["%USERPROFILE%/.dotnet/tools/ilspycmd.exe"]
+version_cmd = ["{bin}", "--version"]
+version_re = '([\d]+\.[\d]+\.[\d]+\.[\d]+)'
+license = "MIT"
+home = "https://github.com/icsharpcode/ILSpy"
+purpose = ".NET/Mono decompiler to a C# project (Unity Mono, XNA/FNA, Godot .NET)"
+
+[tools.imhex]
+title = "ImHex (portable)"
+kind = "zip"
+version = "1.38.1"
+url = "https://github.com/WerWolv/ImHex/releases/download/v1.38.1/imhex-1.38.1-Windows-Portable-x86_64.zip"
+sha256 = "32520e57712894bc8304c4b01553223e7dda25852326184f99dfd72a09a80187"
+profiles = ["core"]
+bins = ["**/imhex.exe"]
+search = ["C:/Program Files/ImHex/imhex.exe"]
+version_cmd = ["{bin}", "--version"]
+version_re = '([\d]+\.[\d]+\.[\d]+)'
+license = "GPL-2.0"
+home = "https://github.com/WerWolv/ImHex"
+purpose = "hex editor + pattern language; imhex --pl format exports parsed structures as JSON"
+
+[tools.texconv]
+title = "DirectXTex texconv"
+kind = "winget"
+winget = "Microsoft.DirectXTex.Texconv"
+version = "2026.5.7"
+profiles = ["core"]
+bins = ["texconv.exe"]
+license = "MIT"
+home = "https://github.com/microsoft/DirectXTex"
+purpose = "DDS/BCn textures to PNG"
+
+[tools.texdiag]
+title = "DirectXTex texdiag"
+kind = "winget"
+winget = "Microsoft.DirectXTex.Texdiag"
+version = "2026.5.7"
+profiles = ["core"]
+bins = ["texdiag.exe"]
+license = "MIT"
+home = "https://github.com/microsoft/DirectXTex"
+purpose = "DDS metadata (format, mips, arrays) as text"
+
+[tools.ffmpeg]
+title = "FFmpeg"
+kind = "winget"
+winget = "Gyan.FFmpeg"
+version = "9.0.2"
+profiles = ["core"]
+bins = ["ffmpeg.exe", "ffprobe.exe"]
+version_cmd = ["{bin}", "-version"]
+version_re = 'ffmpeg version ([\d.]+)'
+license = "GPL-3.0"
+home = "https://ffmpeg.org/"
+purpose = "audio/video probing and conversion (Bink 1 included; Bink 2 needs RAD Video Tools)"
+
+[tools.imagemagick]
+title = "ImageMagick"
+kind = "winget"
+winget = "ImageMagick.ImageMagick"
+version = "7.1.2.31"
+profiles = ["formats"]
+bins = ["magick.exe"]
+search = ["C:/Program Files/ImageMagick-7*/magick.exe"]
+version_cmd = ["{bin}", "-version"]
+version_re = 'ImageMagick ([\d.\-]+)'
+admin = true
+license = "ImageMagick License"
+home = "https://imagemagick.org/"
+purpose = "thumbnails and contact sheets of extracted images"
+
+[tools.ctags]
+title = "Universal Ctags"
+kind = "winget"
+winget = "UniversalCtags.Ctags"
+version = "6.1.0"
+profiles = ["core"]
+bins = ["ctags.exe"]
+version_cmd = ["{bin}", "--version"]
+version_re = 'Universal Ctags ([\d.]+)'
+license = "GPL-2.0"
+home = "https://github.com/universal-ctags/ctags-win32"
+purpose = "symbol index fallback for languages without a tree-sitter grammar"
+
+[tools.yara-x]
+title = "YARA-X"
+kind = "winget"
+winget = "VirusTotal.YARA-X"
+version = "1.21.0"
+profiles = ["core"]
+bins = ["yr.exe"]
+version_cmd = ["{bin}", "--version"]
+version_re = '([\d]+\.[\d]+\.[\d]+)'
+license = "BSD-3-Clause"
+home = "https://github.com/VirusTotal/yara-x"
+purpose = "custom engine/protector signatures for gst recon"
+
+[tools.floss]
+title = "FLOSS"
+kind = "winget"
+winget = "Mandiant.FLOSS"
+version = "3.1.1"
+profiles = ["native"]
+bins = ["floss.exe"]
+version_cmd = ["{bin}", "--version"]
+version_re = '([\d]+\.[\d]+\.[\d]+)'
+license = "Apache-2.0"
+home = "https://github.com/mandiant/flare-floss"
+purpose = "static and obfuscated string extraction (use --only static -L on big game exes)"
+
+[tools.vgmstream]
+title = "vgmstream-cli"
+kind = "zip"
+version = "r2117"
+url = "https://github.com/vgmstream/vgmstream/releases/download/r2117/vgmstream-win64.zip"
+sha256 = "6c4a8a3813864fefed081bbd337dbc0ad93bf88e0b92f5db98d7ab258b22dc6c"
+profiles = ["core"]
+bins = ["vgmstream-cli.exe"]
+license = "ISC"
+home = "https://github.com/vgmstream/vgmstream"
+purpose = "game audio (Wwise .wem/.bnk, FMOD .fsb/.bank, CRI, Bink audio...) to WAV + JSON metadata"
+
+[tools.sysinternals]
+title = "Sysinternals Suite"
+kind = "winget"
+winget = "Microsoft.Sysinternals.Suite"
+version = "2026-09-10"
+profiles = ["runtime"]
+bins = ["Procmon64.exe", "procdump64.exe", "handle64.exe", "tcpvcon64.exe", "Listdlls64.exe", "sigcheck64.exe"]
+license = "Sysinternals EULA (free)"
+home = "https://learn.microsoft.com/sysinternals"
+purpose = "Process Monitor capture, ProcDump full dumps, handles/connections/modules"
+policy = ["runtime"]
+
+[tools.dumpbin]
+title = "dumpbin (Visual Studio Build Tools)"
+kind = "builtin"
+profiles = ["core"]
+bins = ["dumpbin.exe"]
+search = [
+    "C:/Program Files (x86)/Microsoft Visual Studio/*/BuildTools/VC/Tools/MSVC/*/bin/Hostx64/x64/dumpbin.exe",
+    "C:/Program Files/Microsoft Visual Studio/*/*/VC/Tools/MSVC/*/bin/Hostx64/x64/dumpbin.exe",
+]
+license = "Microsoft"
+home = "https://learn.microsoft.com/cpp/build/reference/dumpbin-reference"
+purpose = "PE headers/imports/exports as text"
+
+[tools.renderdoc]
+title = "RenderDoc"
+kind = "zip"
+version = "1.46"
+url = "https://renderdoc.org/stable/1.46/RenderDoc_1.46_64.zip"
+sha256 = "tofu"
+root = "RenderDoc_1.46_64"
+profiles = ["graphics"]
+bins = ["renderdoccmd.exe", "qrenderdoc.exe"]
+version_cmd = ["{bin}", "version"]
+version_re = 'v([\d.]+)'
+license = "MIT"
+home = "https://renderdoc.org"
+purpose = "frame capture (D3D11/12, Vulkan, OpenGL): launched by gst gfx capture from the sandbox only (it injects)"
+
+[tools.fxc]
+title = "fxc (Windows SDK)"
+kind = "builtin"
+profiles = ["graphics"]
+bins = ["fxc.exe"]
+search = ["C:/Program Files (x86)/Windows Kits/10/bin/10.*/x64/fxc.exe"]
+license = "Microsoft"
+home = "https://learn.microsoft.com/windows/win32/direct3dtools/dx-graphics-tools-fxc-syntax"
+purpose = "DXBC shader disassembly (fxc /dumpbin)"
+
+[tools.cheatengine]
+title = "Cheat Engine"
+kind = "guided"
+version = "7.7"
+profiles = ["runtime"]
+bins = ["cheatengine-x86_64.exe"]
+search = ["C:/Program Files/Cheat Engine*/cheatengine-x86_64*.exe"]
+license = "proprietary freeware (source on GitHub)"
+home = "https://www.cheatengine.org/downloads.php"
+purpose = "value scans, find-what-writes, structure dissect (offline games with verdict offline-ok only)"
+policy = ["runtime"]
+steps = [
+    "Download Cheat Engine 7.7 from https://www.cheatengine.org/downloads.php (the public installer offers extra software: decline every offer; a clean installer exists for Patreon supporters).",
+    "After installing, go through its settings once: keep every kernel-mode option off (the DBK driver, DBVM, the kernel-mode debugger) and make Lua scripts in cheat tables ask before running.",
+    "Never open Cheat Engine while a game with anti-cheat is running.",
+]
+
+# --- python: packages in gst's own environment (pins mirrored in pyproject extras; a test checks) ---
+
+[tools.tree-sitter]
+title = "tree-sitter + grammars"
+kind = "python"
+version = "0.26.0"
+package = "tree-sitter==0.26.0 tree-sitter-c-sharp==0.23.5 tree-sitter-c==0.24.2 tree-sitter-cpp==0.23.4 tree-sitter-java==0.23.5 tree-sitter-javascript==0.25.0 tree-sitter-lua==0.5.0 tree-sitter-python==0.25.0 tree-sitter-json==0.24.8 tree-sitter-yaml==0.7.2"
+modules = ["tree_sitter", "tree_sitter_c_sharp", "tree_sitter_c", "tree_sitter_cpp", "tree_sitter_java", "tree_sitter_javascript", "tree_sitter_lua", "tree_sitter_python", "tree_sitter_json", "tree_sitter_yaml"]
+profiles = ["core"]
+bins = []
+license = "MIT"
+home = "https://github.com/tree-sitter/py-tree-sitter"
+purpose = "parsers behind gst index / gst q; error-tolerant, so decompiled code that doesn't compile still parses"
+
+[tools.unitypy]
+title = "UnityPy (+ TypeTreeGeneratorAPI)"
+kind = "python"
+version = "1.25.4"
+package = "UnityPy[ttgen]==1.25.4"
+modules = ["UnityPy", "TypeTreeGeneratorAPI"]
+profiles = ["unity"]
+bins = []
+license = "MIT"
+home = "https://github.com/K0lb3/UnityPy"
+purpose = "Unity serialized files and bundles: inventory and export (textures to PNG, audio to WAV, TextAsset, MonoBehaviour to JSON, meshes to OBJ)"
+
+[tools.dissect-cstruct]
+title = "dissect.cstruct"
+kind = "python"
+version = "4.7"
+package = "dissect.cstruct==4.7"
+modules = ["dissect.cstruct"]
+profiles = ["core", "formats"]
+bins = []
+license = "Apache-2.0"
+home = "https://github.com/fox-it/dissect.cstruct"
+purpose = "C-like struct definitions parsed and written back byte for byte: the readers behind gst fmt new-reader / roundtrip"
+
+# --- unity ---------------------------------------------------------------------------------------
+
+[tools.assetripper]
+title = "AssetRipper"
+kind = "winget"
+winget = "AssetRipper.AssetRipper"
+version = "2.0.0"
+profiles = ["unity"]
+bins = ["AssetRipper.GUI.Free.exe"]
+license = "GPL-3.0"
+home = "https://github.com/AssetRipper/AssetRipper"
+purpose = "whole Unity project reconstruction (scenes and prefabs as YAML) through its headless web API on 127.0.0.1"
+
+[tools.unitydatatool]
+title = "UnityDataTool"
+kind = "zip"
+version = "2.4.0"
+url = "https://github.com/Unity-Technologies/UnityDataTools/releases/download/v2.4.0/UnityDataTool-windows-x64.zip"
+sha256 = "github"
+profiles = ["unity"]
+bins = ["**/UnityDataTool.exe"]
+license = "Unity Companion License"
+home = "https://github.com/Unity-Technologies/UnityDataTools"
+purpose = "official Unity data inspector: player data into a SQLite inventory (types, sizes, references)"
+
+# --- indie engines -----------------------------------------------------------------------------------
+
+[tools.gdre]
+title = "GDRE Tools (gdsdecomp)"
+kind = "winget"
+winget = "GDRETools.gdsdecomp"
+version = "2.7.0"
+profiles = ["indie"]
+bins = ["gdre_tools.exe"]
+version_cmd = ["{bin}", "--headless", "--version"]
+version_re = '(\d+\.\d+\.\d+)'
+license = "MIT"
+home = "https://github.com/GDRETools/gdsdecomp"
+purpose = "Godot 2/3/4: recover the project from a .pck/.exe (GDScript bytecode decompiled, resources converted to text)"
+
+# --- jvm / lua -----------------------------------------------------------------------------------
+
+[tools.vineflower]
+title = "Vineflower"
+kind = "file"
+version = "1.12.0"
+url = "https://github.com/Vineflower/vineflower/releases/download/1.12.0/vineflower-1.12.0.jar"
+sha256 = "github"
+profiles = ["jvm-lua-py"]
+bins = ["vineflower-1.12.0.jar"]
+requires = ["temurin21"]
+license = "Apache-2.0"
+home = "https://github.com/Vineflower/vineflower"
+purpose = "Java bytecode (.jar/.class) to Java source; modern Fernflower fork (records, switch expressions, generics)"
+
+[tools.unluac]
+title = "unluac"
+kind = "file"
+version = "2025-12-23"
+url = "https://sourceforge.net/projects/unluac/files/unluac_2025_12_23.jar/download"
+sha256 = "tofu"
+profiles = ["jvm-lua-py"]
+bins = ["unluac_2025_12_23.jar"]
+requires = ["temurin21"]
+license = "MIT"
+home = "https://sourceforge.net/projects/unluac/"
+purpose = "Lua 5.0-5.4 bytecode to source (also big-endian dumps such as Kahlua's)"
+
+# --- unreal --------------------------------------------------------------------------------------
+
+[tools.repak]
+title = "repak"
+kind = "zip"
+version = "0.2.3"
+url = "https://github.com/trumank/repak/releases/download/v0.2.3/repak_cli-x86_64-pc-windows-msvc.zip"
+sha256 = "github"
+profiles = ["unreal"]
+bins = ["**/repak.exe"]
+license = "MIT OR Apache-2.0"
+home = "https://github.com/trumank/repak"
+purpose = "Unreal .pak (v1-v11): info, list and unpack into the workspace (always -o; never into the game folder)"
+
+[tools.retoc]
+title = "retoc"
+kind = "zip"
+version = "0.1.5"
+url = "https://github.com/trumank/retoc/releases/download/v0.1.5/retoc_cli-x86_64-pc-windows-msvc.zip"
+sha256 = "github"
+profiles = ["unreal"]
+bins = ["**/retoc.exe"]
+license = "MIT"
+home = "https://github.com/trumank/retoc"
+purpose = "Unreal IoStore (.utoc/.ucas): info, list, to-legacy into the workspace"
+
+[tools.uas]
+title = "UnrealAssetScout"
+kind = "zip"
+version = "0.5.0"
+url = "https://github.com/AndrewSav/UnrealAssetScout/releases/download/v0.5.0/UnrealAssetScout-v0.5.0-self-contained.zip"
+sha256 = "github"
+profiles = ["unreal"]
+bins = ["**/uas.exe"]
+license = "MIT"
+home = "https://github.com/AndrewSav/UnrealAssetScout"
+purpose = "Unreal assets to JSON (CUE4Parse): list by type, export JSON by path filter, straight from the paks"
+
+# --- static analysis: REA --------------------------------------------------------------------------
+
+[tools.rea]
+title = "REA (reverse-engineer anything)"
+kind = "npm"
+package = "rea-agents"
+version = "6.9.0"
+spec = "rea-agents@6.9.0"
+# Optional: REA built locally with patches/rea/ (IL2CPP report/input allowances raisable per call), selected with
+# GST_REA_SPEC=<path of the .tgz>. See docs/tools/rea.md.
+profiles = ["core", "unity"]
+bins = ["node_modules/.bin/rea.cmd"]
+version_cmd = ["{bin}", "--version"]
+version_re = '(\d+\.\d+\.\d+)'
+license = "MIT"
+home = "https://github.com/morluto/rea"
+purpose = "static managed members/call graph, IL2CPP metadata + GameAssembly method addresses, artifact inventory (gst study rea.*); never its Frida/runtime tools"
+
+# --- native: MCP ----------------------------------------------------------------------------------
+
+[tools.pyghidra-mcp]
+title = "pyghidra-mcp"
+kind = "uv-tool"
+version = "0.2.7"
+package = "pyghidra-mcp"
+profiles = ["native"]
+bins = ["pyghidra-mcp.exe"]
+search = ["%USERPROFILE%/.local/bin/pyghidra-mcp.exe"]
+requires = ["ghidra"]
+license = "MIT"
+home = "https://github.com/clearbluejar/pyghidra-mcp"
+purpose = "MCP server over a Ghidra project (stdio, always --no-symbols): serves the project gst decompile native built"
+
+# --- il2cpp: picked by the global-metadata.dat version (metadata_versions; "a-b" = range) ----------------
+
+[tools.cpp2il]
+title = "Cpp2IL"
+kind = "file"
+version = "2022.1.0-pre-release.21"
+url = "https://github.com/SamboyCoding/Cpp2IL/releases/download/2022.1.0-pre-release.21/Cpp2IL-2022.1.0-pre-release.21-Windows.exe"
+sha256 = "663fb432433b4371fd1ee0ebc321a8fff2a9aac5ac4230c843f9e03ddee4e04c"
+profiles = ["unity"]
+bins = ["Cpp2IL-2022.1.0-pre-release.21-Windows.exe"]
+metadata_versions = ["24-29.1", "31", "35", "38", "39", "104-106"]
+license = "MIT"
+home = "https://github.com/SamboyCoding/Cpp2IL"
+purpose = "Unity IL2CPP: GameAssembly + global-metadata.dat to dummy DLLs (types, fields, signatures, [Address] attributes) for TypeTreeGenerator and ilspycmd"
+
+[tools.il2cppinspector]
+title = "Il2CppInspectorRedux (legacy CLI)"
+kind = "zip"
+version = "2026.2"
+url = "https://github.com/LukeFZ/Il2CppInspectorRedux/releases/download/2026.2/Il2CppInspectorRedux.Legacy.CLI-win-x64.zip"
+sha256 = "f30788a94e938a96a8fcace95d22e766aed4eb721e46af2421ff399d218efd14"
+profiles = ["unity"]
+bins = ["**/Il2CppInspector.exe"]
+metadata_versions = ["24-39", "104"]
+license = "AGPL-3.0"
+home = "https://github.com/LukeFZ/Il2CppInspectorRedux"
+purpose = "Unity IL2CPP: C# stubs with addresses, C++ headers, method address/name maps (JSON) for Ghidra/IDA"
+
+[tools.il2cppdumper]
+title = "Il2CppDumper"
+kind = "zip"
+version = "6.7.46"
+url = "https://github.com/Perfare/Il2CppDumper/releases/download/v6.7.46/Il2CppDumper-win-v6.7.46.zip"
+sha256 = "tofu"
+profiles = ["unity"]
+bins = ["**/Il2CppDumper.exe"]
+metadata_versions = ["16-29.1", "31"]
+license = "MIT"
+home = "https://github.com/Perfare/Il2CppDumper"
+purpose = "Unity IL2CPP (metadata <= 31): dump.cs, script.json (method addresses and names for Ghidra), il2cpp.h, dummy DLLs"

@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# Refuse commits that track derived game material. Enable once: git config core.hooksPath .githooks
+root="$(git rev-parse --show-toplevel)"
+py="$root/.venv/Scripts/python.exe"
+[ -x "$py" ] || py="$root/.venv/bin/python"
+[ -x "$py" ] || py="python"
+exec "$py" -X utf8 "$root/scripts/check_no_derived.py" "$root"

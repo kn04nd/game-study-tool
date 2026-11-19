@@ -1,0 +1,5544 @@
+{
+"source": "https://github.com/AreWeAntiCheatYet/AreWeAntiCheatYet @ e31a7e617ccfbf1d74f00167e3e19f179bf22829 (2026-09-18T03:50:36Z), MIT",
+"games": [
+{
+"name": "Halo: The Master Chief Collection",
+"steam": "976730",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Battlefield™ 2042",
+"steam": "1517290",
+"anticheats": [
+"EA anticheat"
+],
+"status": "Denied"
+},
+{
+"name": "Apex Legends",
+"steam": "1172470",
+"anticheats": [
+"Easy Anti-Cheat",
+"Hyperion"
+],
+"status": "Denied"
+},
+{
+"name": "Halo Infinite",
+"steam": "1240440",
+"anticheats": [
+"Arbiter",
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Back 4 Blood",
+"steam": "924970",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Paladins",
+"steam": "444090",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "PUBG: Battlegrounds",
+"steam": "578080",
+"anticheats": [
+"Zakynthos",
+"BattlEye",
+"UNCHEATER"
+],
+"status": "Broken"
+},
+{
+"name": "Tom Clancy's Rainbow Six® Siege",
+"steam": "359550",
+"anticheats": [
+"FairFight",
+"BattlEye"
+],
+"status": "Denied"
+},
+{
+"name": "SMITE",
+"steam": "386360",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Black Desert Online",
+"steam": "582660",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Running"
+},
+{
+"name": "Fall Guys: Ultimate Knockout",
+"steam": "1097150",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "ARK: Survival Evolved",
+"steam": "346110",
+"anticheats": [
+"BattlEye",
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "DayZ",
+"steam": "221100",
+"anticheats": [
+"BattlEye",
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Dead By Daylight",
+"steam": "381210",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Destiny 2",
+"steam": "1085660",
+"anticheats": [
+"BattlEye"
+],
+"status": "Denied"
+},
+{
+"name": "Hunt: Showdown 1896",
+"steam": "594650",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Rust",
+"steam": "252490",
+"anticheats": [
+"Easy Anti-Cheat",
+"VAC"
+],
+"status": "Denied"
+},
+{
+"name": "War Thunder",
+"steam": "236390",
+"anticheats": [
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "7 Days to Die",
+"steam": "251570",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Squad",
+"steam": "393380",
+"anticheats": [
+"Easy Anti-Cheat",
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Warhammer: Vermintide 2",
+"steam": "552500",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Insurgency: Sandstorm",
+"steam": "581320",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "ArmA 3",
+"steam": "107410",
+"anticheats": [
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "Rogue Company",
+"steam": "872200",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Realm Royale",
+"steam": "813820",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Phantasy Star Online 2 (NA)",
+"steam": "1056640",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Supported"
+},
+{
+"name": "Unturned",
+"steam": "304930",
+"anticheats": [
+"VAC",
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "PlanetSide 2",
+"steam": "218230",
+"anticheats": [
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "For Honor",
+"steam": "304390",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "NARAKA: BLADEPOINT",
+"steam": "1203220",
+"anticheats": [
+"NEAC Protect"
+],
+"status": "Supported"
+},
+{
+"name": "DJMAX RESPECT V",
+"steam": "960170",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Supported"
+},
+{
+"name": "Plants vs. Zombies: Battle for Neighborville",
+"steam": "1262240",
+"anticheats": [
+"EA anticheat"
+],
+"status": "Denied"
+},
+{
+"name": "Hell Let Loose",
+"steam": "686810",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Bless Unleashed",
+"steam": "1254120",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Rising Storm 2: Vietnam",
+"steam": "418460",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Pandemic Express - Zombie Escape",
+"steam": "939510",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "SCUM",
+"steam": "513710",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Tom Clancy's The Division 2",
+"steam": "2221490",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "JUMP FORCE",
+"steam": "816020",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Knockout City",
+"steam": "1301210",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "DRAGON BALL FighterZ",
+"steam": "678950",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Due Process",
+"steam": "753650",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Planned"
+},
+{
+"name": "Rec Room",
+"steam": "471710",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "World War 3",
+"steam": "674020",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "iRacing",
+"steam": "266410",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "DRAGON BALL XENOVERSE 2",
+"steam": "454650",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Watch_Dogs® 2",
+"steam": "447040",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Zero Hour",
+"steam": "1359090",
+"anticheats": [
+"Denuvo Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Ironsight",
+"steam": "1940990",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "The Crew™ 2",
+"steam": "646910",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "CRSED: F.O.A.D.",
+"steam": "884660",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "STAR WARS™: Squadrons",
+"steam": "1222730",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Totally Accurate Battlegrounds",
+"steam": "823130",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Splitgate",
+"steam": "677620",
+"anticheats": [
+"EQU8"
+],
+"status": "Supported"
+},
+{
+"name": "Counter-Strike: Global Offensive",
+"steam": "730",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Team Fortress 2",
+"steam": "440",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "DotA 2",
+"steam": "570",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Call of Duty®: Black Ops III",
+"steam": "311210",
+"anticheats": [
+"VAC",
+"Treyarch Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Garry's Mod",
+"steam": "4000",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Dying Light",
+"steam": "304430",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "SoulWorker",
+"steam": "1377580",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Running"
+},
+{
+"name": "Tom Clancy's Ghost Recon Breakpoint",
+"steam": "2231380",
+"anticheats": [
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "Digimon Masters Online",
+"steam": "537180",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Running"
+},
+{
+"name": "Post Scriptum",
+"steam": "736220",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Denied"
+},
+{
+"name": "Sector's Edge",
+"steam": "1024890",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Dirty Bomb",
+"steam": "333930",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Empyrion - Galactic Survival",
+"steam": "383120",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Call of Duty: Warzone",
+"steam": "1962663",
+"anticheats": [
+"RICOCHET"
+],
+"status": "Broken"
+},
+{
+"name": "Brawlhalla",
+"steam": "291550",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "POLYGON",
+"steam": "1241100",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Call of Duty Black Ops: Cold War",
+"steam": "1985810",
+"anticheats": [
+"Treyarch Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Albion Online",
+"steam": "761890",
+"anticheats": [
+"Easy Anti-Cheat",
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "Counter-Strike: Source",
+"steam": "240",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Crossout",
+"steam": "386180",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Spellbreak",
+"steam": "1399780",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Battlefield 4",
+"steam": "1238860",
+"anticheats": [
+"PunkBuster",
+"FairFight"
+],
+"status": "Supported"
+},
+{
+"name": "Conan Exiles",
+"steam": "440900",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Mount & Blade II: Bannerlord",
+"steam": "261550",
+"anticheats": [
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "Vampire: The Masquerade - Bloodhunt",
+"steam": "760160",
+"anticheats": [
+"Easy Anti-Cheat",
+"Anti-Cheat Expert"
+],
+"status": "Denied"
+},
+{
+"name": "MapleStory",
+"steam": "216150",
+"anticheats": [
+"Nexon Game Security"
+],
+"status": "Broken"
+},
+{
+"name": "Heroes & Generals",
+"steam": "227940",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Deadside",
+"steam": "895400",
+"anticheats": [
+"Easy Anti-Cheat",
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Intruder",
+"steam": "518150",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Warface",
+"steam": "291480",
+"anticheats": [
+"FairFight",
+"Mail.ru Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Call of Duty",
+"steam": "2620",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Supported"
+},
+{
+"name": "Half-Life 2: Deathmatch",
+"steam": "320",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Atlas",
+"steam": "834910",
+"anticheats": [
+"VAC",
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "The Mean Greens: Plastic Warfare",
+"steam": "360940",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Mordhau",
+"steam": "629760",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "ArmA 2",
+"steam": "33900",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Quake III Arena",
+"steam": "2200",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Supported"
+},
+{
+"name": "Call of Duty 2",
+"steam": "2630",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Supported"
+},
+{
+"name": "Battlefield 1",
+"steam": "1238840",
+"anticheats": [
+"FairFight",
+"EA anticheat"
+],
+"status": "Denied"
+},
+{
+"name": "Nuclear Dawn",
+"steam": "17710",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Pirates, Vikings, and Knights II",
+"steam": "17570",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Team Fortress Classic",
+"steam": "20",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "ARK: Survival of the Fittest",
+"steam": "407530",
+"anticheats": [
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "Crysis",
+"steam": "17300",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Broken"
+},
+{
+"name": "The Isle",
+"steam": "376210",
+"anticheats": [
+"BattlEye"
+],
+"status": "Running"
+},
+{
+"name": "Call of Duty: Black Ops",
+"steam": "42700",
+"anticheats": [
+"Treyarch Anti-Cheat",
+"VAC",
+"PunkBuster"
+],
+"status": "Supported"
+},
+{
+"name": "Call of Duty 4: Modern Warfare",
+"steam": "7940",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Supported"
+},
+{
+"name": "Day of Defeat",
+"steam": "30",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Chivalry: Medieval Warfare",
+"steam": "219640",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "The Ship: Murder Party",
+"steam": "2400",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Insurgency",
+"steam": "222880",
+"anticheats": [
+"VAC",
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "Call of Duty: Black Ops II",
+"steam": "202970",
+"anticheats": [
+"VAC",
+"Treyarch Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Monstrum 2",
+"steam": "1093170",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "No More Room in Hell",
+"steam": "224260",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Depth",
+"steam": "274940",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Quake 4",
+"steam": "2210",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Supported"
+},
+{
+"name": "Deathmatch Classic",
+"steam": "40",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Battlefield 2",
+"steam": "24860",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Supported"
+},
+{
+"name": "SWORD ART ONLINE Alicization Lycoris",
+"steam": "1009290",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Foxhole",
+"steam": "505460",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Block N Load",
+"steam": "299360",
+"anticheats": [
+"Easy Anti-Cheat",
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "Titanfall",
+"steam": "1454890",
+"anticheats": [
+"FairFight"
+],
+"status": "Supported"
+},
+{
+"name": "Battlefield 3",
+"steam": "1238820",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "Day of Defeat: Source",
+"steam": "300",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "STAR WARS™ Battlefront™ (2015)",
+"steam": "1237980",
+"anticheats": [
+"FairFight"
+],
+"status": "Supported"
+},
+{
+"name": "Tower Wars",
+"steam": "214360",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Hurtworld",
+"steam": "393420",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Call of Duty: Ghosts",
+"steam": "209160",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Sword Art Online: Fatal Bullet",
+"steam": "626690",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Killing Floor",
+"steam": "1250",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Battlefield: Bad Company 2",
+"steam": "24960",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Supported"
+},
+{
+"name": "Cry of Fear",
+"steam": "223710",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Far Cry 5",
+"steam": "552520",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Call of Duty: Modern Warfare 2",
+"steam": "10180",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Half-Life Deathmatch: Source",
+"steam": "360",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Beyond the Wire",
+"steam": "1058650",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Lost Planet: Extreme Condition",
+"steam": "6510",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Tom Clancy's The Division",
+"steam": "365590",
+"anticheats": [
+"FairFight"
+],
+"status": "Supported"
+},
+{
+"name": "Rocket Arena",
+"steam": "630700",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Call of Duty: Modern Warfare 3",
+"steam": "42680",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Left 4 Dead 2",
+"steam": "550",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Tower Unite",
+"steam": "394690",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Day of Infamy",
+"steam": "447820",
+"anticheats": [
+"VAC",
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "Black Squad",
+"steam": "550650",
+"anticheats": [
+"BattlEye",
+"nProtect GameGuard"
+],
+"status": "Supported"
+},
+{
+"name": "STAR WARS™ Battlefront™ II (2017)",
+"steam": "1237950",
+"anticheats": [
+"FairFight"
+],
+"status": "Supported"
+},
+{
+"name": "Primal Carnage",
+"steam": "321360",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Honkai Impact 3rd",
+"steam": "1671200",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "Dungeon Defenders",
+"steam": "65800",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "APB Reloaded",
+"steam": "113400",
+"anticheats": [
+"SARD"
+],
+"status": "Broken"
+},
+{
+"name": "Gears 5",
+"steam": "1097840",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Call of Duty: World at War",
+"steam": "10090",
+"anticheats": [
+"PunkBuster",
+"Treyarch Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Quake Live",
+"steam": "282440",
+"anticheats": [
+"PunkBuster",
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "PixARK",
+"steam": "593600",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Captain Tsubasa: Rise of New Champions",
+"steam": "1163550",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "TOXIKK",
+"steam": "324810",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Call of Duty: WWII",
+"steam": "476600",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "NosTale",
+"steam": "550470",
+"anticheats": [
+"X-Trap",
+"nProtect GameGuard"
+],
+"status": "Supported"
+},
+{
+"name": "Battlefield V",
+"steam": "1238810",
+"anticheats": [
+"FairFight",
+"EA anticheat"
+],
+"status": "Denied"
+},
+{
+"name": "Homefront",
+"steam": "55100",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Call of Duty: Infinite Warfare",
+"steam": "292730",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Quantum League",
+"steam": "1227800",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Blazing Sails",
+"steam": "1158940",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Titanfall 2",
+"steam": "1237970",
+"anticheats": [
+"FairFight"
+],
+"status": "Supported"
+},
+{
+"name": "Lemnis Gate",
+"steam": "950180",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "GrandChase",
+"steam": "985810",
+"anticheats": [
+"X-Trap",
+"nProtect GameGuard"
+],
+"status": "Supported"
+},
+{
+"name": "Killing Floor 2",
+"steam": "232090",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Black Clover: Quartet Knights",
+"steam": "714080",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Nine to Five",
+"steam": "1504620",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Lost Ark",
+"steam": "1599340",
+"anticheats": [
+"Easy Anti-Cheat",
+"AnyBrain"
+],
+"status": "Running"
+},
+{
+"name": "Archeage: Unchained",
+"steam": "1147660",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Hired Ops",
+"steam": "374280",
+"anticheats": [
+"Saberclaw"
+],
+"status": "Supported"
+},
+{
+"name": "Call of Duty: Vanguard",
+"steam": "1985820",
+"anticheats": [
+"RICOCHET"
+],
+"status": "Broken"
+},
+{
+"name": "Quake Champions",
+"steam": "611500",
+"anticheats": [
+"Unknown (Custom)"
+],
+"status": "Supported"
+},
+{
+"name": "Pavlov VR",
+"steam": "555160",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "NARUTO TO BORUTO: SHINOBI STRIKER",
+"steam": "633230",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Myth of Empires",
+"steam": "1371580",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Gunfire Reborn",
+"steam": "1217060",
+"anticheats": [
+"Unknown (Custom)"
+],
+"status": "Supported"
+},
+{
+"name": "Elden Ring",
+"steam": "1245620",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Will To Live Online",
+"steam": "707010",
+"anticheats": [
+"Easy Anti-Cheat",
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Battlefleet Gothic: Armada 2",
+"steam": "573100",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "SUPER PEOPLE",
+"steam": "1190340",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Darwin Project",
+"steam": "544920",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "BattleBit Remastered",
+"steam": "671860",
+"anticheats": [
+"Easy Anti-Cheat",
+"FACEIT"
+],
+"status": "Running"
+},
+{
+"name": "Vindictus",
+"steam": "212160",
+"anticheats": [
+"Nexon Game Security"
+],
+"status": "Running"
+},
+{
+"name": "Deceit",
+"steam": "466240",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Absolver",
+"steam": "473690",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "EZ2ON REBOOT : R",
+"steam": "1477590",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Supported"
+},
+{
+"name": "Closers",
+"steam": "215830",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Allods Online",
+"steam": "459160",
+"anticheats": [
+"Mail.ru Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Warframe",
+"steam": "230410",
+"anticheats": [
+"Unknown (Custom)"
+],
+"status": "Supported"
+},
+{
+"name": "Friday The 13th: The Game",
+"steam": "438740",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Grand Theft Auto V",
+"steam": "271590",
+"anticheats": [
+"BattlEye"
+],
+"status": "Denied"
+},
+{
+"name": "Super Animal Royale",
+"steam": "843380",
+"anticheats": [
+"Unknown (Custom)"
+],
+"status": "Supported"
+},
+{
+"name": "Fallout 76",
+"steam": "1151340",
+"anticheats": [
+"Unknown (Custom)"
+],
+"status": "Running"
+},
+{
+"name": "ANOTHER EDEN",
+"steam": "1252600",
+"anticheats": [
+"Crackproof",
+"WFSDrv"
+],
+"status": "Broken"
+},
+{
+"name": "Overwatch 2",
+"steam": "2357570",
+"anticheats": [
+"Warden"
+],
+"status": "Supported"
+},
+{
+"name": "Century: Age of Ashes",
+"steam": "918570",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Awesomenauts - the 2D moba",
+"steam": "204300",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Dungeon Fighter Online",
+"steam": "495910",
+"anticheats": [
+"AhnLab HackShield",
+"XIGNCODE3",
+"Nexon Game Security"
+],
+"status": "Running"
+},
+{
+"name": "SCP: Secret Laboratory",
+"steam": "700330",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Midnight Ghost Hunt",
+"steam": "915810",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Rumble Fighter: Unleashed",
+"steam": "357500",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Hood: Outlaws & Legends",
+"steam": "927350",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Multiversus",
+"steam": "1818750",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "VRChat",
+"steam": "438100",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Knight Online",
+"steam": "389430",
+"anticheats": [
+"X-Trap",
+"PunkBuster",
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "DRAGON BALL: THE BREAKERS",
+"steam": "1692200",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "BATTALION: Legacy",
+"steam": "489940",
+"anticheats": [
+"Easy Anti-Cheat",
+"FACEIT"
+],
+"status": "Supported"
+},
+{
+"name": "Tower of Fantasy",
+"steam": "2064650",
+"anticheats": [
+"KSophon"
+],
+"status": "Running"
+},
+{
+"name": "Lost Light",
+"steam": "1797880",
+"anticheats": [
+"NetEase Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "Shatterline",
+"steam": "2087030",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Gundam Evolution",
+"steam": "1816670",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "ArmA Reforger",
+"steam": "1874880",
+"anticheats": [
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "EA SPORTS™ FIFA 23",
+"steam": "1811260",
+"anticheats": [
+"EA anticheat"
+],
+"status": "Denied"
+},
+{
+"name": "Call of Duty: Modern Warfare II (2022)",
+"steam": "1938090",
+"anticheats": [
+"RICOCHET"
+],
+"status": "Broken"
+},
+{
+"name": "Marauders",
+"steam": "1789480",
+"anticheats": [
+"Easy Anti-Cheat",
+"Denuvo Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Predecessor",
+"steam": "961200",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Final Fantasy XIV",
+"steam": "961200",
+"anticheats": [
+"Unknown (Custom)"
+],
+"status": "Running"
+},
+{
+"name": "Boundary",
+"steam": "1364020",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "THE FINALS",
+"steam": "2073850",
+"anticheats": [
+"Easy Anti-Cheat",
+"Denuvo Anti-Cheat",
+"AnyBrain"
+],
+"status": "Supported"
+},
+{
+"name": "PROJECT: PLAYTIME",
+"steam": "1961460",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Farlight 84",
+"steam": "1928420",
+"anticheats": [
+"NetEase Yidun"
+],
+"status": "Denied"
+},
+{
+"name": "Riders Republic",
+"steam": "2290180",
+"anticheats": [
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "Tom Clancy’s Rainbow Six® Extraction",
+"steam": "2379390",
+"anticheats": [
+"Denuvo Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "The First Descendant",
+"steam": "2074920",
+"anticheats": [
+"Nexon Game Security",
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Starsiege: Deadzone",
+"steam": "2170420",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Eternal Return",
+"steam": "528010",
+"anticheats": [
+"XIGNCODE3",
+"UNCHEATER"
+],
+"status": "Supported"
+},
+{
+"name": "Armored Core VI: Fires of Rubicon",
+"steam": "1888160",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Deceive Inc.",
+"steam": "820520",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Alien Arena: Warriors of Mars",
+"steam": "629540",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "Goose Goose Duck",
+"steam": "1568590",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Realm Royale Reforged",
+"steam": "813820",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Hot Wheels UNLEASHED 2 - Turbocharged",
+"steam": "2051120",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "MY HERO ULTRA RUMBLE",
+"steam": "1607250",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "MicroVolts: Recharged",
+"steam": "1426440",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Supported"
+},
+{
+"name": "ARC Raiders",
+"steam": "1808500",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Deceit 2",
+"steam": "2064870",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Block N Load 2",
+"steam": "1551810",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "HypeSquad",
+"steam": "1688720",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "EA SPORTS™ Madden NFL 23",
+"steam": "1760250",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "F.E.A.R.",
+"steam": "21090",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Broken"
+},
+{
+"name": "Zombie Panic! Source",
+"steam": "17500",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "EA SPORTS™ Madden NFL 24",
+"steam": "2140330",
+"anticheats": [
+"EA anticheat"
+],
+"status": "Denied"
+},
+{
+"name": "Suicide Squad: Kill the Justice League",
+"steam": "315210",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Helldivers 2",
+"steam": "553850",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Running"
+},
+{
+"name": "Dungeonborne",
+"steam": "2448970",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "SYNCED",
+"steam": "1722080",
+"anticheats": [
+"Proxima Game Anti Cheat",
+"Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "KurtzPel",
+"steam": "844870",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Supported"
+},
+{
+"name": "Hoard",
+"steam": "63000",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Veiled Experts",
+"steam": "1979310",
+"anticheats": [
+"BattlEye",
+"Nexon Game Security"
+],
+"status": "Running"
+},
+{
+"name": "Enlisted: Reinforced",
+"steam": "2051620",
+"anticheats": [
+"Easy Anti-Cheat",
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "Tree of Savior",
+"steam": "372000",
+"anticheats": [
+"VAC",
+"Nexon Game Security"
+],
+"status": "Supported"
+},
+{
+"name": "Wargame: European Escalation",
+"steam": "58610",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Mini Royale",
+"steam": "1657090",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "HAWKED",
+"steam": "1955960",
+"anticheats": [
+"MY.GAMES Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Out of Reach",
+"steam": "327090",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Frontlines: Fuel of War",
+"steam": "9460",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Broken"
+},
+{
+"name": "ARK: Survival Ascended",
+"steam": "2399830",
+"anticheats": [
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "Midair",
+"steam": "439370",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "ヘブンバーンズレッド (Heaven Burns Red)",
+"steam": "1973710",
+"anticheats": [
+"Anti-Cheat Expert",
+"Crackproof",
+"WFSDrv"
+],
+"status": "Running"
+},
+{
+"name": "Microworks",
+"steam": "1233410",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Smite 2",
+"steam": "2437170",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Elsword",
+"steam": "1011810",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Battle Teams 2",
+"steam": "1969870",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "SMASH LEGENDS",
+"steam": "1352080",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Running"
+},
+{
+"name": "Total War: SHOGUN 2",
+"steam": "34330",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Aura Kingdom",
+"steam": "268420",
+"anticheats": [
+"Unknown (Custom)"
+],
+"status": "Broken"
+},
+{
+"name": "EA SPORTS FC™ 25",
+"steam": "2669320",
+"anticheats": [
+"EA anticheat"
+],
+"status": "Denied"
+},
+{
+"name": "The Bornless",
+"steam": "2411280",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Sky Noon",
+"steam": "569530",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Combat Arms: the Classic",
+"steam": "1263550",
+"anticheats": [
+"BattlEye",
+"nProtect GameGuard"
+],
+"status": "Running"
+},
+{
+"name": "Soldier Front 2",
+"steam": "239660",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Once Human (ROW/INTL)",
+"steam": "2139460",
+"anticheats": [
+"NEAC Protect"
+],
+"status": "Running"
+},
+{
+"name": "KartRider: Drift",
+"steam": "1184140",
+"anticheats": [
+"Nexon Game Security"
+],
+"status": "Supported"
+},
+{
+"name": "Mecha BREAK",
+"steam": "2452280",
+"anticheats": [
+"Anti-Cheat Expert",
+"Seasun Protect"
+],
+"status": "Broken"
+},
+{
+"name": "Gray Zone Warfare",
+"steam": "2479810",
+"anticheats": [
+"Easy Anti-Cheat",
+"AnyBrain"
+],
+"status": "Running"
+},
+{
+"name": "ALARA Prime",
+"steam": "971700",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Sea of Thieves",
+"steam": "1172620",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Gigantic: Rampage Edition",
+"steam": "1924490",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Midair 2",
+"steam": "1469060",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "SYNDUALITY Echo of Ada",
+"steam": "1245480",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "World of Tanks",
+"steam": "1407200",
+"anticheats": [
+"Unknown (Custom)"
+],
+"status": "Running"
+},
+{
+"name": "Arena Breakout: Infinite",
+"steam": "2073620",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Denied"
+},
+{
+"name": "Marvel Rivals",
+"steam": "2767030",
+"anticheats": [
+"NetEase Game Security"
+],
+"status": "Running"
+},
+{
+"name": "Caliber",
+"steam": "307950",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Return Alive",
+"steam": "1759220",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Dungeon Stalkers",
+"steam": "2468730",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Running"
+},
+{
+"name": "MEGATON MUSASHI W: WIRED",
+"steam": "2450450",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Wuthering Waves",
+"steam": "3513350",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Running"
+},
+{
+"name": "Dota Underlords",
+"steam": "1046930",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Battle Crush",
+"steam": "2287920",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Beautiful Light",
+"steam": "1313230",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Dark and Darker",
+"steam": "2016590",
+"anticheats": [
+"IronShield",
+"Tavern"
+],
+"status": "Running"
+},
+{
+"name": "Killer Klowns from Outer Space: The Game",
+"steam": "1556100",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Call of Duty: Black Ops 6",
+"steam": "2933620",
+"anticheats": [
+"Treyarch Anti-Cheat",
+"RICOCHET"
+],
+"status": "Broken"
+},
+{
+"name": "Diabotical Rogue",
+"steam": "2805060",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "FragPunk",
+"steam": "2943650",
+"anticheats": [
+"NEAC Protect"
+],
+"status": "Running"
+},
+{
+"name": "BattleCore Arena",
+"steam": "689570",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Project L33T",
+"steam": "2803360",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Mabinogi",
+"steam": "212200",
+"anticheats": [
+"AhnLab HackShield",
+"Nexon Game Security"
+],
+"status": "Running"
+},
+{
+"name": "Rocket League®",
+"steam": "252950",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Strinova",
+"steam": "1282270",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "Momentum Mod",
+"steam": "1802710",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Dune: Awakening",
+"steam": "1172710",
+"anticheats": [
+"BattlEye"
+],
+"status": "Running"
+},
+{
+"name": "Throne and Liberty",
+"steam": "2429640",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "The Texas Chain Saw Massacre",
+"steam": "1433140",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Concord",
+"steam": "907630",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Denied"
+},
+{
+"name": "Bleeding Edge",
+"steam": "1189800",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Half-Life",
+"steam": "70",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Red Orchestra: Ostfront 41-45",
+"steam": "1200",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Lightning",
+"steam": "2137090",
+"anticheats": [
+"GuardenAC"
+],
+"status": "Broken"
+},
+{
+"name": "Natural Selection 2",
+"steam": "4920",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "N-Age",
+"steam": "1863390",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Red Faction®: Armageddon™",
+"steam": "55110",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "EA SPORTS™ WRC 24",
+"steam": "1849250",
+"anticheats": [
+"EA anticheat"
+],
+"status": "Denied"
+},
+{
+"name": "100% Orange Juice",
+"steam": "282800",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Snowbreak: Containment Zone (ROW/INTL)",
+"steam": "2668080",
+"anticheats": [
+"Seasun Protect"
+],
+"status": "Running"
+},
+{
+"name": "Decimated",
+"steam": "1354980",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Ricochet",
+"steam": "60",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Armello",
+"steam": "290340",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Witch It",
+"steam": "559650",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Exos Heroes",
+"steam": "1687760",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Perfect New World",
+"steam": "2359600",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "Warhammer 40,000: Speed Freeks",
+"steam": "2078450",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Dino D-Day",
+"steam": "70000",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Icarus Online",
+"steam": "921940",
+"anticheats": [
+"XIGNCODE3",
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Helldivers",
+"steam": "394510",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Avorion",
+"steam": "445220",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Spectre Divide",
+"steam": "2641470",
+"anticheats": [
+"BattlEye"
+],
+"status": "Denied"
+},
+{
+"name": "Stormgate",
+"steam": "2012510",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "R2BEAT (アールツービート)",
+"steam": "2340400",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "The Four Kings Casino and Slots",
+"steam": "260430",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Sniper Elite: Nazi Zombie Army",
+"steam": "227100",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Miscreated",
+"steam": "299740",
+"anticheats": [
+"VAC",
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Red Stone Online",
+"steam": "350700",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Ashfall",
+"steam": "2131860",
+"anticheats": [
+"NEAC Protect",
+"NetEase Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "Metal Slug: Awakening",
+"steam": "2963870",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "Gas Guzzlers Extreme",
+"steam": "243800",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Magicka",
+"steam": "42910",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Grey Goo",
+"steam": "290790",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Rappelz",
+"steam": "1342630",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Splitgate 2",
+"steam": "2918300",
+"anticheats": [
+"RedKard"
+],
+"status": "Running"
+},
+{
+"name": "XERA: Survival",
+"steam": "625340",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Monday Night Combat",
+"steam": "63209",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Tallowmere 2: Curse of the Kittens",
+"steam": "655740",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "ORION: Prelude",
+"steam": "104900",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Undecember",
+"steam": "1549250",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Running"
+},
+{
+"name": "Harry Potter: Quidditch Champions",
+"steam": "2878600",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Call of Duty: Advanced Warfare",
+"steam": "209650",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Royal Crown",
+"steam": "1094710",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Deadlock",
+"steam": "1422450",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Skull and Bones",
+"steam": "2853730",
+"anticheats": [
+"BattlEye"
+],
+"status": "Running"
+},
+{
+"name": "Critter Crunch",
+"steam": "61730",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Inversion™",
+"steam": "212410",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "NEOTOKYO",
+"steam": "244630",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "Warlords Awakening",
+"steam": "838330",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "3on3 FreeStyle",
+"steam": "624910",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "One Punch Man: A Hero Nobody Knows",
+"steam": "991560",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Ring of Elysium",
+"steam": "755790",
+"anticheats": [
+"TenProtect"
+],
+"status": "Broken"
+},
+{
+"name": "Test Drive Unlimited Solar Crown",
+"steam": "1249970",
+"anticheats": [
+"SARD"
+],
+"status": "Running"
+},
+{
+"name": "Resident Evil Resistance",
+"steam": "952070",
+"anticheats": [
+"Denuvo Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Synergy",
+"steam": "17520",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Revelations 2012",
+"steam": "201070",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Shot Online",
+"steam": "390090",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Medal of Honor: Airborne",
+"steam": "24840",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "Dual Universe",
+"steam": "2000270",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Blacklight: Retribution",
+"steam": "209870",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "ASTRA: Knights of Veda",
+"steam": "2484250",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "War Rock",
+"steam": "880850",
+"anticheats": [
+"AhnLab HackShield",
+"PunkBuster",
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Faaast Penguin",
+"steam": "2590150",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Umbrella Corps",
+"steam": "390340",
+"anticheats": [
+"Unknown (Custom)"
+],
+"status": "Broken"
+},
+{
+"name": "Sven Co-op",
+"steam": "225840",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Uncharted Waters Online",
+"steam": "890400",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Running"
+},
+{
+"name": "Bless Online",
+"steam": "681660",
+"anticheats": [
+"BattlEye",
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Last Oasis",
+"steam": "903950",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Infestation: The New Z",
+"steam": "555570",
+"anticheats": [
+"Fredaikis Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Ragnarok Online 2",
+"steam": "231060",
+"anticheats": [
+"AhnLab HackShield"
+],
+"status": "Broken"
+},
+{
+"name": "DUCKSIDE",
+"steam": "2682580",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Flippin Misfits",
+"steam": "1765520",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Roller Coaster Rampage",
+"steam": "209610",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "Rakion Chaos Force",
+"steam": "1218740",
+"anticheats": [
+"nProtect GameGuard",
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Diablo® IV",
+"steam": "2344520",
+"anticheats": [
+"Warden"
+],
+"status": "Running"
+},
+{
+"name": "Twin Saga",
+"steam": "454910",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Just Survive",
+"steam": "2394590",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Metin2",
+"steam": "550900",
+"anticheats": [
+"X-Trap",
+"nProtect GameGuard"
+],
+"status": "Running"
+},
+{
+"name": "Granado Espada",
+"steam": "319730",
+"anticheats": [
+"X-Trap"
+],
+"status": "Running"
+},
+{
+"name": "Granado Espada Japan",
+"steam": "1219160",
+"anticheats": [
+"X-Trap"
+],
+"status": "Broken"
+},
+{
+"name": "Tarisland",
+"steam": "3126180",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "Breachers",
+"steam": "1922010",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Denied"
+},
+{
+"name": "Line of Sight",
+"steam": "436520",
+"anticheats": [
+"VAC",
+"BattlEye"
+],
+"status": "Running"
+},
+{
+"name": "Fault: Elder Orb",
+"steam": "1106750",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "United 1944",
+"steam": "2152790",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Shadow Arena",
+"steam": "1226470",
+"anticheats": [
+"nProtect GameGuard",
+"XIGNCODE3",
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "M.A.R.S.",
+"steam": "314430",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Undawn",
+"steam": "1881700",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "Florensia",
+"steam": "384030",
+"anticheats": [
+"AhnLab HackShield"
+],
+"status": "Broken"
+},
+{
+"name": "Hero Plus",
+"steam": "747920",
+"anticheats": [
+"X-Trap",
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "NAKWON: LAST PARADISE",
+"steam": "2582960",
+"anticheats": [
+"Nexon Game Security"
+],
+"status": "Running"
+},
+{
+"name": "Half-Life: VR Mod",
+"steam": "1908720",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "Atlantica Europe",
+"steam": "1563940",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Far Cry 3",
+"steam": "220240",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "Audition Online",
+"steam": "349720",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Summum Aeterna",
+"steam": "1815230",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Wild Card Football",
+"steam": "1206370",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Scavengers",
+"steam": "1183940",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Video Horror Society",
+"steam": "611360",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Next Day: Survival",
+"steam": "519190",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Spirit Detective",
+"steam": "1872760",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Chimeraland",
+"steam": "1913730",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Broken"
+},
+{
+"name": "Infestation: Battle Royale",
+"steam": "1240290",
+"anticheats": [
+"Fredaikis Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Tales Runner",
+"steam": "328060",
+"anticheats": [
+"X-Trap",
+"AhnLab HackShield",
+"nProtect GameGuard",
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "F1® 24",
+"steam": "2488620",
+"anticheats": [
+"EA anticheat"
+],
+"status": "Denied"
+},
+{
+"name": "Insurgency: Modern Infantry Combat",
+"steam": "17700",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "Sentry：Obelisk Of Dawn",
+"steam": "1608220",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Dragomon Hunter",
+"steam": "356330",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Friends vs Friends",
+"steam": "1785150",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "The Culling",
+"steam": "437220",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Frozen Flame",
+"steam": "715400",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "RockShot",
+"steam": "653120",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Wayfinder",
+"steam": "1171690",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Kingshunt",
+"steam": "922620",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Nether: The Untold Chapter",
+"steam": "1010270",
+"anticheats": [
+"Fredaikis Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "GunZ 2: The Second Duel",
+"steam": "242720",
+"anticheats": [
+"X-Trap"
+],
+"status": "Broken"
+},
+{
+"name": "Metal Revolution",
+"steam": "994560",
+"anticheats": [
+"TenProtect"
+],
+"status": "Broken"
+},
+{
+"name": "BrainBread 2",
+"steam": "346330",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Prey",
+"steam": "480490",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "Ragnarok Online",
+"steam": "215100",
+"anticheats": [
+"Easy Anti-Cheat",
+"SARD"
+],
+"status": "Broken"
+},
+{
+"name": "Zyconix",
+"steam": "1658740",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Smelogs Playground",
+"steam": "1799530",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "A Twisted Path to Renown",
+"steam": "2304660",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "TRAHA Global",
+"steam": "2119490",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Life is Feudal: MMO",
+"steam": "700030",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Babylon's Fall",
+"steam": "889750",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Ashes of Creation Apocalypse",
+"steam": "1133430",
+"anticheats": [
+"Easy Anti-Cheat",
+"MY.GAMES Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "9Dragons",
+"steam": "390100",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Medal of Honor",
+"steam": "47790",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "Eternal Kingdom Battle Peak",
+"steam": "1175210",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "MotoGP™24",
+"steam": "2581700",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Starship Troopers: Extermination",
+"steam": "1268750",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Anarchy: Wolf's Law",
+"steam": "1133060",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Argo",
+"steam": "2562000",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "The Front",
+"steam": "2285150",
+"anticheats": [
+"Anti-Cheat Expert",
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "King Arthur: Legends Rise",
+"steam": "2279730",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Dread Hunger",
+"steam": "1464970",
+"anticheats": [
+"VAC",
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Record of Lodoss War Online",
+"steam": "949690",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Sword Art Online: Integral Factor",
+"steam": "2371630",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Project Sparrow",
+"steam": "1618710",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Super Dragon Ball Heroes World Mission",
+"steam": "798510",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Robocraft",
+"steam": "301520",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Shoot on Sight",
+"steam": "1204040",
+"anticheats": [
+"Easy Anti-Cheat",
+"AnyBrain"
+],
+"status": "Broken"
+},
+{
+"name": "Hell is Others",
+"steam": "2091110",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Sniper Ghost Warrior Contracts",
+"steam": "973580",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Fear the Night",
+"steam": "764920",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Revenblade",
+"steam": "2247220",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "War Robots: Frontiers",
+"steam": "1491000",
+"anticheats": [
+"MY.GAMES Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Legend of Ares",
+"steam": "536950",
+"anticheats": [
+"X-Trap",
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Tom Clancy's Ghost Recon: Future Soldier",
+"steam": "212630",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "Hide or Die",
+"steam": "731620",
+"anticheats": [
+"EQU8"
+],
+"status": "Broken"
+},
+{
+"name": "Conqueror's Blade",
+"steam": "835570",
+"anticheats": [
+"Mail.ru Anti-Cheat",
+"MY.GAMES Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Battlefleet Gothic: Armada",
+"steam": "363680",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "America's Army Proving Grounds",
+"steam": "203290",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "Alchemia Story",
+"steam": "2208530",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Running"
+},
+{
+"name": "Dreadnought",
+"steam": "835860",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Days of War",
+"steam": "454350",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Rise of Agon",
+"steam": "2077110",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Cabal Online",
+"steam": "253490",
+"anticheats": [
+"X-Trap",
+"nProtect GameGuard",
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Anarchy Legends Online",
+"steam": "1587100",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "The Crew™ Motorfest",
+"steam": "2698940",
+"anticheats": [
+"BattlEye"
+],
+"status": "Supported"
+},
+{
+"name": "Sniper Elite 4",
+"steam": "312660",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Metro Conflict: The Origin",
+"steam": "662320",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Space Junkies",
+"steam": "647590",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Last Year",
+"steam": "1195460",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Rend",
+"steam": "547860",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Legends of Aria",
+"steam": "594770",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Outlaws of the Old West",
+"steam": "840800",
+"anticheats": [
+"BattlEye"
+],
+"status": "Running"
+},
+{
+"name": "Dominance",
+"steam": "2175780",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Project Zero",
+"steam": "2257910",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Joint Operations: Combined Arms Gold",
+"steam": "32770",
+"anticheats": [
+"Punkbuster"
+],
+"status": "Broken"
+},
+{
+"name": "MARVEL End Time Arena",
+"steam": "790650",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Overstep",
+"steam": "1008580",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Zula Global",
+"steam": "747610",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "IL-2 Sturmovik: Cliffs of Dover",
+"steam": "63950",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "TEMPEST: Tower of Probatio",
+"steam": "2552340",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Toram Online",
+"steam": "1827180",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Running"
+},
+{
+"name": "Project F",
+"steam": "1419640",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "HIS (Heroes In the Sky)",
+"steam": "342570",
+"anticheats": [
+"X-Trap"
+],
+"status": "Broken"
+},
+{
+"name": "Flea Madness",
+"steam": "1025560",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Trimurti Online",
+"steam": "2083800",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Sweet Time",
+"steam": "2730410",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Monster Jam™ Showdown",
+"steam": "2350280",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Summoners War: Chronicles",
+"steam": "2167580",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "America's Army 3",
+"steam": "13140",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Broken"
+},
+{
+"name": "Eternal Magic",
+"steam": "1153700",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Midnight Guns",
+"steam": "1877600",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Gemini: Binary Conflict",
+"steam": "1293660",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "MilkChoco",
+"steam": "871120",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Uncharted Waters Origin",
+"steam": "1574360",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Running"
+},
+{
+"name": "Assassin's Creed IV: Black Flag",
+"steam": "242050",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "Ragnarok: The Lost Memories",
+"steam": "1379750",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Elyon",
+"steam": "1695900",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Zone4",
+"steam": "518660",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Ragnarok RE:START",
+"steam": "660330",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Decksplash",
+"steam": "499470",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Robocraft Royale",
+"steam": "804810",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "LEAP",
+"steam": "1867420",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Warhammer 40,000: Eternal Crusade",
+"steam": "375230",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Continent of the Ninth Seal",
+"steam": "212390",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "ArcheAge",
+"steam": "304030",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Worlds Adrift",
+"steam": "322780",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "The Riflemen",
+"steam": "2022330",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "EA SPORTS™ Madden NFL 26",
+"steam": "3230400",
+"anticheats": [
+"EA anticheat"
+],
+"status": "Denied"
+},
+{
+"name": "Exoborne",
+"steam": "2705130",
+"anticheats": [
+"Easy Anti-Cheat",
+"AnyBrain"
+],
+"status": "Denied"
+},
+{
+"name": "JoJo's Bizarre Adventure: All-Star Battle R",
+"steam": "1372110",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "MU Legend",
+"steam": "874240",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Kingdom: The Blood",
+"steam": "2258870",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Ghost in the Shell: Stand Alone Complex - First Assault Online",
+"steam": "369200",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Soul Dossier",
+"steam": "1383550",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Ragnarok Begins",
+"steam": "2176770",
+"anticheats": [
+"SARD"
+],
+"status": "Broken"
+},
+{
+"name": "DRAGON BALL: Sparking! ZERO",
+"steam": "1790600",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Return to Castle Wolfenstein",
+"steam": "9010",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "War Robots",
+"steam": "767560",
+"anticheats": [
+"Mail.ru Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Run and Fire",
+"steam": "360760",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Avabel Online",
+"steam": "1130700",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Running"
+},
+{
+"name": "Crowz",
+"steam": "1692070",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Stay Out",
+"steam": "1180380",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Mortal Online 2",
+"steam": "1725420",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Crucible",
+"steam": "1057240",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Propnight",
+"steam": "1743770",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "AVA: Dog Tag",
+"steam": "815940",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Wild Assault",
+"steam": "2827230",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "SWORD ART ONLINE Fractured Daydream",
+"steam": "1858630",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Loadout",
+"steam": "208090",
+"anticheats": [
+"Valve Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Riders of Icarus",
+"steam": "442080",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Freestyle 2: Street Basketball",
+"steam": "339610",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "CityBattle | Virtual_Earth",
+"steam": "876460",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Fear the Wolves",
+"steam": "819500",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Sunset World Online",
+"steam": "1903270",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Dreadlands",
+"steam": "1054690",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Legends of Kailrate",
+"steam": "3126860",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Survarium",
+"steam": "355840",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "MotoGP™25",
+"steam": "3077390",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Total Lockdown",
+"steam": "1121710",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Left 4 Dead",
+"steam": "500",
+"anticheats": [
+"Valve Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Dark Eden",
+"steam": "548290",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Dragon Nest",
+"steam": "11610",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Running"
+},
+{
+"name": "Vegas Infinite by PokerStars",
+"steam": "886250",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Beasts of Bermuda",
+"steam": "719890",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Ascendant.com",
+"steam": "1803110",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "SOS",
+"steam": "619080",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Vigor",
+"steam": "2818260",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Memories of Mars",
+"steam": "644290",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Mobile Suit Gundam Battle Operation 2",
+"steam": "1367080",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Onward",
+"steam": "496240",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Islands of Nyne: Battle Royale",
+"steam": "728540",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "MapleStory 2",
+"steam": "560380",
+"anticheats": [
+"Nexon Game Security"
+],
+"status": "Broken"
+},
+{
+"name": "Contenders: Arena",
+"steam": "2445510",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Squad 44",
+"steam": "736220",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Wickland",
+"steam": "321260",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "iStorm",
+"steam": "610940",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Reign of Kings",
+"steam": "344760",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Sniper Elite 5",
+"steam": "1029690",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Resident Evil 6",
+"steam": "221040",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Dark Eden Origin",
+"steam": "658510",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Assassin's Creed: Brotherhood",
+"steam": "48190",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "FreestyleFootball R",
+"steam": "1826980",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Running"
+},
+{
+"name": "Night of the Dead",
+"steam": "1377380",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Dysterra",
+"steam": "1562450",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Heat",
+"steam": "656240",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "The Cycle: Frontier",
+"steam": "1600360",
+"anticheats": [
+"BattlEye"
+],
+"status": "Running"
+},
+{
+"name": "Space Gears",
+"steam": "2302770",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Hero Siege",
+"steam": "269210",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Moonbase Alpha",
+"steam": "39000",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "Karos",
+"steam": "337410",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "BlasterBeat",
+"steam": "1575680",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Warcos",
+"steam": "1769930",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "CODE2040",
+"steam": "993870",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Raise Your Tribe",
+"steam": "1908530",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "ROSE Online",
+"steam": "215120",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Running"
+},
+{
+"name": "Far Cry",
+"steam": "13520",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "Astellia",
+"steam": "1185560",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Blockade",
+"steam": "2393590",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Deathgarden: Bloodharvest",
+"steam": "555440",
+"anticheats": [
+"BattlEye"
+],
+"status": "Broken"
+},
+{
+"name": "Robocraft 2",
+"steam": "1991140",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Dystopia",
+"steam": "912630",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Far Cry 2",
+"steam": "19900",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "Tree of Life",
+"steam": "361800",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Longvinter",
+"steam": "1635450",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "New Gundam Breaker",
+"steam": "738530",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Reign Of Dwarf",
+"steam": "1442910",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "shaiya",
+"steam": "2690190",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "Evolve Stage 2",
+"steam": "273350",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Extreme Soccer",
+"steam": "1477730",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Tom Clancy's Rainbow Six: Lockdown",
+"steam": "15000",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Broken"
+},
+{
+"name": "SoulSaverOnline",
+"steam": "542590",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Pax Dei",
+"steam": "1995520",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "KAL Online",
+"steam": "475100",
+"anticheats": [
+"X-Trap"
+],
+"status": "Broken"
+},
+{
+"name": "Project ETHOS",
+"steam": "2139090",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Assassin's Creed: Revelations",
+"steam": "201870",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Broken"
+},
+{
+"name": "Fractured Lands",
+"steam": "751240",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Marathon",
+"steam": "3065800",
+"anticheats": [
+"BattlEye"
+],
+"status": "Denied"
+},
+{
+"name": "Phantasy Star Online 2 New Genesis",
+"steam": "1056640",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Running"
+},
+{
+"name": "Fortress Forever",
+"steam": "253530",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "Tom Clancy's Rainbow Six: Vegas",
+"steam": "13540",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "Sparkball",
+"steam": "672890",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Jabroni Brawl: Episode 3",
+"steam": "869480",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Exoprimal",
+"steam": "1286320",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Bots",
+"steam": "1184780",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Need for Speed: Undercover",
+"steam": "17430",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "WolfTeam: Reboot",
+"steam": "2170050",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "LawBreakers",
+"steam": "350280",
+"anticheats": [
+"Nexon Game Security"
+],
+"status": "Broken"
+},
+{
+"name": "New World: Aeternum",
+"steam": "1724660",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Project Xandata",
+"steam": "1401240",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Counter-Strike Nexon",
+"steam": "273110",
+"anticheats": [
+"Nexon Game Security"
+],
+"status": "Broken"
+},
+{
+"name": "Outpost: Infinity Siege",
+"steam": "1566690",
+"anticheats": [
+"SCUE4"
+],
+"status": "Running"
+},
+{
+"name": "V Rising",
+"steam": "1604030",
+"anticheats": [
+"Valve Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Navy Field 2 : Conqueror of the Ocean",
+"steam": "338540",
+"anticheats": [
+"nProtect GameGuard"
+],
+"status": "Broken"
+},
+{
+"name": "Scions of Fate",
+"steam": "747970",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Intershelter",
+"steam": "520530",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Killsquad",
+"steam": "910490",
+"anticheats": [
+"SCUE4"
+],
+"status": "Running"
+},
+{
+"name": "Phasmophobia",
+"steam": "739630",
+"anticheats": [
+"GuardingPearSoftware's Anti Cheat Pro"
+],
+"status": "Running"
+},
+{
+"name": "Aimlabs",
+"steam": "714010",
+"anticheats": [
+"EQU8"
+],
+"status": "Running"
+},
+{
+"name": "Warhammer 40,000: Darktide",
+"steam": "1361210",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Senran Kagura Peach Beach Splash",
+"steam": "696170",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "A.V.A. Alliance of Valiant Arms",
+"steam": "102700",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Lost Region",
+"steam": "331810",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Lifeless",
+"steam": "419520",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Romance of the Three Kingdoms: The Legend of CaoCao",
+"steam": "927130",
+"anticheats": [
+"Nexon Game Security"
+],
+"status": "Broken"
+},
+{
+"name": "Legacy: Steel & Sorcery",
+"steam": "2344320",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "Counter-Strike",
+"steam": "10",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Vicious Circle",
+"steam": "556440",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Kritika Global",
+"steam": "2088180",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Wolfenstein: Enemy Territory",
+"steam": "1873030",
+"anticheats": [
+"PunkBuster"
+],
+"status": "Running"
+},
+{
+"name": "R.U.S.E.™",
+"steam": "21979",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "Offensive Combat: Redux!",
+"steam": "622170",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Continent of the Ninth Golden",
+"steam": "2356310",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "INAZUMA ELEVEN: Victory Road",
+"steam": "2799860",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Counter-Strike: Condition Zero",
+"steam": "80",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Out of Reach: Treasure Royale",
+"steam": "867400",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Velev",
+"steam": "2790930",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Clickr",
+"steam": "45500",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "TERA",
+"steam": "212740",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "ArcheAge Chronicles",
+"steam": "3218230",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Qanga",
+"steam": "1648190",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Khan: Absolute Power",
+"steam": "451130",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "Astellia Royal",
+"steam": "1524370",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "Radikal Fighters",
+"steam": "2073930",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Voids Adrift",
+"steam": "1123160",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Off The Grid",
+"steam": "3659280",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Breach",
+"steam": "421650",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "Hyper Universe",
+"steam": "591530",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Broken"
+},
+{
+"name": "P.A.S.",
+"steam": "805110",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Stormdivers",
+"steam": "883120",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Project CARS 2",
+"steam": "378860",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Might & Magic: Clash of Heroes",
+"steam": "61700",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Meet Your Maker",
+"steam": "1194810",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Shattered Horizon",
+"steam": "18110",
+"anticheats": [
+"VAC"
+],
+"status": "Broken"
+},
+{
+"name": "Solo Leveling: Arise OVERDRIVE",
+"steam": "2373990",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Running"
+},
+{
+"name": "Blindfire",
+"steam": "2854480",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Supported"
+},
+{
+"name": "H-Hour: World's Elite",
+"steam": "293220",
+"anticheats": [
+"VAC"
+],
+"status": "Running"
+},
+{
+"name": "Dragon Saga",
+"steam": "381990",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Sword Art Online Last Recollection",
+"steam": "1566880",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Warhaven",
+"steam": "2107670",
+"anticheats": [
+"Nexon Game Security"
+],
+"status": "Running"
+},
+{
+"name": "WTF: Waifu Tactical Force",
+"steam": "2353050",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "GRID Autosport",
+"steam": "255220",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "NBA 2K25",
+"steam": "2878980",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Elden Ring: Nightreign",
+"steam": "2622380",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Steel Hunters",
+"steam": "1691340",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Reverse: 1999",
+"steam": "3092660",
+"anticheats": [
+"Anti-Cheat Expert"
+],
+"status": "Running"
+},
+{
+"name": "Day of Dragons",
+"steam": "1088090",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Sonic Rumble",
+"steam": "2951690",
+"anticheats": [
+"Uncheater"
+],
+"status": "Broken"
+},
+{
+"name": "Black Stigma",
+"steam": "1277530",
+"anticheats": [
+"Cheat Blocker"
+],
+"status": "Broken"
+},
+{
+"name": "Umamusume: Pretty Derby",
+"steam": "3224770",
+"anticheats": [
+"CrackProof"
+],
+"status": "Running"
+},
+{
+"name": "DiRT Rally",
+"steam": "310560",
+"anticheats": [
+"VAC"
+],
+"status": "Supported"
+},
+{
+"name": "Hide & Hold Out - H2o",
+"steam": "377140",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Battlefield 6",
+"steam": "2807960",
+"anticheats": [
+"EA anticheat"
+],
+"status": "Denied"
+},
+{
+"name": "Ghost of Tsushima Director's Cut",
+"steam": "2215430",
+"anticheats": [
+"PlayStation Overlay"
+],
+"status": "Denied"
+},
+{
+"name": "Tom Clancy's Rainbow Six® Siege X",
+"steam": "359550",
+"anticheats": [
+"FairFight",
+"BattlEye",
+"R6 ShieldGuard"
+],
+"status": "Denied"
+},
+{
+"name": "Dragonheir: Silent Gods",
+"steam": "2203070",
+"anticheats": [
+"Proxima Game Anti Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "The Quinfall",
+"steam": "2294660",
+"anticheats": [
+"XIGNCODE3"
+],
+"status": "Running"
+},
+{
+"name": "Redmatch 2",
+"steam": "1280770",
+"anticheats": [
+"Enforcer"
+],
+"status": "Running"
+},
+{
+"name": "Blade & Soul Heroes",
+"steam": "3616890",
+"anticheats": [
+"Anti-Cheat Solution"
+],
+"status": "Broken"
+},
+{
+"name": "Blue Archive",
+"steam": "3557620",
+"anticheats": [
+"Nexon Game Security"
+],
+"status": "Running"
+},
+{
+"name": "Midnight Murder Club",
+"steam": "2698870",
+"anticheats": [
+"PlayStation Overlay"
+],
+"status": "Broken"
+},
+{
+"name": "Dungeon Done",
+"steam": "2939830",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+},
+{
+"name": "Freedom Wars Remastered",
+"steam": "3004100",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "No More Room In Hell 2",
+"steam": "292000",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Running"
+},
+{
+"name": "Call of Duty: Black Ops 7",
+"steam": "3606480",
+"anticheats": [
+"Ricochet"
+],
+"status": "Denied"
+},
+{
+"name": "Panzer Arena: Coop",
+"steam": "763420",
+"anticheats": [
+"Easy Anti-Cheat"
+],
+"status": "Broken"
+}
+]
+}

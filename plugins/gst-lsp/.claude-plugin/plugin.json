@@ -1,0 +1,11 @@
+{
+  "name": "gst-lsp",
+  "displayName": "Game Study Toolkit - language servers",
+  "version": "0.1.0",
+  "description": "Optional LSP servers (csharp-ls, clangd, LuaLS) configured for decompiled output: diagnostics off, generous timeouts. Enable per study when symbol navigation beats gst q.",
+  "author": {
+    "name": "Luis F K Andriolo"
+  },
+  "license": "MIT",
+  "defaultEnabled": false
+}

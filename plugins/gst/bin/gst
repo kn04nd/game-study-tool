@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# gst shim for Claude Code's Bash tool (plugin bin/ is on its PATH).
+# Prefers the uv-installed gst.exe; falls back to running the CLI from this checkout with uv.
+for candidate in "${GST_EXE:-}" "$HOME/.local/bin/gst.exe" "$HOME/.local/bin/gst"; do
+  if [ -n "$candidate" ] && [ -f "$candidate" ]; then
+    exec "$candidate" "$@"
+  fi
+done
+here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+root="$(cd "$here/../../.." && pwd)"
+unset VIRTUAL_ENV
+exec uv run --quiet --python 3.13 --project "$root" python -X utf8 -m gst "$@"

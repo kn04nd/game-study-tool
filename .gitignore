@@ -1,0 +1,63 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+uv.lock
+
+# Local state / secrets
+.env
+*.local.json
+.claude/settings.local.json
+
+# Defence in depth: derived game material never belongs here (it lives in GS_HOME, e.g. D:\game-study).
+# Directory patterns are root-anchored so source packages such as src/gst/assets/ stay tracked.
+# scripts/check_no_derived.py (pre-commit + tests) is the second line of defence.
+/decomp/
+/assets/
+/dumps/
+/traces/
+/sandbox/
+*.pak
+*.utoc
+*.ucas
+*.assets
+*.resS
+*.bundle
+*.uasset
+*.uexp
+*.rdc
+*.pml
+*.dmp
+*.run
+*.gzf
+*.rep
+uas.log
+
+# Sample game build output
+samples/sample-game/build/
+samples/sample-game/**/bin/
+samples/sample-game/**/obj/
+
+# plugin eval runs
+/plugins/gst/evals/results/
+
+# gst: derived study material and local runs (workspaces live in GS_HOME, never here)
+*.gs.json
+!tests/fixtures/**/*.gs.json
+inventory.jsonl
+/jobs/
+/analysis/
+/index/
+/logs/
+.partial/
+*.db-wal
+*.db-shm
+.ruff_cache/
+.mypy_cache/
+
+# agent worktrees
+.claude/worktrees/

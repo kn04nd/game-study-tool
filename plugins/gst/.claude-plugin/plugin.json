@@ -1,0 +1,27 @@
+{
+  "name": "gst",
+  "displayName": "game-study-tool (gst)",
+  "version": "0.1.0",
+  "description": "Study how a game you own is made through reverse engineering: engine recon, decompilation, asset and format extraction, runtime observation, rendering analysis and an ARCHITECTURE.md report. Driven by the gst CLI; offline, local-only, never bypasses anti-cheat or DRM.",
+  "author": {
+    "name": "Luis F K Andriolo"
+  },
+  "license": "MIT",
+  "keywords": [
+    "reverse-engineering",
+    "game-study",
+    "decompilation",
+    "ghidra",
+    "unity",
+    "unreal",
+    "godot"
+  ],
+  "userConfig": {
+    "gs_home": {
+      "type": "directory",
+      "title": "Study root (GS_HOME)",
+      "description": "Folder where per-game study workspaces live. Must be outside any git repository.",
+      "default": "D:/game-study"
+    }
+  }
+}

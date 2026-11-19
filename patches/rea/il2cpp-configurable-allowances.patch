@@ -1,0 +1,878 @@
+gst patch for REA (rea-agents 6.9.0, MIT, Copyright (c) 2026 morluto, https://github.com/morluto/rea)
+
+feat(il2cpp): make the metadata input and complete-report allowances configurable
+
+inspect_il2cpp_metadata refuses a linked binary_path report above the fixed
+64 MiB complete-report allowance (OUTPUT_BYTES) and metadata files above the
+fixed 256 MiB input allowance (INPUT_BYTES). A Unity 6000.3 game with a
+160 MB GameAssembly.dll and a 32 MB global-metadata.dat (metadata v39) cannot
+be linked at all under those constants.
+
+- max_input_bytes / max_output_bytes request fields (MCP schema, CLI
+  --max-input-bytes / --max-output-bytes), 1..2 GiB.
+- Runtime settings il2cpp.max_input_bytes / il2cpp.max_output_bytes
+  (update_analysis_settings) and launch settings REA_IL2CPP_MAX_INPUT_BYTES /
+  REA_IL2CPP_MAX_OUTPUT_BYTES; request > runtime > launch > default.
+- Defaults unchanged (256 MiB, 64 MiB); invalid settings are refused, never
+  replaced by the default.
+- Refusals name the effective allowance, its source and how to raise it; the
+  1 GiB binary_path allowance stays fixed.
+
+Apply on the tag rea-agents-6.9.0 with `git apply` (see docs/tools/rea.md).
+This patch is distributed under REA's MIT license.
+
+ docs/design/rea-limit-inventory.md            |   2 +
+ docs/il2cpp-metadata.md                       |  14 +-
+ .../SetupRegistrationEnvironment.ts           |   2 +
+ .../il2cpp/Il2cppMetadataService.ts           |   2 +-
+ src/cli/il2cppCommands.ts                     |  14 ++
+ src/config/analysisSettings.ts                |   6 +
+ src/config/il2cppMetadataAdmission.ts         | 101 ++++++++++++
+ src/domain/analysisResourceLimits.ts          |  16 ++
+ src/domain/analysisSettingDefinitions.ts      |  28 ++++
+ src/domain/analysisSettings.ts                |   2 +
+ src/domain/il2cpp/il2cppMetadata.ts           |  24 +++
+ src/il2cpp/Il2cppMetadataProvider.ts          | 117 ++++++++++----
+ tests/acceptance/il2cppMetadataCli.test.ts    |  76 +++++++++
+ .../boundary/cli/artifactInputLimits.test.ts  |   2 +-
+ .../il2cpp/il2cppMetadataAdmission.test.ts    | 148 ++++++++++++++++++
+ 15 files changed, 517 insertions(+), 37 deletions(-)
+ create mode 100644 src/config/il2cppMetadataAdmission.ts
+ create mode 100644 tests/boundary/il2cpp/il2cppMetadataAdmission.test.ts
+
+diff --git a/docs/design/rea-limit-inventory.md b/docs/design/rea-limit-inventory.md
+index 3721e75f8..87e849b58 100644
+--- a/docs/design/rea-limit-inventory.md
++++ b/docs/design/rea-limit-inventory.md
+@@ -105,6 +105,8 @@ reports the current value, source, and range. A rejected Windows ChangeTime laun
+ | `REA_JEB_MCP_TIMEOUT_MS`                   | `src/jeb/JebMcpConnection.ts`               | 60000 (MCP SDK default) |     1 | 2147483647 | discovery and each tools/call, from the accepted operation snapshot                                          | `update_mode: "runtime"`, `pending_restart: false`               |
+ | `REA_KUNA_PROJECT_TIMEOUT_MS`              | `src/kuna/KunaConfiguration.ts`             |                 1800000 |     1 | 2147483647 | each project export and whole-program scan, from the accepted operation snapshot                             | `update_mode: "runtime"`, `pending_restart: false`               |
+ | `REA_KUNA_TIMEOUT_MS`                      | `src/kuna/KunaConfiguration.ts`             |                  120000 |     1 | 2147483647 | each function decompile, from the accepted operation snapshot                                                | `update_mode: "runtime"`, `pending_restart: false`               |
++| `REA_IL2CPP_MAX_INPUT_BYTES`               | `src/config/il2cppMetadataAdmission.ts`     |               268435456 |     1 | 2147483648 | each IL2CPP metadata read, unless the call passes `max_input_bytes`; otherwise the operation snapshot        | `update_mode: "runtime"`, `pending_restart: false`               |
++| `REA_IL2CPP_MAX_OUTPUT_BYTES`              | `src/config/il2cppMetadataAdmission.ts`     |                67108864 |     1 | 2147483648 | each IL2CPP complete report, unless the call passes `max_output_bytes`; otherwise the operation snapshot     | `update_mode: "runtime"`, `pending_restart: false`               |
+ | `REA_PWNTOOLS_MAX_INPUT_BYTES`             | `src/native/pwntools/PwntoolsInputLimit.ts` |                33554432 |     1 | 1073741824 | each pwntools decode, unless the call passes `producer_limits.input_bytes`; otherwise the operation snapshot | `update_mode: "runtime"`, `pending_restart: false`               |
+ | `REA_WINDOWS_CHANGE_TIME_DRIFT_MS`         | `src/config/windowsChangeTimeSettle.ts`     |                    2000 |     1 |      60000 | each ChangeTime observation, from the accepted operation snapshot                                            | `update_mode: "runtime"`; invalid launch omits `pending_restart` |
+ | `REA_WINDOWS_CHANGE_TIME_SETTLE_POLL_MS`   | `src/config/windowsChangeTimeSettle.ts`     |                      25 |     1 |       1000 | each ChangeTime observation, from the accepted operation snapshot                                            | `update_mode: "runtime"`; invalid launch omits `pending_restart` |
+diff --git a/docs/il2cpp-metadata.md b/docs/il2cpp-metadata.md
+index 5c0aff16d..7a9d66fcd 100644
+--- a/docs/il2cpp-metadata.md
++++ b/docs/il2cpp-metadata.md
+@@ -549,8 +549,18 @@ relationships were decoded. A file that changes during reading and a cancelled
+ request keep distinct errors. Decode checkpoints yield for cancellation, and
+ close waits for active work. Each reader admits one inspection at a time.
+ Resource guards bound the selected file to 256 MiB and the encoded complete
+-report to 64 MiB, checking row counts before allocation and JSON/UTF-8/base64 expansion during
+-decoding, before serialization. Names and identical literal spans are decoded
++report to 64 MiB by default, checking row counts before allocation and JSON/UTF-8/base64 expansion during
++decoding, before serialization. A linked `binary_path` report of a large game
++can exceed 64 MiB: raise the report budget with `max_output_bytes`
++(`--max-output-bytes`), the metadata file budget with `max_input_bytes`
++(`--max-input-bytes`), the runtime settings `il2cpp.max_output_bytes` and
++`il2cpp.max_input_bytes` with `update_analysis_settings`, or the launch
++settings `REA_IL2CPP_MAX_OUTPUT_BYTES` and `REA_IL2CPP_MAX_INPUT_BYTES`, each
++up to 2 GiB. A request value wins over the runtime setting, which wins over
++the launch setting. Refusals name the effective allowance and its source. A
++report above Node's single-string ceiling (about 512 Mi UTF-16 code units)
++still cannot be delivered as one JSON document. The 1 GiB `binary_path`
++allowance is fixed. Names and identical literal spans are decoded
+ once within one stable file snapshot; no filesystem results are cached across
+ inspections. Ownership assignment also yields to cancellation. MCP also applies its
+ [response transport budget](reference/mcp-contracts.md); a complete report within the
+diff --git a/src/application/SetupRegistrationEnvironment.ts b/src/application/SetupRegistrationEnvironment.ts
+index b9356dd2f..bf8b97792 100644
+--- a/src/application/SetupRegistrationEnvironment.ts
++++ b/src/application/SetupRegistrationEnvironment.ts
+@@ -32,6 +32,8 @@ const SELECTED_REGISTRATION_SETTINGS = [
+   "REA_BROWSER_NO_SANDBOX",
+   "REA_PWNTOOLS_PYTHON",
+   "REA_PWNTOOLS_MAX_INPUT_BYTES",
++  "REA_IL2CPP_MAX_INPUT_BYTES",
++  "REA_IL2CPP_MAX_OUTPUT_BYTES",
+   "REA_PWNDBG_GDB",
+   "REA_PWNDBG_GDBINIT",
+   "REA_PWNDBG_VENV_PATH",
+diff --git a/src/application/il2cpp/Il2cppMetadataService.ts b/src/application/il2cpp/Il2cppMetadataService.ts
+index c77bb2410..532ff153b 100644
+--- a/src/application/il2cpp/Il2cppMetadataService.ts
++++ b/src/application/il2cpp/Il2cppMetadataService.ts
+@@ -196,7 +196,7 @@ export class Il2cppMetadataService {
+             Object.entries(providerInput).filter(
+               ([, value]) => value !== undefined,
+             ),
+-          ) as Record<string, string | boolean>),
++          ) as Record<string, string | boolean | number>),
+           ...(output === undefined
+             ? {}
+             : {
+diff --git a/src/cli/il2cppCommands.ts b/src/cli/il2cppCommands.ts
+index 0a1a36ed5..2128bce2f 100644
+--- a/src/cli/il2cppCommands.ts
++++ b/src/cli/il2cppCommands.ts
+@@ -13,6 +13,8 @@ import {
+   analysisEvidenceDeliveryOptions,
+   deliverCliAnalysisEvidence,
+ } from "./analysisEvidenceDelivery.js";
++import { cliDecimalField } from "./options.js";
++import { inspectIl2cppMetadataInputSchema } from "../domain/il2cpp/il2cppMetadata.js";
+ 
+ /** CLI and MCP share inspection; one-shot summaries preserve a complete Evidence file. */
+ export const registerIl2cppCommands = (
+@@ -57,6 +59,12 @@ export const registerIl2cppCommands = (
+           .describe(
+             "Address Ghidra loads the binary at; seeds are seed-base + RVA (default: Ghidra's loader default, 0x100000 for an ELF linked at 0, else the link base)",
+           ),
++        maxInputBytes: cliDecimalField(
++          inspectIl2cppMetadataInputSchema.shape.max_input_bytes,
++        ),
++        maxOutputBytes: cliDecimalField(
++          inspectIl2cppMetadataInputSchema.shape.max_output_bytes,
++        ),
+       })
+       .meta({
+         dependentRequired: {
+@@ -92,6 +100,12 @@ export const registerIl2cppCommands = (
+                 ...(options.genericInstances === true
+                   ? { generic_instances: true }
+                   : {}),
++                ...(options.maxInputBytes === undefined
++                  ? {}
++                  : { max_input_bytes: options.maxInputBytes }),
++                ...(options.maxOutputBytes === undefined
++                  ? {}
++                  : { max_output_bytes: options.maxOutputBytes }),
+               };
+               if (options.ghidraSeeds !== undefined)
+                 return service.inspectWithGhidraSeeds(
+diff --git a/src/config/analysisSettings.ts b/src/config/analysisSettings.ts
+index edb1fb2f3..d4434a909 100644
+--- a/src/config/analysisSettings.ts
++++ b/src/config/analysisSettings.ts
+@@ -31,6 +31,10 @@ import {
+   windowsChangeTimeSettlePollMsSchema,
+ } from "./windowsChangeTimeSettle.js";
+ import { pwntoolsInputBytesSchema } from "../native/pwntools/PwntoolsInputLimit.js";
++import {
++  il2cppMaxInputBytesSchema,
++  il2cppMaxOutputBytesSchema,
++} from "./il2cppMetadataAdmission.js";
+ const environmentSchemas: Readonly<Record<string, z.ZodType<number, string>>> =
+   {
+     REA_ASAR_MAX_HEADER_BYTES: asarMaxHeaderBytesSchema,
+@@ -55,6 +59,8 @@ const environmentSchemas: Readonly<Record<string, z.ZodType<number, string>>> =
+     REA_KUNA_PROJECT_TIMEOUT_MS: providerStartupTimeoutSchema,
+     REA_KUNA_TIMEOUT_MS: providerStartupTimeoutSchema,
+     REA_PWNTOOLS_MAX_INPUT_BYTES: pwntoolsInputBytesSchema,
++    REA_IL2CPP_MAX_INPUT_BYTES: il2cppMaxInputBytesSchema,
++    REA_IL2CPP_MAX_OUTPUT_BYTES: il2cppMaxOutputBytesSchema,
+     REA_WINDOWS_CHANGE_TIME_DRIFT_MS: windowsChangeTimeDriftMsSchema,
+     REA_WINDOWS_CHANGE_TIME_SETTLE_POLL_MS: windowsChangeTimeSettlePollMsSchema,
+     REA_WINDOWS_CHANGE_TIME_SETTLE_MAX_POLLS:
+diff --git a/src/config/il2cppMetadataAdmission.ts b/src/config/il2cppMetadataAdmission.ts
+new file mode 100644
+index 000000000..3e56d4225
+--- /dev/null
++++ b/src/config/il2cppMetadataAdmission.ts
+@@ -0,0 +1,101 @@
++import { z } from "zod";
++import {
++  DEFAULT_IL2CPP_MAX_INPUT_BYTES,
++  DEFAULT_IL2CPP_MAX_OUTPUT_BYTES,
++  MAXIMUM_IL2CPP_MAX_INPUT_BYTES,
++  MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES,
++} from "../domain/analysisResourceLimits.js";
++import { currentAnalysisSettingOverride } from "../domain/analysisOperationSnapshot.js";
++import { ConfigurationError } from "../domain/configurationErrors.js";
++import type { Il2cppMetadataProviderInput } from "../domain/il2cpp/il2cppMetadata.js";
++import { err, ok, type Result } from "../domain/result.js";
++
++export const IL2CPP_INPUT_ADMISSION_SETTING = "REA_IL2CPP_MAX_INPUT_BYTES";
++export const IL2CPP_OUTPUT_ADMISSION_SETTING = "REA_IL2CPP_MAX_OUTPUT_BYTES";
++
++/** One IL2CPP byte allowance and who selected it. */
++export interface Il2cppAdmission {
++  readonly maximumBytes: number;
++  readonly source: "default" | "setting" | "runtime" | "request";
++}
++
++const allowance = (
++  setting: string,
++  defaultBytes: number,
++  maximumBytes: number,
++) => {
++  const constraint = `${setting} must be a positive decimal safe integer in bytes, at most ${String(maximumBytes)}; the default is ${String(defaultBytes)} bytes.`;
++  const schema = z
++    .string()
++    .regex(/^[1-9]\d*$/u, { error: constraint })
++    .transform(Number)
++    .pipe(z.number().int().min(1).max(maximumBytes));
++  /**
++   * A request value wins, then an accepted runtime override; an invalid
++   * setting is refused, never replaced by the default.
++   */
++  const resolve = (
++    requested?: number,
++    runtime?: number,
++    value?: string,
++  ): Result<Il2cppAdmission, ConfigurationError> => {
++    if (requested !== undefined)
++      return ok({ maximumBytes: requested, source: "request" });
++    if (runtime !== undefined)
++      return ok({ maximumBytes: runtime, source: "runtime" });
++    if (value === undefined)
++      return ok({ maximumBytes: defaultBytes, source: "default" });
++    const parsed = schema.safeParse(value);
++    return parsed.success
++      ? ok({ maximumBytes: parsed.data, source: "setting" })
++      : err(
++          new ConfigurationError(constraint, {
++            settings: [{ setting, constraint }],
++          }),
++        );
++  };
++  return { schema, resolve };
++};
++
++const input = allowance(
++  IL2CPP_INPUT_ADMISSION_SETTING,
++  DEFAULT_IL2CPP_MAX_INPUT_BYTES,
++  MAXIMUM_IL2CPP_MAX_INPUT_BYTES,
++);
++const output = allowance(
++  IL2CPP_OUTPUT_ADMISSION_SETTING,
++  DEFAULT_IL2CPP_MAX_OUTPUT_BYTES,
++  MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES,
++);
++
++export const il2cppMaxInputBytesSchema = input.schema;
++export const il2cppMaxOutputBytesSchema = output.schema;
++
++/**
++ * Resolve both allowances for one inspection: an explicit request value wins,
++ * then the launch environment, then the shipped default.
++ */
++export const resolveIl2cppAdmissions = (
++  request: Pick<
++    Il2cppMetadataProviderInput,
++    "max_input_bytes" | "max_output_bytes"
++  >,
++  environment: Readonly<NodeJS.ProcessEnv>,
++): Result<
++  { readonly input: Il2cppAdmission; readonly output: Il2cppAdmission },
++  ConfigurationError
++> => {
++  const inputAdmission = input.resolve(
++    request.max_input_bytes,
++    currentAnalysisSettingOverride("il2cpp.max_input_bytes"),
++    environment[IL2CPP_INPUT_ADMISSION_SETTING],
++  );
++  if (!inputAdmission.ok) return inputAdmission;
++  const outputAdmission = output.resolve(
++    request.max_output_bytes,
++    currentAnalysisSettingOverride("il2cpp.max_output_bytes"),
++    environment[IL2CPP_OUTPUT_ADMISSION_SETTING],
++  );
++  if (!outputAdmission.ok) return outputAdmission;
++  return ok({ input: inputAdmission.value, output: outputAdmission.value });
++};
+diff --git a/src/domain/analysisResourceLimits.ts b/src/domain/analysisResourceLimits.ts
+index 11d5a7e8a..c34314639 100644
+--- a/src/domain/analysisResourceLimits.ts
++++ b/src/domain/analysisResourceLimits.ts
+@@ -209,6 +209,22 @@ export const DEFAULT_KUNA_FUNCTION_TIMEOUT_MS = 120_000;
+ export const DEFAULT_PWNTOOLS_MAX_INPUT_BYTES = 32 * 1024 * 1024;
+ export const MAXIMUM_PWNTOOLS_MAX_INPUT_BYTES = 1024 * 1024 * 1024;
+ 
++/** IL2CPP global-metadata.dat bytes read into one snapshot when max_input_bytes and its setting are unset. */
++export const DEFAULT_IL2CPP_MAX_INPUT_BYTES = 256 * 1024 * 1024;
++/**
++ * Retained complete IL2CPP report bytes when max_output_bytes and its setting
++ * are unset. A 12.9 MB Unity 6000.4 file with 112,232 methods serializes to 7.8 MB.
++ */
++export const DEFAULT_IL2CPP_MAX_OUTPUT_BYTES = 64 * 1024 * 1024;
++/**
++ * Largest configurable IL2CPP admissions. The metadata file is one in-memory
++ * Buffer and the report is accounted before it is retained; 2 GiB keeps both
++ * exactly representable. A report above Node's single-string ceiling (about
++ * 512 Mi UTF-16 code units) still cannot be delivered as one JSON document.
++ */
++export const MAXIMUM_IL2CPP_MAX_INPUT_BYTES = 2 * 1024 * 1024 * 1024;
++export const MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES = 2 * 1024 * 1024 * 1024;
++
+ /** Windows ChangeTime settle window, poll, and poll count. */
+ export const DEFAULT_WINDOWS_CHANGE_TIME_DRIFT_MS = 2_000;
+ export const MAXIMUM_WINDOWS_CHANGE_TIME_DRIFT_MS = 60_000;
+diff --git a/src/domain/analysisSettingDefinitions.ts b/src/domain/analysisSettingDefinitions.ts
+index 0bef39f77..bb51520a9 100644
+--- a/src/domain/analysisSettingDefinitions.ts
++++ b/src/domain/analysisSettingDefinitions.ts
+@@ -45,6 +45,10 @@ import {
+   DEFAULT_KUNA_PROJECT_TIMEOUT_MS,
+   DEFAULT_PWNTOOLS_MAX_INPUT_BYTES,
+   MAXIMUM_PWNTOOLS_MAX_INPUT_BYTES,
++  DEFAULT_IL2CPP_MAX_INPUT_BYTES,
++  MAXIMUM_IL2CPP_MAX_INPUT_BYTES,
++  DEFAULT_IL2CPP_MAX_OUTPUT_BYTES,
++  MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES,
+   DEFAULT_WINDOWS_CHANGE_TIME_DRIFT_MS,
+   MAXIMUM_WINDOWS_CHANGE_TIME_DRIFT_MS,
+   DEFAULT_WINDOWS_CHANGE_TIME_SETTLE_POLL_MS,
+@@ -522,6 +526,30 @@ export const ANALYSIS_SETTINGS = {
+     operations: ["inspect_binary_layout", "inspect_recorded_crash"],
+     parameter: "producer_limits.input_bytes",
+   },
++  "il2cpp.max_input_bytes": {
++    updateMode: "runtime",
++    environment: "REA_IL2CPP_MAX_INPUT_BYTES",
++    defaultValue: DEFAULT_IL2CPP_MAX_INPUT_BYTES,
++    minimum: 1,
++    maximum: MAXIMUM_IL2CPP_MAX_INPUT_BYTES,
++    unit: "bytes",
++    appliesAt: "next_operation",
++    provider: "il2cpp-metadata",
++    operations: ["inspect_il2cpp_metadata"],
++    parameter: "max_input_bytes",
++  },
++  "il2cpp.max_output_bytes": {
++    updateMode: "runtime",
++    environment: "REA_IL2CPP_MAX_OUTPUT_BYTES",
++    defaultValue: DEFAULT_IL2CPP_MAX_OUTPUT_BYTES,
++    minimum: 1,
++    maximum: MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES,
++    unit: "bytes",
++    appliesAt: "next_operation",
++    provider: "il2cpp-metadata",
++    operations: ["inspect_il2cpp_metadata"],
++    parameter: "max_output_bytes",
++  },
+   "windows.change_time_drift_ms": {
+     updateMode: "runtime",
+     environment: "REA_WINDOWS_CHANGE_TIME_DRIFT_MS",
+diff --git a/src/domain/analysisSettings.ts b/src/domain/analysisSettings.ts
+index 0f3b59ebc..2afb661bd 100644
+--- a/src/domain/analysisSettings.ts
++++ b/src/domain/analysisSettings.ts
+@@ -25,6 +25,8 @@ export interface AnalysisSettingValues {
+   readonly "kuna.project_timeout_ms": number;
+   readonly "kuna.function_timeout_ms": number;
+   readonly "pwntools.max_input_bytes": number;
++  readonly "il2cpp.max_input_bytes": number;
++  readonly "il2cpp.max_output_bytes": number;
+   readonly "windows.change_time_drift_ms": number;
+   readonly "windows.change_time_settle_poll_ms": number;
+   readonly "windows.change_time_settle_max_polls": number;
+diff --git a/src/domain/il2cpp/il2cppMetadata.ts b/src/domain/il2cpp/il2cppMetadata.ts
+index 7366458f7..451b4918a 100644
+--- a/src/domain/il2cpp/il2cppMetadata.ts
++++ b/src/domain/il2cpp/il2cppMetadata.ts
+@@ -1,4 +1,10 @@
+ import { z } from "zod";
++import {
++  DEFAULT_IL2CPP_MAX_INPUT_BYTES,
++  DEFAULT_IL2CPP_MAX_OUTPUT_BYTES,
++  MAXIMUM_IL2CPP_MAX_INPUT_BYTES,
++  MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES,
++} from "../analysisResourceLimits.js";
+ import { digestSchema } from "../digests.js";
+ import {
+   absoluteLocalPathStringSchema,
+@@ -117,6 +123,24 @@ export const inspectIl2cppMetadataInputSchema = z
+       .describe(
+         "Also link generic method instances (genericMethodTable rows) to code addresses with Il2CppDumper-style Type<Args>$$Method<Args> names; needs binary_path",
+       ),
++    max_input_bytes: z
++      .number()
++      .int()
++      .min(1)
++      .max(MAXIMUM_IL2CPP_MAX_INPUT_BYTES)
++      .optional()
++      .describe(
++        `Largest global-metadata.dat REA reads into memory, in bytes. Omitted: REA_IL2CPP_MAX_INPUT_BYTES, else ${String(DEFAULT_IL2CPP_MAX_INPUT_BYTES)} (256 MiB). At most ${String(MAXIMUM_IL2CPP_MAX_INPUT_BYTES)} (2 GiB). The binary_path allowance is separate.`,
++      ),
++    max_output_bytes: z
++      .number()
++      .int()
++      .min(1)
++      .max(MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES)
++      .optional()
++      .describe(
++        `Retained complete report budget, in bytes, checked before rows are decoded and again on the finished report. Omitted: REA_IL2CPP_MAX_OUTPUT_BYTES, else ${String(DEFAULT_IL2CPP_MAX_OUTPUT_BYTES)} (64 MiB). At most ${String(MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES)} (2 GiB). Raise it for a large linked binary_path report; applies to the next call without restart.`,
++      ),
+   })
+   .superRefine((input, context) => {
+     if (input.binary_path !== undefined) return;
+diff --git a/src/il2cpp/Il2cppMetadataProvider.ts b/src/il2cpp/Il2cppMetadataProvider.ts
+index f7a795191..bdac11b9a 100644
+--- a/src/il2cpp/Il2cppMetadataProvider.ts
++++ b/src/il2cpp/Il2cppMetadataProvider.ts
+@@ -60,23 +60,38 @@ import {
+   linkIl2cppBinarySteps,
+   type Il2cppBinaryLink,
+ } from "./Il2cppBinaryFile.js";
++import {
++  IL2CPP_INPUT_ADMISSION_SETTING,
++  IL2CPP_OUTPUT_ADMISSION_SETTING,
++  resolveIl2cppAdmissions,
++  type Il2cppAdmission,
++} from "../config/il2cppMetadataAdmission.js";
++import {
++  MAXIMUM_IL2CPP_MAX_INPUT_BYTES,
++  MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES,
++} from "../domain/analysisResourceLimits.js";
+ 
+ const OPERATION = "inspect_il2cpp_metadata";
+-const INPUT_BYTES = 256 * 1024 * 1024;
+-// A 12.9 MB Unity 6000.4 file with 112,232 methods serializes to 7.8 MB.
+-const OUTPUT_BYTES = 64 * 1024 * 1024;
++/** How the caller raises the metadata input allowance, named on a file-size refusal. */
++const inputRecovery = (admission: Il2cppAdmission) =>
++  `The global-metadata.dat input allowance is ${String(admission.maximumBytes)} bytes (source ${admission.source}). Set max_input_bytes on the next call, il2cpp.max_input_bytes with update_analysis_settings, or ${IL2CPP_INPUT_ADMISSION_SETTING} in the invocation environment, up to ${String(MAXIMUM_IL2CPP_MAX_INPUT_BYTES)} bytes; no restart. Repeating the unchanged request fails the same way.`;
+ /** Instruction form the module-array fallback matched, per architecture. */
+ const inferredReferenceForm = (architecture: string) =>
+   architecture === "arm64"
+     ? "an adjacent ADRP+ADD pair"
+     : "RIP-relative LEA/MOV";
++/** The metadata allowance is caller-raisable; the binary_path allowance is fixed. */
++type InputAllowance =
++  | { readonly field: "path"; readonly admission: Il2cppAdmission }
++  | { readonly field: "binary_path"; readonly maximumBytes: number };
++
+ const failureForPrimary = (
+   facts: ArtifactFilePrimaryFacts,
+   path: string,
+-  field: "path" | "binary_path" = "path",
+-  maximum = INPUT_BYTES,
++  allowance: InputAllowance,
+   metadataPath = path,
+ ): AnalysisError => {
++  const field = allowance.field;
+   const { cause, origin } = facts;
+   if (origin === "owned-or-classified" && cause instanceof AnalysisError)
+     return cause;
+@@ -137,16 +152,34 @@ const failureForPrimary = (
+     cause instanceof ArtifactReaderFailure
+   ) {
+     if (cause.reason === "limit")
+-      return new AnalysisResourceConstraintError(
+-        OPERATION,
+-        "file-size",
+-        cause.message,
+-        { maximum_input_bytes: maximum },
+-        {
+-          cause,
+-          ...fixedAllowanceOptions("the fixed IL2CPP input allowance", "input"),
+-        },
+-      );
++      return allowance.field === "path"
++        ? new AnalysisResourceConstraintError(
++            OPERATION,
++            "file-size",
++            cause.message,
++            {
++              maximum_input_bytes: allowance.admission.maximumBytes,
++              allowance_source: allowance.admission.source,
++            },
++            {
++              cause,
++              retryable: false,
++              remediationAction: inputRecovery(allowance.admission),
++            },
++          )
++        : new AnalysisResourceConstraintError(
++            OPERATION,
++            "file-size",
++            cause.message,
++            { maximum_input_bytes: allowance.maximumBytes },
++            {
++              cause,
++              ...fixedAllowanceOptions(
++                "the fixed IL2CPP input allowance",
++                "input",
++              ),
++            },
++          );
+     if (cause.reason === "path")
+       return new AnalysisInputError(
+         OPERATION,
+@@ -184,15 +217,13 @@ const failureForPrimary = (
+ const failureFor = (
+   cause: unknown,
+   path: string,
+-  field: "path" | "binary_path" = "path",
+-  maximum = INPUT_BYTES,
++  allowance: InputAllowance,
+   metadataPath = path,
+ ): AnalysisError => {
+   const primary = failureForPrimary(
+     artifactFilePrimaryFacts(cause),
+     path,
+-    field,
+-    maximum,
++    allowance,
+     metadataPath,
+   );
+   if (
+@@ -269,16 +300,19 @@ const binaryReport = (
+  * Source facts stay on the refusal. The shared report sentence would deny an
+  * Evidence record that this reader attaches and MCP retains.
+  */
+-const completeReportRecovery =
+-  "The IL2CPP complete-report allowance is a fixed report allowance. No complete metadata inventory is retained. Source facts already observed stay with this refusal, and complete CLI JSON does not raise the allowance. Repeating the unchanged request fails the same way.";
++const completeReportRecovery = (admission: Il2cppAdmission) =>
++  `The IL2CPP complete-report allowance is ${String(admission.maximumBytes)} bytes (source ${admission.source}). No complete metadata inventory is retained. Source facts already observed stay with this refusal. Set max_output_bytes on the next call, il2cpp.max_output_bytes with update_analysis_settings, or ${IL2CPP_OUTPUT_ADMISSION_SETTING} in the invocation environment, up to ${String(MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES)} bytes; no restart. Repeating the unchanged request fails the same way.`;
+ 
+-const reportLimit = (path: string, maximumBytes: number) =>
++const reportLimit = (path: string, admission: Il2cppAdmission) =>
+   new AnalysisResourceConstraintError(
+     OPERATION,
+     "memory",
+     `Complete IL2CPP metadata for ${path} exceeds the retained report budget; no complete inventory is retained.`,
+-    { maximum_report_bytes: maximumBytes },
+-    { retryable: false, remediationAction: completeReportRecovery },
++    {
++      maximum_report_bytes: admission.maximumBytes,
++      allowance_source: admission.source,
++    },
++    { retryable: false, remediationAction: completeReportRecovery(admission) },
+   );
+ 
+ const sourceArtifact = (path: string, snapshot: StableArtifactSnapshot) => ({
+@@ -383,10 +417,15 @@ export class Il2cppMetadataProvider implements Il2cppMetadataPort {
+   /** `close()` stops admission permanently, including while an inspection is active. */
+   #admissionStopped = false;
+ 
+-  /** `outputBytes` exists so tests can reach the guard with small files. */
++  /**
++   * `outputBytes` exists so tests can reach the guard with small files; it
++   * stands in for an omitted max_output_bytes. `environment` supplies the
++   * REA_IL2CPP_MAX_INPUT_BYTES and REA_IL2CPP_MAX_OUTPUT_BYTES settings.
++   */
+   constructor(
+-    private readonly outputBytes: number = OUTPUT_BYTES,
++    private readonly outputBytes?: number,
+     private readonly yieldControl: () => Promise<void> = setImmediate,
++    private readonly environment: Readonly<NodeJS.ProcessEnv> = process.env,
+   ) {}
+ 
+   async close(): Promise<void> {
+@@ -444,6 +483,16 @@ export class Il2cppMetadataProvider implements Il2cppMetadataPort {
+           },
+         ),
+       );
++    const admissions = resolveIl2cppAdmissions(
++      {
++        max_input_bytes: input.max_input_bytes,
++        max_output_bytes: input.max_output_bytes ?? this.outputBytes,
++      },
++      this.environment,
++    );
++    if (!admissions.ok) return admissions;
++    const inputAdmission = admissions.value.input;
++    const outputAdmission = admissions.value.output;
+     this.#inspecting = true;
+     const observed: {
+       artifact?: Il2cppMetadata["artifact"];
+@@ -469,7 +518,7 @@ export class Il2cppMetadataProvider implements Il2cppMetadataPort {
+       return await this.#resources.run(async () => {
+         const snapshot = await this.#readArtifact(
+           input.path,
+-          INPUT_BYTES,
++          inputAdmission.maximumBytes,
+           options?.signal,
+           (artifact) => {
+             observed.artifact = artifact;
+@@ -501,11 +550,11 @@ export class Il2cppMetadataProvider implements Il2cppMetadataPort {
+           );
+           return err(failure);
+         }
+-        const limit = this.outputBytes;
++        const limit = outputAdmission.maximumBytes;
+         const admission = createIl2cppMetadataAdmission(
+           limit,
+           () => {
+-            throw reportLimit(input.path, limit);
++            throw reportLimit(input.path, outputAdmission);
+           },
+           input.binary_path !== undefined,
+         );
+@@ -587,8 +636,7 @@ export class Il2cppMetadataProvider implements Il2cppMetadataPort {
+             const failure = failureFor(
+               cause,
+               binaryPath,
+-              "binary_path",
+-              IL2CPP_BINARY_BYTES,
++              { field: "binary_path", maximumBytes: IL2CPP_BINARY_BYTES },
+               input.path,
+             );
+             failure.partialObservation = metadataSourceEvidence(
+@@ -639,7 +687,7 @@ export class Il2cppMetadataProvider implements Il2cppMetadataPort {
+           ],
+         };
+         if (jsonValueByteLength(report, limit) > limit)
+-          throw reportLimit(input.path, limit);
++          throw reportLimit(input.path, outputAdmission);
+         const parsed = il2cppMetadataSchema.safeParse(report);
+         if (!parsed.success)
+           throw new AnalysisOutputError(
+@@ -651,7 +699,10 @@ export class Il2cppMetadataProvider implements Il2cppMetadataPort {
+         return ok(parsed.data);
+       });
+     } catch (cause: unknown) {
+-      const failure = failureFor(cause, input.path);
++      const failure = failureFor(cause, input.path, {
++        field: "path",
++        admission: inputAdmission,
++      });
+       if (observed.artifact !== undefined)
+         failure.partialObservation = metadataSourceEvidence(
+           observed.artifact,
+diff --git a/tests/acceptance/il2cppMetadataCli.test.ts b/tests/acceptance/il2cppMetadataCli.test.ts
+index 595968ad3..6b92caf42 100644
+--- a/tests/acceptance/il2cppMetadataCli.test.ts
++++ b/tests/acceptance/il2cppMetadataCli.test.ts
+@@ -1655,3 +1655,79 @@ cliTest(
+   },
+   60000,
+ );
++
++cliTest(
++  "raises the IL2CPP report and input allowances per call through CLI and MCP",
++  async ({ cli }) => {
++    const root = await createTestTempDirectory("rea-il2cpp-allowances-");
++    const path = join(root, "global-metadata.dat");
++    const binaryPath = join(root, "GameAssembly.dylib");
++    await writeFile(path, createLinkedIl2cppMetadataFixture().bytes);
++    await writeFile(binaryPath, createIl2cppBinaryFixture());
++    const tight = { REA_IL2CPP_MAX_OUTPUT_BYTES: "256" };
++    const refused = await cli.run({
++      arguments: [
++        "inspect-il2cpp-metadata",
++        path,
++        "--binary",
++        binaryPath,
++        "--json",
++      ],
++      environment: tight,
++    });
++    expect(refused.exitCode).toBe(1);
++    expect(JSON.stringify(refused.json)).toContain("max_output_bytes");
++    const raised = await cli.run({
++      arguments: [
++        "inspect-il2cpp-metadata",
++        path,
++        "--binary",
++        binaryPath,
++        "--max-output-bytes",
++        "16777216",
++        "--max-input-bytes",
++        "16777216",
++        "--json",
++      ],
++      environment: tight,
++    });
++    expect(raised.exitCode, raised.stderr).toBe(0);
++    const evidence = parseEvidence(raised.json);
++    expect(evidence.parameters).toMatchObject({
++      max_output_bytes: 16777216,
++      max_input_bytes: 16777216,
++    });
++    expect(
++      parseCliMetadata(raised.json).method_addresses.length,
++    ).toBeGreaterThan(0);
++    const inputRefusal = await cli.run({
++      arguments: [
++        "inspect-il2cpp-metadata",
++        path,
++        "--max-input-bytes",
++        "16",
++        "--json",
++      ],
++    });
++    expect(inputRefusal.exitCode).toBe(1);
++    expect(JSON.stringify(inputRefusal.json)).toContain(
++      "REA_IL2CPP_MAX_INPUT_BYTES",
++    );
++    const { client, call } = await connectLocalToolsMcp();
++    const response = await call("inspect_il2cpp_metadata", {
++      path,
++      binary_path: binaryPath,
++      max_output_bytes: 16777216,
++      detail: "complete",
++    });
++    expect(response.isError, JSON.stringify(response.content)).not.toBe(true);
++    expect(parseCliMetadata(response.structuredContent).binary).not.toBeNull();
++    const tooLarge = await call("inspect_il2cpp_metadata", {
++      path,
++      max_output_bytes: 2 * 1024 * 1024 * 1024 + 1,
++    });
++    expect(tooLarge.isError).toBe(true);
++    await client.ping();
++  },
++  60000,
++);
+diff --git a/tests/boundary/cli/artifactInputLimits.test.ts b/tests/boundary/cli/artifactInputLimits.test.ts
+index a3132ec96..6bcd46572 100644
+--- a/tests/boundary/cli/artifactInputLimits.test.ts
++++ b/tests/boundary/cli/artifactInputLimits.test.ts
+@@ -19,7 +19,7 @@ for (const { command, limit, recovery } of [
+   {
+     command: "inspect-il2cpp-metadata",
+     limit: 256 * 1024 * 1024,
+-    recovery: "within the fixed IL2CPP input allowance",
++    recovery: "max_input_bytes",
+   },
+   {
+     command: "inspect-wasm-artifact",
+diff --git a/tests/boundary/il2cpp/il2cppMetadataAdmission.test.ts b/tests/boundary/il2cpp/il2cppMetadataAdmission.test.ts
+new file mode 100644
+index 000000000..3ea729c83
+--- /dev/null
++++ b/tests/boundary/il2cpp/il2cppMetadataAdmission.test.ts
+@@ -0,0 +1,148 @@
++import { setImmediate } from "node:timers/promises";
++import { writeFile } from "node:fs/promises";
++import { join } from "node:path";
++import { expect, it } from "vitest";
++import { AnalysisResourceConstraintError } from "../../../src/domain/analysisErrorCore.js";
++import { projectAnalysisError } from "../../../src/domain/analysisErrorProjection.js";
++import { ConfigurationError } from "../../../src/domain/configurationErrors.js";
++import { runWithAnalysisOperationSnapshot } from "../../../src/domain/analysisOperationSnapshot.js";
++import { inspectIl2cppMetadataInputSchema } from "../../../src/domain/il2cpp/il2cppMetadata.js";
++import {
++  DEFAULT_IL2CPP_MAX_INPUT_BYTES,
++  DEFAULT_IL2CPP_MAX_OUTPUT_BYTES,
++  MAXIMUM_IL2CPP_MAX_INPUT_BYTES,
++  MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES,
++} from "../../../src/domain/analysisResourceLimits.js";
++import { Il2cppMetadataProvider } from "../../../src/il2cpp/Il2cppMetadataProvider.js";
++import { createIl2cppMetadataFixture } from "../../fixtures/il2cpp/metadata.js";
++import { createTestTempDirectory } from "../../fixtures/temporaryDirectory.js";
++
++/** One provider per inspection, reading only the supplied launch environment. */
++const inspectWith = async (
++  environment: Readonly<NodeJS.ProcessEnv>,
++  input: Parameters<Il2cppMetadataProvider["inspect"]>[0],
++) => {
++  const provider = new Il2cppMetadataProvider(
++    void 0,
++    setImmediate,
++    environment,
++  );
++  try {
++    return await provider.inspect(input);
++  } finally {
++    await provider.close();
++  }
++};
++
++const metadataFile = async (prefix: string) => {
++  const root = await createTestTempDirectory(prefix);
++  const path = join(root, "global-metadata.dat");
++  const bytes = createIl2cppMetadataFixture().bytes;
++  await writeFile(path, bytes);
++  return { path, bytes };
++};
++
++it("keeps the shipped defaults and bounds both caller allowances", () => {
++  expect(DEFAULT_IL2CPP_MAX_INPUT_BYTES).toBe(256 * 1024 * 1024);
++  expect(DEFAULT_IL2CPP_MAX_OUTPUT_BYTES).toBe(64 * 1024 * 1024);
++  const path = "/artifacts/global-metadata.dat";
++  for (const field of ["max_input_bytes", "max_output_bytes"] as const) {
++    const maximum =
++      field === "max_input_bytes"
++        ? MAXIMUM_IL2CPP_MAX_INPUT_BYTES
++        : MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES;
++    expect(
++      inspectIl2cppMetadataInputSchema.safeParse({ path, [field]: maximum })
++        .success,
++    ).toBe(true);
++    for (const rejected of [0, -1, 1.5, maximum + 1])
++      expect(
++        inspectIl2cppMetadataInputSchema.safeParse({ path, [field]: rejected })
++          .success,
++      ).toBe(false);
++  }
++});
++
++it("raises the complete-report allowance per request over the launch setting", async () => {
++  const { path } = await metadataFile("rea-il2cpp-output-admission-");
++  const environment = { REA_IL2CPP_MAX_OUTPUT_BYTES: "256" };
++  const refused = await inspectWith(environment, { path });
++  if (refused.ok) throw new Error("Expected report allowance refusal");
++  expect(refused.error).toBeInstanceOf(AnalysisResourceConstraintError);
++  const projected = projectAnalysisError(refused.error);
++  expect(projected.retryable).toBe(false);
++  expect(projected.remediation.action).toContain("max_output_bytes");
++  expect(projected.remediation.action).toContain("REA_IL2CPP_MAX_OUTPUT_BYTES");
++  expect(projected.remediation.action).toContain("(source setting)");
++  expect(projected.remediation.action).toContain(
++    "No complete metadata inventory is retained",
++  );
++  const admitted = await inspectWith(environment, {
++    path,
++    max_output_bytes: 16 * 1024 * 1024,
++  });
++  expect(admitted.ok).toBe(true);
++});
++
++it("applies a launch setting above the default without a request value", async () => {
++  const { path } = await metadataFile("rea-il2cpp-output-setting-");
++  const tight = await inspectWith({}, { path, max_output_bytes: 256 });
++  expect(tight.ok).toBe(false);
++  const raised = await inspectWith(
++    { REA_IL2CPP_MAX_OUTPUT_BYTES: String(MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES) },
++    { path },
++  );
++  expect(raised.ok).toBe(true);
++});
++
++it("prefers an accepted runtime override to the launch setting", async () => {
++  const { path } = await metadataFile("rea-il2cpp-output-runtime-");
++  const result = await runWithAnalysisOperationSnapshot(
++    { revision: 1, overrides: { "il2cpp.max_output_bytes": 256 } },
++    () => inspectWith({ REA_IL2CPP_MAX_OUTPUT_BYTES: "16777216" }, { path }),
++  );
++  if (result.ok) throw new Error("Expected report allowance refusal");
++  expect(projectAnalysisError(result.error).remediation.action).toContain(
++    "(source runtime)",
++  );
++});
++
++it("names the raisable metadata input allowance on a file-size refusal", async () => {
++  const { path, bytes } = await metadataFile("rea-il2cpp-input-admission-");
++  const refused = await inspectWith({}, { path, max_input_bytes: 16 });
++  if (refused.ok) throw new Error("Expected input allowance refusal");
++  expect(refused.error).toBeInstanceOf(AnalysisResourceConstraintError);
++  const projected = projectAnalysisError(refused.error);
++  expect(projected.remediation.action).toContain("max_input_bytes");
++  expect(projected.remediation.action).toContain("REA_IL2CPP_MAX_INPUT_BYTES");
++  expect(projected.remediation.action).toContain("(source request)");
++  const fromSetting = await inspectWith(
++    { REA_IL2CPP_MAX_INPUT_BYTES: "16" },
++    { path },
++  );
++  expect(fromSetting.ok).toBe(false);
++  const admitted = await inspectWith(
++    { REA_IL2CPP_MAX_INPUT_BYTES: "16" },
++    { path, max_input_bytes: bytes.length },
++  );
++  expect(admitted.ok).toBe(true);
++});
++
++it("refuses an invalid launch setting instead of using the default", async () => {
++  const { path } = await metadataFile("rea-il2cpp-invalid-setting-");
++  for (const [setting, value] of [
++    ["REA_IL2CPP_MAX_INPUT_BYTES", "0"],
++    ["REA_IL2CPP_MAX_OUTPUT_BYTES", "64MiB"],
++    [
++      "REA_IL2CPP_MAX_OUTPUT_BYTES",
++      String(MAXIMUM_IL2CPP_MAX_OUTPUT_BYTES + 1),
++    ],
++  ] as const) {
++    const result = await inspectWith({ [setting]: value }, { path });
++    if (result.ok) throw new Error(`Expected ${setting} refusal`);
++    expect(result.error).toBeInstanceOf(ConfigurationError);
++    expect((result.error as ConfigurationError).settings).toEqual([
++      expect.objectContaining({ setting }),
++    ]);
++  }
++});

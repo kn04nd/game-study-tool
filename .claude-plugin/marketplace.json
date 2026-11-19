@@ -1,0 +1,20 @@
+{
+  "$schema": "https://code.claude.com/schemas/marketplace.json",
+  "name": "gst-local",
+  "description": "Local marketplace for the Game Study Toolkit (study games you own through reverse engineering).",
+  "owner": {
+    "name": "Luis F K Andriolo"
+  },
+  "plugins": [
+    {
+      "name": "gst",
+      "source": "./plugins/gst",
+      "description": "Study how a game you own is made: recon, decompile, assets, formats, runtime, graphics, logic and an ARCHITECTURE.md report, driven by the gst CLI."
+    },
+    {
+      "name": "gst-lsp",
+      "source": "./plugins/gst-lsp",
+      "description": "Optional language servers (C#, C, Lua) tuned for navigating decompiled output."
+    }
+  ]
+}
