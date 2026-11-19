@@ -25,6 +25,7 @@ import struct
 from pathlib import Path
 
 from gst.analysis import ANY, Report, analysis, counted, md_table, stats
+from gst.common import contained
 
 CT = {5120: ("b", 1), 5121: ("B", 1), 5122: ("h", 2), 5123: ("H", 2), 5125: ("I", 4), 5126: ("f", 4)}
 NC = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4, "MAT2": 4, "MAT3": 9, "MAT4": 16}
@@ -75,7 +76,9 @@ def _uri(path: Path, uri: str | None, with_bin: bool) -> bytes | None:
             return base64.b64decode(uri.split(",", 1)[1])
         except (ValueError, IndexError):
             return None
-    p = path.parent / uri.replace("%20", " ")
+    p = contained(path.parent, uri.replace("%20", " "))  # the uri comes from the game: no absolute/UNC/.. reads
+    if p is None:
+        return None
     try:
         return p.read_bytes()
     except OSError:

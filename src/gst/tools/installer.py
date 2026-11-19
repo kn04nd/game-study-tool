@@ -18,7 +18,7 @@ import urllib.error
 import urllib.request
 import zipfile
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 from gst import config
 from gst.common import GsError, IS_WINDOWS, run, warn
@@ -30,9 +30,21 @@ WINGET_ALREADY = {-1978335189, -1978335135}  # update not applicable / package a
 
 # --- downloads ----------------------------------------------------------------------------------
 
+class _HttpsOnlyRedirects(urllib.request.HTTPRedirectHandler):
+    """Follow redirects (SourceForge /download, GitHub release assets) but never from https down to http."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if req.full_url.lower().startswith("https://") and not newurl.lower().startswith("https://"):
+            raise urllib.error.URLError(f"refused redirect from https to {newurl}")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+_OPENER = urllib.request.build_opener(_HttpsOnlyRedirects)
+
+
 def _open(url: str, timeout: float = 60):
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "*/*"})
-    return urllib.request.urlopen(req, timeout=timeout)  # noqa: S310 - https/file URLs from the catalog only
+    return _OPENER.open(req, timeout=timeout)  # https URLs from the catalog only
 
 
 def fetch_text(url: str, retries: int = 3) -> str:
@@ -112,7 +124,8 @@ def extract_zip(archive: Path, dest: Path) -> None:
     with zipfile.ZipFile(archive) as zf:
         for member in zf.infolist():
             name = member.filename.replace("\\", "/")
-            if name.startswith("/") or ".." in Path(name).parts:
+            win = PureWindowsPath(name)  # "C:/x", "C:x" and "//server/share" would make root / name leave root
+            if name.startswith("/") or ":" in name or win.drive or win.root or ".." in win.parts or "\x00" in name:
                 raise GsError(f"unsafe path in archive: {name}")
             target = root / name
             if member.is_dir():

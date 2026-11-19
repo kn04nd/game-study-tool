@@ -151,7 +151,7 @@ class Runner:
         fh.write(f"\n=== {time.strftime('%Y-%m-%d %H:%M:%S')} job {job['id']} {job['extractor']} {job['unit_id']}\n")
         fh.flush()
         flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
-        proc = subprocess.Popen([self.python, "-X", "utf8", "-m", "gst.pipeline.worker", str(self.db_file), str(job["id"])],
+        proc = subprocess.Popen([self.python, "-P", "-X", "utf8", "-m", "gst.pipeline.worker", str(self.db_file), str(job["id"])],
                                 stdout=fh, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, cwd=str(self.ws),
                                 creationflags=flags)
         self.killer.add(proc)

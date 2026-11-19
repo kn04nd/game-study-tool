@@ -10,6 +10,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from gst.common import contained
+
 _GD_EXPORT = re.compile(
     r"^[ \t]*(?:@export\w*(?:\([^)\n]*\))?[ \t]+(?:@\w+(?:\([^)\n]*\))?[ \t]+)*|export(?:\([^)\n]*\))?[ \t]+)"
     r"(?:onready[ \t]+)?var[ \t]+(\w+)(?:[ \t]*:[ \t]*([\w\[\], ]+?))?[ \t]*(?::?=[ \t]*([^\n#]+))?[ \t]*(?:#.*)?$",
@@ -83,13 +85,13 @@ class ScriptIndex:
 
     def source(self, res: str) -> Path | None:
         rel = res[len("res://"):] if res.startswith("res://") else res
-        cands = []
+        cands = []  # rel comes from a scene of the game: contained() refuses absolute/UNC/.. paths
         if self.project:
-            cands.append(self.project / rel)
+            cands.append(contained(self.project, rel))
         if self.decomp_godot:
-            cands.append(self.decomp_godot / rel)
+            cands.append(contained(self.decomp_godot, rel))
         for c in cands:
-            if c.is_file():
+            if c is not None and c.is_file():
                 return c
         if rel.endswith(".cs"):
             stem = Path(rel).stem
@@ -97,7 +99,7 @@ class ScriptIndex:
             return sorted(found, key=lambda p: (len(p.parts), str(p)))[0] if found else None
         if rel.endswith(".gd"):  # GDRE may leave .gdc; decompiled .gd next to it
             for c in cands:
-                if c.with_suffix(".gd").is_file():
+                if c is not None and c.with_suffix(".gd").is_file():
                     return c.with_suffix(".gd")
         return None
 

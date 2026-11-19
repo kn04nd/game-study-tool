@@ -33,6 +33,7 @@ import re
 from pathlib import Path
 
 from gst.analysis import ANY, Report, analysis, counted, md_table
+from gst.common import contained
 
 AUDIO_EXT = (".wav", ".ogg", ".mp3", ".flac", ".opus", ".aif", ".aiff", ".m4a")
 MARKER = ".catalog-by-gst"
@@ -419,7 +420,7 @@ def godot_events(ws: Path, proj: Path) -> list[dict]:
             if p in seen:
                 continue
             seen.add(p)
-            local = proj / p[len("res://"):] if p.startswith("res://") else None
+            local = contained(proj, p[len("res://"):]) if p.startswith("res://") else None
             files.append({"name": Path(p).name, "file": local.relative_to(ws).as_posix() if local and local.is_file() else None})
         folders = sorted({Path(p).parent.name for p in e["streams"]})
         out.append({"name": e["name"], "kind": kind_of(" ".join(e["streams"])), "category": "/".join(folders[:2]),

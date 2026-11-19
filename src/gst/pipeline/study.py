@@ -26,7 +26,9 @@ def find_for_install(install: Path, home: Path) -> list[tuple[Path, dict]]:
 
 
 def _current_build(game_entry: dict) -> str | None:
-    return str(game_entry["buildid"]) if game_entry.get("buildid") not in (None, "") else None
+    from gst.recon.stores import build_id  # names the sibling workspace: no path separators from a store string
+
+    return build_id(game_entry.get("buildid"))
 
 
 def ensure_v2(ws: Path, game: dict) -> dict:

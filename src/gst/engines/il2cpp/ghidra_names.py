@@ -16,14 +16,13 @@ analysis is reused: ``post`` applies the new names on it, then the export runs a
 from __future__ import annotations
 
 import os
-import re
 import shutil
 import sys
 import time
 from pathlib import Path
 
 from gst import policy, tools
-from gst.common import GsError, read_json, write_json
+from gst.common import BAT_UNSAFE, GsError, check_bat_args, read_json, write_json  # noqa: F401 (re-exported)
 from gst.decompile import native
 from gst.engines.il2cpp import names as il2cpp_names
 from gst.extractors.base import Context, Extractor, Result, Unit
@@ -33,16 +32,8 @@ SCRIPT = "GstIl2cppNames.java"
 NAMES_VERSION = 1  # bump when GstIl2cppNames.java changes what it applies: names re-applied on the saved analysis
 REPORT = "il2cpp_names.json"
 PRE_REPORT = "il2cpp_names.pre.json"
-# cmd.exe metacharacters: analyzeHeadless is a .bat, so every argument passes through cmd.exe
-BAT_UNSAFE = re.compile(r'[&|<>^%!"\r\n\t]')
-
-
-def check_bat_args(cmd: list[str]) -> None:
-    """Every argument reaches Ghidra through analyzeHeadless.bat: refuse anything cmd.exe would reinterpret."""
-    bad = [a for a in cmd[1:] if BAT_UNSAFE.search(a)]
-    if bad:
-        raise GsError(f"argument unsafe for analyzeHeadless.bat (cmd.exe metacharacters): {bad[0]!r}; "
-                      "use a workspace path without & | < > ^ % ! or quotes")
+# analyzeHeadless is a .bat, so every argument passes through cmd.exe: gst.common.check_bat_args refuses
+# anything cmd.exe would reinterpret.
 
 
 def command(headless: Path, project: Path, module: Path, out: Path, *, names: Path | None, log: Path, reuse: bool,
@@ -65,7 +56,7 @@ def command(headless: Path, project: Path, module: Path, out: Path, *, names: Pa
     cmd += ["-postScript", "GsExport.java", str(out), str(max_functions), str(seconds), "-",
             "-max-cpu", str(max(1, (os.cpu_count() or 4) - 2)), "-log", str(log),
             "-scriptlog", str(log.with_suffix(".script.log"))]
-    check_bat_args(cmd)
+    check_bat_args(cmd, "analyzeHeadless.bat")
     return cmd
 
 

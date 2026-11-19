@@ -20,7 +20,7 @@ import time
 from pathlib import Path
 
 from gst import policy, tools
-from gst.common import GsError, read_json, write_json, write_text
+from gst.common import GsError, check_bat_args, read_json, write_json, write_text
 from gst.decompile.dotnet import is_managed, sha256_of
 
 OUT_DIR = Path("decomp") / "ghidra"
@@ -129,7 +129,8 @@ def scripts_dir() -> Path:
 
 def command(headless: Path, project: Path, module: Path, out: Path, *, pdb: Path | None, max_functions: int,
             seconds: int, only_file: Path | None, analysis_timeout: int | None, reuse: bool, log: Path) -> list[str]:
-    """analyzeHeadless arguments. Every path is gs-made (no cmd.exe metacharacters); the regex goes in a file."""
+    """analyzeHeadless arguments. Game names arrive through safe_name and the regex goes in a file; the workspace and
+    tools paths are the user's, so the whole line is still checked for cmd.exe metacharacters."""
     cmd = [str(headless), str(project.parent), project.name]
     if reuse:
         cmd += ["-process", module.name, "-noanalysis", "-readOnly"]
@@ -140,6 +141,7 @@ def command(headless: Path, project: Path, module: Path, out: Path, *, pdb: Path
     cmd += ["-scriptPath", str(scripts_dir()),
             "-postScript", "GsExport.java", str(out), str(max_functions), str(seconds), f"@{only_file}" if only_file else "-",
             "-max-cpu", str(max(1, (os.cpu_count() or 4) - 2)), "-log", str(log), "-scriptlog", str(log.with_suffix(".script.log"))]
+    check_bat_args(cmd, "analyzeHeadless.bat")
     return cmd
 
 

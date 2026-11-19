@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sys
 from collections.abc import Iterable
 from pathlib import Path
@@ -185,6 +186,43 @@ def long_path(path: str | os.PathLike) -> str:
     if s.startswith("\\\\"):  # UNC \\server\share -> \\?\UNC\server\share
         return "\\\\?\\UNC\\" + s[2:]
     return "\\\\?\\" + s
+
+
+def contained(base: str | os.PathLike, rel: str) -> Path | None:
+    """``base / rel`` when ``rel`` (a relative path read from game data: a glTF buffer uri, a ``res://`` path) stays
+    inside ``base``; None for absolute, drive-letter, UNC or ``..`` escapes. Never touches a network path: an
+    absolute or UNC name is refused before any file-system call."""
+    rel = str(rel).replace("\\", "/")
+    if not rel or rel.startswith("/") or ":" in rel or "\x00" in rel:
+        return None
+    root = Path(base)
+    target = root / rel
+    try:
+        resolved_root = root.resolve()
+        resolved = target.resolve()
+    except (OSError, RuntimeError, ValueError):
+        return None
+    if resolved != resolved_root and resolved_root not in resolved.parents:
+        return None
+    return target
+
+
+# cmd.exe metacharacters. Python runs a .bat/.cmd through cmd.exe even with an argument list, so an argument that
+# holds one of these (from a game file name, say) could start another command ("BatBadBut").
+BAT_UNSAFE = re.compile(r'[&|<>^%!"\r\n\t]')
+
+
+def is_batch(exe: str | os.PathLike) -> bool:
+    return str(exe).lower().endswith((".bat", ".cmd"))
+
+
+def check_bat_args(cmd: list[str], what: str | None = None) -> None:
+    """Refuse a .bat/.cmd command line whose arguments hold cmd.exe metacharacters."""
+    bad = [a for a in cmd[1:] if BAT_UNSAFE.search(str(a))]
+    if bad:
+        name = what or os.path.basename(str(cmd[0]))
+        raise GsError(f"argument unsafe for {name} (cmd.exe metacharacters): {bad[0]!r}; "
+                      "use paths without & | < > ^ % ! or quotes")
 
 
 def human_size(n: float) -> str:

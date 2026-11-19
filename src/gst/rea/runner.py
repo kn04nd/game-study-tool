@@ -26,7 +26,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from gst.common import GsError, long_path, write_json
+from gst.common import GsError, check_bat_args, is_batch, long_path, write_json
 
 EVIDENCE_DIR = Path("dumps") / "rea" / "evidence"
 RAISED_CAP_BYTES = 2 * 1024 * 1024 * 1024
@@ -327,6 +327,8 @@ def run(ws: Path, op: str, name: str, *, path: str | os.PathLike | None = None, 
     tmp_err = out / f".partial-{os.getpid()}-{name}.stderr"
     t0 = time.time()
     child_env = {**os.environ, **(env or {})}
+    if is_batch(argv[0]):  # the npm shim fallback (no node on PATH): cmd.exe parses the game-derived paths
+        check_bat_args(argv)
     with open(long_path(tmp_out), "wb") as fo, open(long_path(tmp_err), "wb") as fe:
         proc = subprocess.Popen(argv, stdout=fo, stderr=fe, stdin=subprocess.DEVNULL, env=child_env)
         try:

@@ -323,7 +323,9 @@ def check_command(command: str, *, cwd: str | os.PathLike | None = None, agent_t
             return Decision(False, "decryption keys are allowed only when game.json records a published key with its source URL", 4)
     if "pyinstxtractor" in low and "--info" not in low:
         game = game_for_text(command) or _workspace_game(cwd)
-        names = [p if isinstance(p, str) else str(p.get("name", "")) for p in (game or {}).get("protections") or []]
+        prots = (game or {}).get("protections")
+        names = [p if isinstance(p, str) else str(p.get("name", "")) if isinstance(p, dict) else str(p)
+                 for p in (prots if isinstance(prots, list) else [])]
         if any(policy.PYINSTALLER_KEY_ARCHIVE in n for n in names):
             return Decision(False, "PyInstaller --key build: its key sits inside the exe and is not a published key; "
                                    "pyinstxtractor-ng would decrypt with it silently (only --info may run)", 4)
