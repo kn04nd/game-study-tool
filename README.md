@@ -106,7 +106,7 @@ the citations of the old study stay valid. `--dry-run` only says it would create
 
 Helper commands:
 
-- `gst jobs list|show|retry|reset`;
+- `gst jobs list|show|retry|reset|estimate` (`estimate`: CPUs, RAM, time per job and to finish, recommended `--jobs`);
 - `gst analyze <name>|--all|--list`.
 
 ## Main commands

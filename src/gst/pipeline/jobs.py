@@ -1,5 +1,6 @@
 """jobs/jobs.db (SQLite WAL): one row per unit with inputs (relpath,size,mtime_ns), buildid, status, attempts,
-duration, outputs, bytes, full error, tool and version.
+duration, peak RAM of the worker (``peak_ram``, bytes; added to older databases on open), outputs, bytes,
+full error, tool and version.
 
 Resume rules (``upsert``): a unit whose fingerprint matches a ``done``/``skipped`` job is skipped; a
 changed fingerprint resets the job to ``pending``; ``failed`` stays failed unless ``--retry-failed``;
@@ -51,6 +52,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     size INTEGER NOT NULL DEFAULT 0,
     meta TEXT NOT NULL DEFAULT '{}',
     pid INTEGER,
+    peak_ram INTEGER,
     UNIQUE (extractor, unit_id)
 );
 CREATE INDEX IF NOT EXISTS jobs_status ON jobs (status);
@@ -99,6 +101,13 @@ class JobsDB:
         self.con.execute("PRAGMA synchronous=NORMAL")
         self.con.execute("PRAGMA busy_timeout=60000")
         self.con.executescript(SCHEMA)
+        self._add_missing_columns()
+
+    def _add_missing_columns(self) -> None:
+        """Columns added after a database was created (``CREATE TABLE IF NOT EXISTS`` keeps the old table)."""
+        have = {r[1] for r in self.con.execute("PRAGMA table_info(jobs)")}
+        if "peak_ram" not in have:
+            self.con.execute("ALTER TABLE jobs ADD COLUMN peak_ram INTEGER")
 
     @classmethod
     def open_readonly(cls, path: Path) -> "JobsDB":
@@ -179,12 +188,12 @@ class JobsDB:
 
     def finish(self, job_id: int, *, status: str, outputs: list[str] | None = None, out_bytes: int = 0,
                error: str | None = None, tool: str = "", tool_version: str = "", notes: list[str] | None = None,
-               duration_s: float | None = None) -> None:
+               duration_s: float | None = None, peak_ram: int | None = None) -> None:
         self.con.execute(
             "UPDATE jobs SET status=?, outputs=?, out_bytes=?, error=?, tool=?, tool_version=?, notes=?, duration_s=?, "
-            "finished_at=?, pid=NULL WHERE id=?",
+            "finished_at=?, pid=NULL, peak_ram=? WHERE id=?",
             (status, json.dumps(outputs or []), int(out_bytes or 0), error, tool, tool_version, json.dumps(notes or []),
-             duration_s, now(), job_id))
+             duration_s, now(), peak_ram, job_id))
 
     def set_status(self, job_id: int, status: str, error: str | None = None) -> None:
         self.con.execute("UPDATE jobs SET status=?, error=COALESCE(?, error), pid=NULL WHERE id=?", (status, error, job_id))

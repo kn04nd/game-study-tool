@@ -72,8 +72,17 @@ GS_HOME/<slug>/
   jobs/
     plan.json          chosen extractors, units, estimate (written by gst study; --dry-run writes nothing)
     jobs.db            SQLite WAL (table jobs: id, extractor, unit_id, relpaths, fingerprint, buildid,
-                       status, attempts, started_at, duration_s, outputs, out_bytes, error, tool, tool_version)
+                       status, attempts, started_at, duration_s, peak_ram, outputs, out_bytes, error, tool,
+                       tool_version; peak_ram = the worker's peak RAM in bytes, added to older databases on open)
     STATUS.md          readable progress
+                       (`gst jobs estimate`, src/gst/pipeline/capacity.py, read-only: machine CPUs/load/RAM/disk,
+                       time per pending job from done jobs here and in other workspaces (`overhead + rate*size` per
+                       extractor, else category for units >= 64 MB, else a flagged guess), parallel limits (CPU,
+                       the scheduler's RAM rule), ETA per --jobs by simulating the scheduler, decision auto|ask)
+                       Scheduler RAM rule (src/gst/pipeline/budget.py): a cpu job reserves its extractor's measured
+                       peak_ram x 1.5 (else 3x the unit); it starts when free RAM minus what running jobs may still
+                       take (reservation minus their process tree's working set) minus its reservation stays >=
+                       max(2 GB, 20% of free RAM)
     COVERAGE.md        per category: discovered / extracted / failed / unsupported / blocked (+ reason, next step)
   analysis/
     <name>.json + <name>.md        outputs of `gst analyze <name>`

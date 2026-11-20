@@ -5,9 +5,16 @@ covered by the unit tests and the guides in `docs/tools/`. Contracts: `docs/INTE
 
 ## Pipeline (`gst study`, jobs)
 
-- The RAM weight of a job comes from the size of its unit, not from the tool's real peak. Cpp2IL and
-  Il2CppInspector peak at ~4.9 GB on a 184 MB unit; with the `heavy` pool at one job at a time this has not been a
-  problem, but the runner does not know it.
+- The RAM weight of a `cpu` job is its extractor's measured peak (`peak_ram` of done jobs in this workspace) x 1.5;
+  until one job of that extractor has finished with a measurement it is 3x the unit size (6 GB for a 2 GB bundle
+  whose worker really peaks near 0.65 GB). The worker measures its own process only: `heavy` and `io` jobs, whose
+  tools run as child processes, keep the size rule. Cpp2IL and Il2CppInspector peak at ~4.9 GB on a 184 MB unit;
+  the `heavy` pool runs them one at a time, but the runner does not know their peak. A unit much richer than the
+  ones measured (same extractor, same size) can still exceed its reservation; the free-RAM floor (2 GB or 20% of the
+  free RAM) is the safety net.
+- `gst jobs estimate` learns from done jobs only: an extractor that never ran anywhere gets a guess (the median
+  per-byte rate of the workspace for big units, a constant for small ones), flagged `guess` and a reason to ask the
+  user. The CPU load is one short sample; a study's own workers are subtracted as one core each.
 - The watchdog only warns; there is no default timeout (by design). A stuck third-party tool keeps running until
   you stop it or pass `--timeout`.
 - `gst audio index` looks at `assets/audio` by default. For Unity clips run `gst audio index assets/unity/AudioClip`

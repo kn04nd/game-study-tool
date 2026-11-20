@@ -78,7 +78,11 @@ Write the plan in STUDY.md under `## Plano`: question → layer → tool → ord
 | Logic | systems, formulas, state machines | code + data → specs in `notes/logic/` (delegate one subsystem per `code-navigator` agent) |
 
 Extract first, then read: `gst study` runs every extractor and analysis of the engine as resumable jobs
-(`gst status`, `gst jobs list`, `gst coverage`); the notes start from `analysis/*.json`. Once it finished, the
+(`gst status`, `gst jobs list`, `gst coverage`); the notes start from `analysis/*.json`. Before a long run, or when
+the user asks why it is slow, run `gst jobs estimate` (needs a planned study; `--json` for the numbers): with
+`decision: auto` start `gst study <slug> --jobs <recommended>`; with `decision: ask` show the user the time per
+`--jobs` value and the reasons, and let them choose. Changing `--jobs` of a running study means stopping it (its
+running jobs restart). Once it finished, the
 workflow `/gst:study-all` plans one agent per system, mechanic or asset family (the user's `focus` list from
 `gst config show` first), runs them in waves, consolidates ARCHITECTURE.md, runs verify-claims and
 `gst report --check`.

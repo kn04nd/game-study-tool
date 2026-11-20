@@ -1,4 +1,5 @@
-"""Scheduler: pools per resource (cpu, io, heavy=1), RAM weight per unit size, a watchdog that only warns.
+"""Scheduler: pools per resource (cpu, io, heavy=1), RAM weight per job (measured peak of the extractor, else unit
+size; see ``budget``), a watchdog that only warns.
 
 Each job runs in its own worker process (``python -X utf8 -m gst.pipeline.worker``). On Windows the
 workers join a Job Object that dies with this process, so killing ``gst study`` also stops its workers
@@ -116,17 +117,22 @@ class Runner:
         self.progress = progress or Progress(ws)
         self.python = python or sys.executable
         self.running: dict[int, dict] = {}
+        self.ram_model = budget.RamModel()
         self.killer = _KillOnClose()
         (ws / "logs" / "jobs").mkdir(parents=True, exist_ok=True)
 
     # --- scheduling decisions --------------------------------------------------------------------
 
+    def _weight(self, job: dict) -> int:
+        return budget.job_weight(job["size"] or 0, job["resource"] or "cpu", job["extractor"], self.ram_model)
+
     def _ram_ok(self, weight: int) -> bool:
         if not self.running:
             return True  # always make progress: one job at a time even when RAM is short
         _total, avail = budget.memory()
-        reserved = sum(r["weight"] for r in self.running.values())
-        return reserved + weight <= avail * 0.8
+        # what running jobs may still take: their reservation minus what they already hold (counted in ``avail``)
+        to_come = sum(max(0, r["weight"] - budget.process_tree_ram(r["proc"].pid)) for r in self.running.values())
+        return budget.ram_fits(avail, to_come, weight)
 
     def _disk_ok(self) -> bool:
         return not self.min_free or budget.disk_free(self.ws) >= self.min_free
@@ -158,12 +164,13 @@ class Runner:
         db.set_pid(job["id"], proc.pid)
         now = time.time()
         self.running[job["id"]] = {**job, "proc": proc, "fh": fh, "log": log_path, "t0": now, "last_change": now,
-                                   "last_warn": 0.0, "sig": None, "weight": budget.ram_weight(job["size"] or 0, job["resource"] or "cpu")}
+                                   "last_warn": 0.0, "sig": None, "weight": self._weight(job)}
         self.progress.event("start", job=job["id"], extractor=job["extractor"], unit=job["unit_id"], size=job["size"])
         self.progress.say(f"[{job['id']}] {job['extractor']} {job['unit_id']} ({human_size(job['size'] or 0)})")
 
     def _reap(self, db: JobsDB) -> None:
         now = time.time()
+        finished_any = False
         for job_id, r in list(self.running.items()):
             proc: subprocess.Popen = r["proc"]
             code = proc.poll()
@@ -185,9 +192,12 @@ class Runner:
                           duration_s=round(now - r["t0"], 2))
                 row = db.get(job_id) or {}
             del self.running[job_id]
+            finished_any = True
             self.progress.event("finish", job=job_id, extractor=r["extractor"], unit=r["unit_id"], status=row.get("status"),
                                 seconds=row.get("duration_s"), out_bytes=row.get("out_bytes"))
             self.progress.say(f"[{job_id}] {row.get('status')} in {row.get('duration_s')} s: {r['extractor']} {r['unit_id']}")
+        if finished_any:  # a finished job may have measured its extractor's peak RAM
+            self.ram_model = budget.RamModel.from_con(db.con)
 
     def _watchdog(self, job_id: int, r: dict, now: float) -> None:
         if now - r.get("checked", 0) < min(60.0, self.watchdog_s / 4):
@@ -211,6 +221,7 @@ class Runner:
         paused = False
         last_status = 0.0
         with JobsDB(self.db_file) as db:
+            self.ram_model = budget.RamModel.from_con(db.con)
             try:
                 while True:
                     self._reap(db)
@@ -243,7 +254,7 @@ class Runner:
                             continue
                         if self._blocked_by_deps(job["extractor"], active - {job["extractor"]}, active_stages):
                             continue
-                        if not self._ram_ok(budget.ram_weight(job["size"] or 0, job["resource"] or "cpu")):
+                        if not self._ram_ok(self._weight(job)):
                             break
                         self._start(db, job)
                         unit_work.add(job["extractor"])

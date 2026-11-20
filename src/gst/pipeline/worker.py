@@ -122,6 +122,38 @@ def tree_bytes(path: Path) -> int:
     return total
 
 
+def peak_ram() -> int | None:
+    """Peak RAM of this process in bytes (Windows: PeakWorkingSetSize; elsewhere ru_maxrss), None if unknown.
+    Child tools (AssetRipper, Ghidra...) are not counted: they are separate processes."""
+    try:
+        if os.name == "nt":
+            import ctypes
+            from ctypes import wintypes
+
+            class Counters(ctypes.Structure):
+                _fields_ = [("cb", wintypes.DWORD), ("PageFaultCount", wintypes.DWORD),
+                            ("PeakWorkingSetSize", ctypes.c_size_t), ("WorkingSetSize", ctypes.c_size_t),
+                            ("QuotaPeakPagedPoolUsage", ctypes.c_size_t), ("QuotaPagedPoolUsage", ctypes.c_size_t),
+                            ("QuotaPeakNonPagedPoolUsage", ctypes.c_size_t), ("QuotaNonPagedPoolUsage", ctypes.c_size_t),
+                            ("PagefileUsage", ctypes.c_size_t), ("PeakPagefileUsage", ctypes.c_size_t)]
+
+            c = Counters()
+            c.cb = ctypes.sizeof(Counters)
+            psapi = ctypes.WinDLL("psapi")
+            psapi.GetProcessMemoryInfo.argtypes = [wintypes.HANDLE, ctypes.POINTER(Counters), wintypes.DWORD]
+            k32 = ctypes.WinDLL("kernel32")
+            k32.GetCurrentProcess.restype = wintypes.HANDLE
+            if psapi.GetProcessMemoryInfo(k32.GetCurrentProcess(), ctypes.byref(c), c.cb):
+                return int(c.PeakWorkingSetSize)
+            return None
+        import resource
+
+        rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        return int(rss) if sys.platform == "darwin" else int(rss) * 1024
+    except Exception:  # bookkeeping never fails a job
+        return None
+
+
 def run_job(db_file: Path, job_id: int) -> int:
     from gst.extractors import registry
     from gst.extractors.base import Result, Unit
@@ -164,7 +196,7 @@ def run_job(db_file: Path, job_id: int) -> int:
             rmtree_force(long_path(partial_path(root, unit.extractor, unit.id)))
         db.finish(job_id, status=result.status, outputs=result.outputs, out_bytes=result.out_bytes, error=result.error,
                   tool=result.tool, tool_version=result.tool_version, notes=result.notes,
-                  duration_s=round(time.time() - t0, 2))
+                  duration_s=round(time.time() - t0, 2), peak_ram=peak_ram())
         log.info("job %s: %s in %.1f s", job_id, result.status, time.time() - t0)
     return 0
 

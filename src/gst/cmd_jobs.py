@@ -1,4 +1,8 @@
-"""gst jobs list|show|retry|reset: the jobs of `gst study` (jobs/jobs.db)."""
+"""gst jobs list|show|retry|reset|estimate: the jobs of `gst study` (jobs/jobs.db).
+
+estimate: CPUs, CPU load, RAM and disk of this machine, the expected time of every pending/running job (from the
+timing of finished jobs here and in the other workspaces), how many jobs can run at once, the time to finish for
+a few --jobs values, and a decision: auto (use the recommended --jobs) or ask (let the user choose)."""
 
 from __future__ import annotations
 
@@ -7,7 +11,8 @@ from gst.common import GsError, emit, human_size
 
 
 def register(sub, parent) -> None:
-    j = sub.add_parser("jobs", parents=[parent], help="jobs of gst study: list, show, retry, reset", description=__doc__)
+    j = sub.add_parser("jobs", parents=[parent], help="jobs of gst study: list, show, retry, reset, estimate",
+                       description=__doc__)
     j.set_defaults(group_parser=j)
     s = j.add_subparsers(dest="action", metavar="<action>")
     ls = s.add_parser("list", parents=[parent], help="jobs with status, extractor, unit, duration")
@@ -31,6 +36,14 @@ def register(sub, parent) -> None:
     rs.add_argument("--all", action="store_true")
     rs.add_argument("--slug")
     rs.set_defaults(func=cmd_reset)
+    es = s.add_parser("estimate", parents=[parent],
+                      help="machine capacity, time per job and to finish, recommended --jobs (auto or ask the user)")
+    es.add_argument("--jobs", type=int, help="also estimate this --jobs value")
+    es.add_argument("--all", action="store_true", help="list every pending/running job, not only the longest")
+    es.add_argument("--top", type=int, default=15, help="longest jobs to list (default 15)")
+    es.add_argument("--sample", type=float, default=1.0, help="seconds to sample the CPU load (default 1)")
+    es.add_argument("--slug")
+    es.set_defaults(func=cmd_estimate)
 
 
 def _db(slug: str | None):
@@ -88,4 +101,19 @@ def cmd_reset(args) -> int:
     with db:
         n = db.reset(ids=args.ids or None, extractor=args.extractor, status=args.status)
     emit({"pending": n}, args.json, f"{n} jobs back to pending (gst study runs them)")
+    return 0
+
+
+def cmd_estimate(args) -> int:
+    from gst import config
+    from gst.pipeline import capacity
+    from gst.pipeline.jobs import db_path
+
+    ws, _game = workspace.current(slug=args.slug)
+    if not db_path(ws).exists():
+        raise GsError(f"no jobs yet in {ws}: gst study {ws.name} plans them (gst study {ws.name} --dry-run shows the plan)")
+    result = capacity.estimate(ws, home=config.gs_home(), jobs=args.jobs, sample_s=max(0.1, args.sample))
+    if not args.all and args.json:
+        result["jobs"] = sorted(result["jobs"], key=lambda j: j.get("left_s", j["est_s"]), reverse=True)[: args.top]
+    emit(result, args.json, capacity.render(result, top=args.top, all_jobs=args.all))
     return 0
