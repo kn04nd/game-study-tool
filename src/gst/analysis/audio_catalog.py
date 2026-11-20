@@ -203,7 +203,12 @@ class Sources:
 # --- Unity --------------------------------------------------------------------------------------------
 
 def clip_exports(ws: Path) -> tuple[dict[str, str], dict[str, list[str]]]:
-    """Exported AudioClips from their sidecars: ``file|pid -> workspace path`` and ``name -> [paths]``."""
+    """Exported AudioClips from their sidecars: ``file|pid -> workspace path`` and ``name -> [paths]``.
+
+    A clip exported from inside a bundle is keyed by its serialized file (the CAB, e.g.
+    ``BuildPlayer-Level_1.sharedAssets``), as ``audio_refs`` keys it: the exporter writes that name as the
+    sidecar's ``container`` (``cab`` in older sidecars). Keying it by the bundle file alone never matches, and
+    the name fallback fails whenever the same clip ships in several bundles."""
     by_key, by_name = {}, collections.defaultdict(list)
     root = ws / "assets"
     if not root.is_dir():
@@ -223,7 +228,8 @@ def clip_exports(ws: Path) -> tuple[dict[str, str], dict[str, list[str]]]:
             target = (p.parent / j["file"])
             rel = target.relative_to(ws).as_posix()
             src = os.path.basename(str(j.get("source", "")).replace("\\", "/")).lower()
-            for k in {f"{src}|{j.get('path_id')}", f"{str(j.get('cab') or '').lower()}|{j.get('path_id')}"}:
+            cab = os.path.basename(str(j.get("cab") or j.get("container") or "").replace("\\", "/")).lower()
+            for k in {f"{src}|{j.get('path_id')}", f"{cab}|{j.get('path_id')}"}:
                 if not k.startswith("|"):
                     by_key[k] = rel
             by_name[str(j.get("name") or "")].append(rel)

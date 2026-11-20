@@ -261,6 +261,46 @@ def test_audio_catalog_unity_events_and_code(tmp_path):
     assert rep.summary["events"] == 3 and rep.summary["missing_files"] == 1 and rep.summary["without_export"] == 1
 
 
+def test_audio_catalog_clip_exports_key_bundle_clips_by_cab(tmp_path):
+    from gst.analysis.audio_catalog import clip_exports, unity_events
+
+    ws = tmp_path
+    root = ws / "assets" / "unity" / "AudioClip"
+
+    def export(folder: str, name: str, source: str, pid: int, container: str | None = None) -> str:
+        d = root / folder
+        d.mkdir(parents=True, exist_ok=True)
+        (d / f"{name}.wav").write_bytes(b"RIFF")
+        side = {"source": source, "path_id": pid, "type": "AudioClip", "name": name, "file": f"{name}.wav"}
+        if container:
+            side["container"] = container
+        (d / f"{name}.wav.gs.json").write_text(json.dumps(side), encoding="utf-8")
+        return f"assets/unity/AudioClip/{folder}/{name}.wav"
+
+    # the same clip ships in two bundles, each inside its own serialized file (CAB); plus a loose .assets clip
+    a = export("maps__levels0-31.assetbundle", "Bell", "D/StreamingAssets/maps/levels0-31.assetbundle", 317,
+               "BuildPlayer-Level_1.sharedAssets")
+    b = export("maps__levels32-63.assetbundle", "Bell", "D/StreamingAssets/maps/levels32-63.assetbundle", 5574,
+               "BuildPlayer-Level_61.sharedAssets")
+    c = export("resources.assets", "Click", "D/resources.assets", 9)
+    by_key, by_name = clip_exports(ws)
+    assert by_key["buildplayer-level_1.sharedassets|317"] == a
+    assert by_key["buildplayer-level_61.sharedassets|5574"] == b
+    assert by_key["resources.assets|9"] == c
+    assert sorted(by_name["Bell"]) == sorted([a, b])  # ambiguous by name: only the CAB key can resolve it
+
+    clips = [{"key": "buildplayer-level_1.sharedassets|317", "name": "Bell", "file": "D/levels0-31.assetbundle",
+              "path_id": 317, "cab": "BuildPlayer-Level_1.sharedAssets", "refs": 1},
+             {"key": "buildplayer-level_61.sharedassets|5574", "name": "Bell", "file": "D/levels32-63.assetbundle",
+              "path_id": 5574, "cab": "BuildPlayer-Level_61.sharedAssets", "refs": 1}]
+    refs = [{"file": c["file"], "cab": c["cab"], "path_id": 50 + i, "type": "AudioSource", "class": "AudioSource",
+             "go": "Bell", "root": "Ghost", "scriptable": False, "field": "m_Resource", "target": c["key"], "how": "typetree"}
+            for i, c in enumerate(clips)]
+    events = unity_events({"data": {"clips": clips, "refs": refs, "holder_refs": []}}, (by_key, by_name), None)
+    files = sorted(f["file"] for e in events for f in e["files"])
+    assert files == sorted([a, b])
+
+
 def test_audio_catalog_godot_and_publish(ws_any):
     ws, game = ws_any
     proj = ws / "assets" / "godot" / "project"
