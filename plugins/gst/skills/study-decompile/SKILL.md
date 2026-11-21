@@ -84,7 +84,18 @@ gst q sym Chore --kind class         # fuzzy search over qualified names
    skill for those and connect them back with `gst q strings <file or key name>`.
 4. Write down as you go; three dead ends on the same path means changing angle (and noting it).
 
-## 4. Record
+## 4. Code architecture (study material)
+
+`gst analyze code_architecture` (also a `gst study` job) turns the index into `analysis/code_architecture.json`/`.md`:
+modules and namespaces, the third-party libraries the game's code uses and where, entry points and managers,
+lifecycle and the longest per-frame methods, and a catalog of design patterns (events, singletons, service locator,
+state machines, ScriptableObject data, coroutines/async, Jobs/Burst, RPCs) and performance techniques (pooling,
+NonAlloc, cached components, precomputed ids, spread-out updates, LOD/culling) plus costs inside per-frame methods,
+each with counts and `path:line` examples (C# sources; option `modules` picks the game's modules). Write it up with
+`gst notes new code/arquitetura-codigo --template arquitetura-codigo` and confirm each pattern from its examples:
+the counts are regex signals.
+
+## 5. Record
 
 - `notes/code/<topic>.md`: the explanation in your own words, with `decomp/...:line` citations, tables,
   formulas and state machines instead of long code dumps (short excerpts are fine).

@@ -27,6 +27,8 @@ Scope and limits:
 - You may write only `ARCHITECTURE.md`, `notes/`, `FACTS.md` and `STUDY.md` (a hook enforces it).
 - Build on the notes; when a claim has no evidence in them, check the code with `gst q` before writing it,
   or put it in section 10 as not verified. Never invent addresses, constants or names.
+- Section 3 ("Arquitetura do código") summarizes `notes/code/arquitetura-codigo.md` when it exists: modules and
+  libraries, entry points, the patterns table and the performance techniques, each with `path:line`.
 - Section 4 always has `### Áudio` and `### Mapas e níveis` (from the audio and map notes),
   or the heading with why it does not apply.
 - Keep `ARCHITECTURE.md` readable: tables and diagrams over long prose; details stay in the notes.

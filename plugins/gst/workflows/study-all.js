@@ -37,7 +37,7 @@ const PLAN = {
         properties: {
           slug: { type: 'string' },
           label: { type: 'string' },
-          kind: { type: 'string', enum: ['system', 'mechanic', 'ragdoll', 'network', 'maps', 'audio', 'models', 'character'] },
+          kind: { type: 'string', enum: ['system', 'mechanic', 'ragdoll', 'network', 'maps', 'audio', 'models', 'character', 'code'] },
           template: { type: 'string' },
           question: { type: 'string' },
           system: { type: 'string' },
@@ -70,6 +70,7 @@ const KINDS = {
   audio: ['gst:asset-analyst', 'audio-catalogo', 'assets'],
   models: ['gst:asset-analyst', 'modelos-3d-dossie', 'assets'],
   character: ['gst:asset-analyst', 'personagem-modelos-animacoes', 'assets'],
+  code: ['gst:code-navigator', 'arquitetura-codigo', 'code'],
 }
 
 const opts = args && typeof args === 'object' && !Array.isArray(args) ? args : {}
@@ -96,18 +97,22 @@ const plan = await agent(
   'Plan the study notes of the current study workspace. Read: analysis/systems.json (systems with key types), the ' +
     'asset families (analysis/gltf_summary.json and dcc.json `data.families`, audio_catalog.json summary, ' +
     'godot_scenes.json / prefabs.json / unreal_assets.json summaries, joints.json or godot_animation.json ragdolls), ' +
-    'recon/recon.json `net_voice`, and the notes that already exist under notes/ (do not plan a note that exists). ' +
+    'recon/recon.json `net_voice`, analysis/code_architecture.json (modules, libraries, patterns), and the notes ' +
+    'that already exist under notes/ (do not plan a note that exists). ' +
     (askedFocus
       ? `The focus list is ${JSON.stringify(askedFocus)}.`
       : 'The focus list is `focus` in `gst config show --json`.') +
     ` Return the focus list you used and at most ${max} tasks, one system, mechanic or asset family each: ` +
-    'kind (system | mechanic | ragdoll | network | maps | audio | models | character), slug (lowercase, hyphens, ' +
+    'kind (system | mechanic | ragdoll | network | maps | audio | models | character | code), slug (lowercase, hyphens, ' +
     'pt-BR), label (pt-BR), the central question, `system` (a regex on the systems.json label it belongs to, when ' +
     'any), `match` (a regex on script/table names whose tunables matter, when any), template (sistema, mecanica, ' +
-    'ragdoll-fisica, rede-voz, mapa-niveis, audio-catalogo, modelos-3d-dossie, personagem-modelos-animacoes), ' +
+    'ragdoll-fisica, rede-voz, mapa-niveis, audio-catalogo, modelos-3d-dossie, personagem-modelos-animacoes, ' +
+    'arquitetura-codigo), ' +
     '`focus` (the focus item it serves, or empty) and priority (1 = first). Every focus item that exists in this ' +
-    'game gets a task, ordered as the focus list; then the gameplay systems that matter most; always one audio task ' +
-    'and one maps task. Only plan what the data supports (a focus item absent from this game: leave it out).',
+    'game gets a task, ordered as the focus list; then the gameplay systems that matter most; always one audio task, ' +
+    'one maps task and, when the game has decompiled code, one code task (kind code, slug arquitetura-codigo, template ' +
+    'arquitetura-codigo: structure, libraries, entry points, design patterns, performance techniques). Only plan what ' +
+    'the data supports (a focus item absent from this game: leave it out).',
   { label: 'plan', phase: 'Plan', schema: PLAN, agentType: 'gst:code-navigator' },
 )
 const tasks = plan.tasks
@@ -153,7 +158,8 @@ await agent(
   'Update ARCHITECTURE.md in the current study workspace from these notes: ' +
     tasks.map(t => `${deliverable(t)} (${t.label})`).join('; ') +
     '.\nDELIVERABLE: ARCHITECTURE.md\n' +
-    'Run `gst report` first (sections 1-2 from recon). Section 4 gets one ### per system with key types and ' +
+    'Run `gst report` first (sections 1-2 from recon). Section 3 summarizes notes/code/arquitetura-codigo.md when it ' +
+    'exists (structure, libraries, patterns and performance techniques, with its path:line). Section 4 gets one ### per system with key types and ' +
     'path:line, always ### Áudio and ### Mapas e níveis; section 5 the asset dossiers; section 8 a Mermaid graph of ' +
     'how the systems connect; section 10 the union of the notes\' "Não verificado". Then `gst report --check`.',
   { label: 'synthesize', phase: 'Consolidate', agentType: 'gst:synthesizer' },

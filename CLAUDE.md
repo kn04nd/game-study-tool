@@ -97,6 +97,8 @@ legacy gs (workspaces and plugin): `docs/MIGRATION.md`.
   Unity specifics (docs/tools/unity.md): Addressables `catalog.bin`/`catalog.json` decoder in
   `engines/unity/export/addressables.py`, scene animators in `prefabs` (default `scenes=animators`), hand-written
   humanoid tables in `analysis/unity/humanoid.py`, mixer groups in `audio_refs` -> kinds/categories in `audio_catalog`.
+  `code_architecture` (any engine, code index): modules, libraries (`LIBRARIES` table), entry points, a regex catalog
+  of design patterns and performance techniques (`PATTERNS`) for the `arquitetura-codigo` note template.
 - `src/gst/mapping.py`, `notes.py`, `report.py` - `gst map` (systems by type-name keywords, ranked by use,
   overridable in `notes/map-keywords.json`), `gst notes` (template, index, citations) and `gst report`
   (`--check` is the definition of done for ARCHITECTURE.md: sections, systems with evidence, resolving

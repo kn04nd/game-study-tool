@@ -27,6 +27,7 @@ TEMPLATES: dict[str, str] = {
     "personagem-modelos-animacoes": "assets",
     "audio-catalogo": "assets",
     "comparativo": "compare",
+    "arquitetura-codigo": "code",
 }
 AUTO = re.compile(r"^\{\{auto:([a-z_-]+)(?::([^}]*))?\}\}[ \t]*$", re.M)
 UNFILLED = re.compile(r"<!--\s*preencher\b", re.I)
@@ -424,10 +425,107 @@ def block_library(an: _Analyses, arg: str, opts: dict) -> str:
             f"de {when}; fontes por jogo e lacunas no arquivo que `gst lib compare` grava):\n\n" + text)
 
 
+_KIND_PT = {"game": "jogo", "other": "outro (estúdio ou não identificado)", "third-party": "terceiros",
+            "engine": "engine", "system": ".NET"}
+_GROUP_PT = {"architecture": "Arquitetura", "events": "Eventos e mensagens", "data": "Dados", "async": "Trabalho assíncrono",
+             "network": "Rede", "entry": "Entrada", "performance": "Técnicas de desempenho",
+             "hot-cost": "Custos nos métodos por frame"}
+_SRC_CA = "`analysis/code_architecture.json`"
+
+
+def _code_arch(an: _Analyses) -> dict | None:
+    data = an.get("code_architecture")
+    return (data.get("data") or {}) if data is not None else None
+
+
+def _refs(examples: list, n: int = 3) -> str:
+    return "; ".join(f"`{e.get('path')}:{e.get('line')}`" for e in (examples or [])[:n]) or "-"
+
+
+def block_code_modules(an: _Analyses, arg: str, opts: dict) -> str:
+    d = _code_arch(an)
+    if d is None:
+        return an.missing("code_architecture")
+    rows = [(m.get("name"), _KIND_PT.get(m.get("kind"), m.get("kind")), m.get("library") or "-", m.get("files"),
+             m.get("lines"), sum((m.get("types") or {}).values()),
+             ", ".join(f"{n.get('name')} ({n.get('files')})" for n in (m.get("namespaces") or [])[:4]))
+            for m in d.get("modules") or []]
+    out = f"Módulos (assemblies) do índice de código, de {_SRC_CA} `modules` (jogo: " \
+          f"{', '.join(d.get('game_modules') or []) or '-'}):\n\n" + \
+          _table(["módulo", "tipo", "biblioteca", "arquivos", "linhas", "tipos", "namespaces principais (arquivos)"], rows)
+    extra = [a for a in d.get("shipped_assemblies") or [] if not a.get("decompiled") and a.get("kind") == "third-party"]
+    if extra:
+        out += "\n\nNo build mas não decompilados (terceiros): " + ", ".join(
+            f"{a.get('assembly')} ({a.get('library')})" for a in extra)
+    return out
+
+
+def block_code_libraries(an: _Analyses, arg: str, opts: dict) -> str:
+    d = _code_arch(an)
+    if d is None:
+        return an.missing("code_architecture")
+    rows = [(r.get("library"), _KIND_PT.get(r.get("kind"), r.get("kind")), r.get("purpose") or "?", r.get("game_files"),
+             ", ".join(list((r.get("namespaces") or {}))[:3]), _refs(r.get("examples")))
+            for r in d.get("libraries") or []]
+    out = f"`using` do código do jogo agrupados por biblioteca ({_SRC_CA} `libraries`):\n\n" + \
+          _table(["biblioteca", "tipo", "para quê", "arquivos do jogo", "namespaces", "exemplos"], rows)
+    unmapped = d.get("unmapped_namespaces") or []
+    if unmapped:
+        out += "\n\nNamespaces sem biblioteca conhecida: " + ", ".join(
+            f"{u.get('namespace')} ({u.get('files')})" for u in unmapped[:15])
+    return out
+
+
+def block_code_entry(an: _Analyses, arg: str, opts: dict) -> str:
+    d = _code_arch(an)
+    if d is None:
+        return an.missing("code_architecture")
+    e = d.get("entry") or {}
+    life = ", ".join(f"{k} {v}" for k, v in (e.get("lifecycle") or {}).items()) or "-"
+    parts = [f"Métodos de ciclo de vida no código do jogo ({_SRC_CA} `entry`): {life}."]
+    boot = [p for p in d.get("patterns") or [] if p.get("group") == "entry" and p.get("count")]
+    if boot:
+        parts.append(_table(["entrada", "ocorrências", "exemplos"],
+                            [(p.get("label"), p.get("count"), _refs(p.get("examples"))) for p in boot]))
+    parts.append(_table(["tipo (manager)", "chamadas recebidas", "ciclo de vida", "onde"],
+                        [(m.get("type"), m.get("calls_in"), ", ".join(m.get("lifecycle") or []) or "-",
+                          f"`{m.get('path')}:{m.get('line')}`") for m in (e.get("managers") or [])[:12]]))
+    if e.get("execution_order"):
+        parts.append(_table(["ordem de execução", "tipo", "onde"],
+                            [(o.get("order"), o.get("type"), f"`{o.get('path')}:{o.get('line')}`")
+                             for o in e["execution_order"]]))
+    parts.append(_table(["método por frame mais longo", "linhas", "onde"],
+                        [(h.get("method"), h.get("lines"), f"`{h.get('path')}:{h.get('line')}`")
+                         for h in (e.get("longest_per_frame") or [])[:8]]))
+    if e.get("bases"):
+        parts.append("Tipos-base mais herdados: " + ", ".join(f"{b.get('base')} ({b.get('types')})"
+                                                             for b in e["bases"][:10]) + ".")
+    return "\n\n".join(parts)
+
+
+def block_code_patterns(an: _Analyses, arg: str, opts: dict) -> str:
+    """Pattern rows of the groups named in ``arg`` (comma-separated; empty = all)."""
+    d = _code_arch(an)
+    if d is None:
+        return an.missing("code_architecture")
+    groups = [g.strip() for g in (arg or "").split(",") if g.strip()]
+    parts = []
+    for group in groups or list(_GROUP_PT):
+        rows = [(p.get("label"), p.get("count"), p.get("files"), p.get("hot"), p.get("init"), _refs(p.get("examples")))
+                for p in d.get("patterns") or [] if p.get("group") == group]
+        if rows:
+            parts.append(f"**{_GROUP_PT.get(group, group)}** ({_SRC_CA} `patterns`, grupo `{group}`):\n\n" +
+                         _table(["padrão", "ocorrências", "arquivos", "em métodos por frame", "em Awake/Start/OnEnable",
+                                 "exemplos"], rows))
+    return "\n\n".join(parts) or "_(nenhum padrão desses grupos na análise)_"
+
+
 BLOCKS = {
     "summary": block_summary, "systems": block_systems, "system": block_system, "tunables": block_tunables,
     "middleware": block_middleware, "ragdoll": block_ragdoll, "audio": block_audio, "models": block_models,
     "animation": block_animation, "maps": block_maps, "workspaces": block_workspaces, "library": block_library,
+    "code_modules": block_code_modules, "code_libraries": block_code_libraries, "code_entry": block_code_entry,
+    "code_patterns": block_code_patterns,
 }
 
 

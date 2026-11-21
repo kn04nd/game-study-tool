@@ -5,13 +5,12 @@ covered by the unit tests and the guides in `docs/tools/`. Contracts: `docs/INTE
 
 ## Pipeline (`gst study`, jobs)
 
-- The RAM weight of a `cpu` job is its extractor's measured peak (`peak_ram` of done jobs in this workspace) x 1.5;
-  until one job of that extractor has finished with a measurement it is 3x the unit size (6 GB for a 2 GB bundle
-  whose worker really peaks near 0.65 GB). The worker measures its own process only: `heavy` and `io` jobs, whose
-  tools run as child processes, keep the size rule. Cpp2IL and Il2CppInspector peak at ~4.9 GB on a 184 MB unit;
-  the `heavy` pool runs them one at a time, but the runner does not know their peak. A unit much richer than the
-  ones measured (same extractor, same size) can still exceed its reservation; the free-RAM floor (2 GB or 20% of the
-  free RAM) is the safety net.
+- The RAM weight of a job is its extractor's measured peak (`peak_ram`, this workspace only) x 1.5. Until one job of
+  that extractor has a measurement it is a default: 40% of the RAM for `heavy` tools, 25% for analyses (no input
+  size), 3x the unit otherwise (6 GB for a 2 GB bundle whose worker really peaks near 0.65 GB). The runner samples
+  the process tree every 5 s, so a short spike between samples is missed. A unit much richer than the ones measured
+  (same extractor, same size) can still exceed its reservation; the free-RAM floor (2 GB or 20% of the free RAM) is
+  the safety net. Programs outside gst that grow after a job started are not foreseen.
 - `gst jobs estimate` learns from done jobs only: an extractor that never ran anywhere gets a guess (the median
   per-byte rate of the workspace for big units, a constant for small ones), flagged `guess` and a reason to ask the
   user. The CPU load is one short sample; a study's own workers are subtracted as one core each.
@@ -19,6 +18,16 @@ covered by the unit tests and the guides in `docs/tools/`. Contracts: `docs/INTE
   you stop it or pass `--timeout`.
 - `gst audio index` looks at `assets/audio` by default. For Unity clips run `gst audio index assets/unity/AudioClip`
   (the two folders are not merged in `files.jsonl`).
+
+## Code architecture (`code_architecture`)
+
+- Patterns are line regexes over C# sources: no semantic analysis, so counts are signals (a `+=` on a number field
+  can count as a subscription; a pool named without `Pool` is missed). The note confirms them from the examples.
+- "Per-frame" means the body of Update/FixedUpdate/LateUpdate/OnGUI itself, not the methods they call.
+- Only C# is scanned for patterns and `using` directives; other languages (GDScript, Java, Lua, Ghidra C) get the
+  module and namespace structure only. IL2CPP stubs have no method bodies, so most patterns read zero there.
+- Library purposes come from a hand-written table (`LIBRARIES`); unknown assemblies are `other` (the studio's own
+  framework or an unlisted library).
 
 ## Unity
 

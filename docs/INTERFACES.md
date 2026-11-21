@@ -79,10 +79,12 @@ GS_HOME/<slug>/
                        time per pending job from done jobs here and in other workspaces (`overhead + rate*size` per
                        extractor, else category for units >= 64 MB, else a flagged guess), parallel limits (CPU,
                        the scheduler's RAM rule), ETA per --jobs by simulating the scheduler, decision auto|ask)
-                       Scheduler RAM rule (src/gst/pipeline/budget.py): a cpu job reserves its extractor's measured
-                       peak_ram x 1.5 (else 3x the unit); it starts when free RAM minus what running jobs may still
-                       take (reservation minus their process tree's working set) minus its reservation stays >=
-                       max(2 GB, 20% of free RAM)
+                       Scheduler RAM rule (src/gst/pipeline/budget.py): a job reserves its extractor's measured
+                       peak_ram x 1.5 (peak_ram = max of the worker's own peak and the runner's 5 s samples of the
+                       worker's process tree, so child tools count; done and failed jobs); unmeasured: heavy = 40%
+                       of total RAM, cpu without input size (analyses) = 25%, else 3x the unit (io: 64 MB). A job
+                       starts when free RAM minus what running jobs may still take (reservation minus their process
+                       tree's working set) minus its reservation stays >= max(2 GB, 20% of free RAM)
     COVERAGE.md        per category: discovered / extracted / failed / unsupported / blocked (+ reason, next step)
   analysis/
     <name>.json + <name>.md        outputs of `gst analyze <name>`
@@ -219,6 +221,17 @@ Core Unity analyses: `prefabs` (roots + tree per prefab; `marker`, `detail=auto|
 `data.prefabs[*]` (`file`, `cab`, `go`, `transform`, `name`, `container`, `scripts`, `markers`, `smr`, `tris`,
 `animators`, `detail` -> `analysis/prefabs/<file>/<name>__<go>.json` with `nodes`) are the base for rig, joints and
 animation.
+
+`code_architecture` (any engine, needs `code.index`; `src/gst/analysis/code_architecture.py`): `data.modules` (every
+indexed module: `kind` game|other|third-party|engine|system, `library`/`purpose` from `LIBRARIES` by assembly or main
+namespace, files, lines, types, `namespaces` from the decomp folder layout), `shipped_assemblies` (Unity
+`*_Data/Managed/*.dll`, `decompiled` flag), `libraries` (the game modules' `using` directives folded by library:
+`game_files`, `namespaces`, `examples`), `unmapped_namespaces`, `entry` (`lifecycle` counts, `longest_per_frame`,
+`managers` ranked by inbound call targets, `execution_order`, `bases`) and `patterns` (one row per `PATTERNS` entry:
+`key`, `group` architecture|events|data|async|network|entry|performance|hot-cost, `count`, `files`, `hot` = hits inside
+Update/FixedUpdate/LateUpdate/OnGUI, `init` = inside Awake/Start/OnEnable, `examples` with `path`, `line`, `in`,
+`text`). Line regexes over C# sources of the game modules (option `modules`, default `Assembly-CSharp`; `examples`
+per pattern, default 6). Counts are signals for the `arquitetura-codigo` note, not facts.
 
 ### Animation, rig and physics analyses (Unity)
 
@@ -656,6 +669,7 @@ The templates and their prefilled text are pt-BR (the study output the user read
 | `personagem-modelos-animacoes` | assets | `models`, `animation`, `ragdoll` |
 | `audio-catalogo` | assets | `audio` (`audio_catalog` summary and `categories`) |
 | `comparativo` | compare | `workspaces` (GS_HOME workspaces, `--games a,b`: engine, `middleware`, analyses) |
+| `arquitetura-codigo` | code | `code_modules`, `code_libraries`, `code_entry`, `code_patterns:<groups>` (`code_architecture`) |
 
 `tunables` = Godot `godot_scenes.json` `data.tunables[*].exports` (type, code default, values in scenes), Unity
 `mono_values`/`catalogs` `data.scripts` (fields), Unreal `unreal_assets` `data.datatables` and `unreal_values`; up to

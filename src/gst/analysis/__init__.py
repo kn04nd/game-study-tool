@@ -52,6 +52,7 @@ PROVIDERS: list[str] = [
     "gst.analysis.unity.mono_values",   # MonoBehaviour field values per script
     "gst.analysis.unity.catalogs",      # ScriptableObject catalogs, name families, Addressables
     "gst.analysis.systems",             # candidate gameplay systems (code index + prefabs + REA)
+    "gst.analysis.code_architecture",   # modules, libraries, entry points, design patterns, performance techniques
     "gst.analysis.unity.controller",    # AnimatorControllers, overrides, #hash names
     "gst.analysis.unity.animation",     # AnimationClips, CRC32 path maps, events, root motion
     "gst.analysis.unity.avatar",        # Avatars, humanoid mapping

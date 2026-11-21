@@ -25,6 +25,9 @@ writing their part.
 
 ## 2. Write, section by section
 
+- Section 3 ("Arquitetura do código"): from `notes/code/arquitetura-codigo.md` (template `arquitetura-codigo`,
+  pre-filled from `analysis/code_architecture.json`): modules and libraries, entry points and managers, a table of
+  the design patterns and performance techniques with `path:line`.
 - Section 4 ("Sistemas"): one `### <System>` per system: purpose, key types with `path:line`, the data it
   reads, formulas, state machines, a link to its note. At least five systems for a full study, and always
   `### Áudio` (events -> files -> who triggers them, the sound engine, music; from the study-audio notes)
