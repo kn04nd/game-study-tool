@@ -28,6 +28,7 @@ from gst.rea import evidence
 
 REA_DIR = Path("dumps") / "rea"
 SKIP_SUFFIXES = (".request.json", ".run.json", ".error.json")
+IMPORT_SUMMARY = "import.json"  # dumps/rea/import.json: what rea.import writes, never one of its inputs
 
 SCHEMA = """
 DROP TABLE IF EXISTS rea_calls;
@@ -59,14 +60,16 @@ CREATE INDEX IF NOT EXISTS rea_fa_field ON rea_field_accesses(field COLLATE NOCA
 
 def evidence_files(ws: Path) -> list[Path]:
     """Evidence JSON under ``dumps/rea``: ``evidence/`` first (sorted), then other files (manual bundles), never
-    the request/run/error side files or ``split/``."""
+    the request/run/error side files, ``split/`` or the import summary (``IMPORT_SUMMARY``: counting it made
+    ``rea.import`` change its own fingerprint and rerun, with every analysis after it, on each ``gst study``)."""
     root = Path(ws) / REA_DIR
     if not root.is_dir():
         return []
     first, rest = [], []
     for p in sorted(root.rglob("*.json")):
         rel = p.relative_to(root).as_posix()
-        if p.name.endswith(SKIP_SUFFIXES) or p.name.startswith(".partial-") or rel.startswith("split/"):
+        if (p.name.endswith(SKIP_SUFFIXES) or p.name.startswith(".partial-") or rel.startswith("split/")
+                or rel == IMPORT_SUMMARY):
             continue
         (first if rel.startswith("evidence/") else rest).append(p)
     return first + rest

@@ -478,7 +478,7 @@ class ReaImport(Extractor):
         if not import_index.evidence_files(ctx.workspace):
             return Result(status="skipped", notes=["no REA Evidence in dumps/rea"])
         summary = import_index.import_workspace(ctx.workspace)
-        write_json(Path(ctx.workspace) / "dumps" / "rea" / "import.json", summary)
+        write_json(Path(ctx.workspace) / import_index.REA_DIR / import_index.IMPORT_SUMMARY, summary)
         db = Path(ctx.workspace) / "index" / "code.db"
         return Result(outputs=["index/code.db"], out_bytes=db.stat().st_size if db.exists() else 0, tool="gst rea import",
                       notes=[f"rea_calls {summary['calls']}, rea_fields {summary['fields']}, rea_methods "
