@@ -2,9 +2,11 @@
 weights for the scheduler.
 
 RAM rule of the scheduler (``Runner._ram_ok``, mirrored by ``capacity.simulate``): a job reserves its weight =
-the measured peak RAM of its extractor in this workspace times ``RAM_MARGIN`` (``RamModel``, from the
-``peak_ram`` column of done jobs; ``cpu`` jobs only, since the worker measures its own process, not child
-tools), else the size rule ``RAM_FACTOR`` x unit size. A job starts when, after what the running jobs may still
+the measured peak RAM of its extractor in this workspace times ``RAM_MARGIN`` (``RamModel``, from the ``peak_ram``
+column of done and failed jobs: the larger of the worker's own peak and the runner's samples of the worker's whole
+process tree, so child tools count), else a default by kind: ``RAM_HEAVY_SHARE`` of the total RAM for ``heavy``
+jobs (external tools: AssetRipper, Ghidra, Cpp2IL), ``RAM_UNSIZED_SHARE`` of it for ``cpu`` jobs without an input
+size (analyses and finalize steps read the whole workspace), else the size rule ``RAM_FACTOR`` x unit size. A job starts when, after what the running jobs may still
 take (weight minus what their process tree already uses) and its own weight, the free RAM stays at or above
 ``keep_free`` (the larger of ``RAM_KEEP_FREE`` and ``RAM_KEEP_SHARE`` of the free RAM). The first job always
 starts."""
@@ -33,6 +35,8 @@ RAM_MARGIN = 1.5            # measured peak x this = the reservation
 RAM_KEEP_FREE = 2 << 30     # never plan to leave less free RAM than this ...
 RAM_KEEP_SHARE = 0.2        # ... or than this share of the free RAM
 MEASURE_BIG = 64 << 20      # units at least this large give a peak-per-byte ratio
+RAM_HEAVY_SHARE = 0.4       # unmeasured heavy job (external tool): this share of the total RAM
+RAM_UNSIZED_SHARE = 0.25    # unmeasured cpu job without an input size (an analysis): this share of the total RAM
 
 
 def parse_size(text: str | int | None) -> int | None:
@@ -91,8 +95,9 @@ def ram_weight(size: int, resource: str) -> int:
 
 
 class RamModel:
-    """Measured peak RAM per extractor (done jobs with ``peak_ram``): the largest peak/size ratio of its big units
-    times the size, never below the largest peak of its small units."""
+    """Measured peak RAM per extractor (done or failed jobs with ``peak_ram``; a failed job's peak is a lower bound,
+    e.g. a MemoryError): the largest peak/size ratio of its big units times the size, never below the largest peak
+    of its small units."""
 
     def __init__(self, rows=()):
         self.ratio: dict[str, float] = {}
@@ -100,7 +105,7 @@ class RamModel:
         self.peak: dict[str, int] = {}
         for r in rows:
             ext, size, peak = r.get("extractor"), r.get("size") or 0, r.get("peak_ram")
-            if not ext or not peak or r.get("status") not in (None, "done"):
+            if not ext or not peak or r.get("status") not in (None, "done", "failed"):
                 continue
             self.peak[ext] = max(self.peak.get(ext, 0), peak)
             if size >= MEASURE_BIG:
@@ -111,7 +116,8 @@ class RamModel:
     @classmethod
     def from_con(cls, con) -> "RamModel":
         try:
-            cur = con.execute("SELECT extractor, size, peak_ram FROM jobs WHERE status='done' AND peak_ram IS NOT NULL")
+            cur = con.execute("SELECT extractor, size, peak_ram FROM jobs WHERE status IN ('done', 'failed') "
+                              "AND peak_ram IS NOT NULL")
             rows = cur.fetchall()
         except Exception:  # an older jobs.db without the column (read-only connections do not add it)
             return cls()
@@ -124,13 +130,20 @@ class RamModel:
         return max(need, self.small.get(extractor, 0), RAM_FLOOR)
 
 
-def job_weight(size: int, resource: str, extractor: str = "", model: RamModel | None = None) -> int:
-    """What the scheduler reserves for a job: measured peak x RAM_MARGIN (cpu jobs), else the size rule."""
-    if (resource or "cpu") == "cpu" and model is not None:
+def job_weight(size: int, resource: str, extractor: str = "", model: RamModel | None = None,
+               total_ram: int | None = None) -> int:
+    """What the scheduler reserves for a job: measured peak x RAM_MARGIN, else the default of its kind (see the
+    module docstring)."""
+    resource = resource or "cpu"
+    if model is not None:
         measured = model.measured(extractor, size)
         if measured:
             return max(RAM_FLOOR, int(measured * RAM_MARGIN))
-    return ram_weight(size, resource or "cpu")
+    if resource == "heavy" or (resource == "cpu" and not size):
+        total = total_ram if total_ram is not None else memory()[0]
+        share = RAM_HEAVY_SHARE if resource == "heavy" else RAM_UNSIZED_SHARE
+        return max(RAM_FLOOR, int(total * share))
+    return ram_weight(size, resource)
 
 
 def keep_free(avail: int) -> int:

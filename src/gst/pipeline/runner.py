@@ -23,6 +23,7 @@ from gst.pipeline.progress import Progress, write_status
 from gst.pipeline.worker import FINALIZE, PARTIAL
 
 HEAVY_SLOTS = 1
+PEAK_SAMPLE_S = 5.0  # how often the runner samples each worker's process tree RAM
 WATCHDOG_S = 1800.0
 POLL_S = 0.25
 
@@ -118,13 +119,21 @@ class Runner:
         self.python = python or sys.executable
         self.running: dict[int, dict] = {}
         self.ram_model = budget.RamModel()
+        self.total_ram = budget.memory()[0]
         self.killer = _KillOnClose()
         (ws / "logs" / "jobs").mkdir(parents=True, exist_ok=True)
 
     # --- scheduling decisions --------------------------------------------------------------------
 
     def _weight(self, job: dict) -> int:
-        return budget.job_weight(job["size"] or 0, job["resource"] or "cpu", job["extractor"], self.ram_model)
+        return budget.job_weight(job["size"] or 0, job["resource"] or "cpu", job["extractor"], self.ram_model,
+                                 self.total_ram)
+
+    def _sample_peak(self, r: dict, now: float) -> None:
+        """Largest working set seen for the worker and its children (external tools included)."""
+        if now - r.get("peak_at", 0.0) >= PEAK_SAMPLE_S:
+            r["peak_at"] = now
+            r["peak"] = max(r.get("peak", 0), budget.process_tree_ram(r["proc"].pid))
 
     def _ram_ok(self, weight: int) -> bool:
         if not self.running:
@@ -182,6 +191,7 @@ class Runner:
                     self.progress.warn(f"job {job_id} stopped by --timeout ({self.timeout:.0f} s)", job=job_id)
                     code = -1
                 else:
+                    self._sample_peak(r, now)
                     self._watchdog(job_id, r, now)
                     continue
             r["fh"].close()
@@ -191,6 +201,8 @@ class Runner:
                 db.finish(job_id, status=FAILED, error=f"worker exited with code {code} without a result\n{text}",
                           duration_s=round(now - r["t0"], 2))
                 row = db.get(job_id) or {}
+            if r.get("peak"):
+                db.raise_peak(job_id, r["peak"])
             del self.running[job_id]
             finished_any = True
             self.progress.event("finish", job=job_id, extractor=r["extractor"], unit=r["unit_id"], status=row.get("status"),

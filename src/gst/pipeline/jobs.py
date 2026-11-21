@@ -195,6 +195,10 @@ class JobsDB:
             (status, json.dumps(outputs or []), int(out_bytes or 0), error, tool, tool_version, json.dumps(notes or []),
              duration_s, now(), peak_ram, job_id))
 
+    def raise_peak(self, job_id: int, peak_ram: int) -> None:
+        """Keep the larger of the recorded peak and ``peak_ram`` (the runner's samples of the worker's process tree)."""
+        self.con.execute("UPDATE jobs SET peak_ram=MAX(COALESCE(peak_ram, 0), ?) WHERE id=?", (int(peak_ram), job_id))
+
     def set_status(self, job_id: int, status: str, error: str | None = None) -> None:
         self.con.execute("UPDATE jobs SET status=?, error=COALESCE(?, error), pid=NULL WHERE id=?", (status, error, job_id))
 

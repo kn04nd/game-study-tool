@@ -129,14 +129,20 @@ def test_ram_model_and_job_weight():
     model = budget.RamModel([row("unity.textures", 2 * GB, 1.0, peak_ram=700 * MB),
                              row("unity.textures", 1 * MB, 1.0, peak_ram=200 * MB),
                              row("unity.meshes", 1 * MB, 1.0, peak_ram=90 * MB),
-                             row("unity.gltf", 1 * GB, None, status="failed", peak_ram=9 * GB)])
+                             row("unity.gltf", 1 * GB, None, status="failed", peak_ram=9 * GB),
+                             row("unity.fonts", 1 * GB, None, status="pending", peak_ram=9 * GB)])
     assert model.measured("unity.textures", 4 * GB) == 1400 * MB       # ratio of the big unit
     assert model.measured("unity.textures", 10 * MB) == 200 * MB       # small units: their largest peak
     assert model.measured("unity.meshes", 2 * GB) == 90 * MB           # no big unit measured: the largest peak
-    assert model.measured("unity.gltf", GB) is None                    # failed jobs teach nothing
+    assert model.measured("unity.gltf", GB) == 9 * GB                  # a failed job's peak is a lower bound
+    assert model.measured("unity.fonts", GB) is None                   # unfinished jobs teach nothing
     assert budget.job_weight(4 * GB, "cpu", "unity.textures", model) == 2100 * MB
-    assert budget.job_weight(2 * GB, "cpu", "unity.gltf", model) == 6 * GB   # not measured: 3x the unit
-    assert budget.job_weight(2 * GB, "heavy", "unity.textures", model) == budget.RAM_FLOOR  # tools: old rule
+    assert budget.job_weight(2 * GB, "cpu", "unity.sprites", model) == 6 * GB   # not measured: 3x the unit
+    # not measured, no input size (analyses) or an external tool (heavy): a share of the machine's RAM
+    assert budget.job_weight(0, "cpu", "analysis.rig", model, total_ram=32 * GB) == 8 * GB
+    assert budget.job_weight(15 * GB, "heavy", "unity.assetripper_project", model, total_ram=32 * GB) == int(32 * GB * 0.4)
+    assert budget.job_weight(2 * GB, "heavy", "unity.textures", model) == 1050 * MB  # measured wins (700 MB x 1.5)
+    assert budget.job_weight(GB, "io", "files.loose", model) == budget.RAM_FLOOR
 
 
 def test_runner_reserves_only_what_running_jobs_may_still_take(tmp_path, monkeypatch):
@@ -156,6 +162,32 @@ def test_runner_reserves_only_what_running_jobs_may_still_take(tmp_path, monkeyp
     assert not runner._ram_ok(6 * GB)      # 19 - 12 - 6 = 1 GB
     used["value"] = 5 * GB                 # the running jobs already hold most of their share
     assert runner._ram_ok(6 * GB)          # 19 - 2 - 6 = 11 GB
+
+
+def test_runner_samples_the_process_tree_peak_into_jobs_db(tmp_path, monkeypatch):
+    import subprocess
+    import sys
+
+    from gst.pipeline import budget, runner as runner_mod
+    from gst.pipeline.runner import Runner
+
+    ws = _workspace(tmp_path, [row("unity.text", MB, status="pending", category="data")])
+    with JobsDB(ws / "jobs" / "jobs.db") as db:
+        job_id = db.find("unity.text", "u1")["id"]
+        db.claim(job_id)
+        db.finish(job_id, status="done", duration_s=1.0, peak_ram=100 * MB)  # the worker's own peak
+    monkeypatch.setattr(budget, "process_tree_ram", lambda pid: 700 * MB)    # its child tool held more
+    monkeypatch.setattr(runner_mod, "PEAK_SAMPLE_S", 0.0)
+    run = Runner(ws, jobs=1)
+    proc = subprocess.Popen([sys.executable, "-c", "pass"])
+    proc.wait()
+    run.running = {job_id: {"proc": proc, "fh": open(tmp_path / "log.txt", "w"), "log": tmp_path / "log.txt",
+                            "t0": 0.0, "extractor": "unity.text", "unit_id": "u1", "resource": "cpu", "weight": 1,
+                            "peak": 700 * MB}}
+    with JobsDB(ws / "jobs" / "jobs.db") as db:
+        run._reap(db)
+        assert db.get(job_id)["peak_ram"] == 700 * MB
+        assert run.ram_model.measured("unity.text", MB) == 700 * MB
 
 
 def test_process_tree_ram_sees_this_process():

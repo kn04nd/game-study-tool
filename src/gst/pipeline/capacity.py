@@ -5,7 +5,8 @@
   jobs of this workspace, then of the other workspaces under GS_HOME, then of the same category; with no
   history, a guess (flagged). Running jobs count with what is left of their estimate.
 - Parallel jobs: the CPU limit (idle cores minus one for the system) and the RAM limit under the scheduler's
-  own rule (``budget.job_weight``: measured peak of the extractor x margin, else 3x the unit; ``budget.ram_fits``).
+  own rule (``budget.job_weight``: measured peak of the extractor x margin, else the default of its kind;
+  ``budget.ram_fits``).
 - ETA: a simulation of the scheduler (slots, one heavy job at a time, ``after`` / ``after_earlier_stages``,
   the RAM rule) for a few ``--jobs`` values.
 - Decision: ``auto`` (take the recommendation) or ``ask`` (show the table to the user), with the reasons.
@@ -265,8 +266,9 @@ def estimate(ws: Path, *, home: Path | None = None, jobs: int | None = None, sam
         item = {"id": r["id"], "extractor": r["extractor"], "unit": r["unit_id"], "size": r["size"],
                 "resource": r.get("resource") or "cpu", "stage": r.get("stage") or 0, "seq": r.get("seq") or 0,
                 "status": "running" if r in running_rows else "pending", "est_s": round(est, 1), "basis": basis,
-                "ram_weight": budget.job_weight(r["size"], r.get("resource") or "cpu", r["extractor"], ram_model),
-                "ram_measured": bool((r.get("resource") or "cpu") == "cpu" and ram_model.measured(r["extractor"], r["size"]))}
+                "ram_weight": budget.job_weight(r["size"], r.get("resource") or "cpu", r["extractor"], ram_model,
+                                                mach["ram_total"]),
+                "ram_measured": bool(ram_model.measured(r["extractor"], r["size"]))}
         if item["status"] == "running":
             elapsed = _elapsed(r.get("started_at"))
             item["elapsed_s"] = round(elapsed, 1)
@@ -289,7 +291,7 @@ def estimate(ws: Path, *, home: Path | None = None, jobs: int | None = None, sam
     longest = sorted(work, key=lambda j: j.get("left_s", j["est_s"]), reverse=True)[: max(3, len(work) // 4)]
     ram_per_job = statistics.median(j["ram_weight"] for j in longest) if longest else budget.RAM_FLOOR
     ram_slots = max(1, int((avail - budget.keep_free(avail)) // max(ram_per_job, 1)))
-    unmeasured = [j for j in longest if j["resource"] == "cpu" and not j["ram_measured"]]
+    unmeasured = [j for j in longest if j["resource"] != "io" and not j["ram_measured"]]
     useful = max(1, len(jobs_out))
     recommended = max(1, min(cpu_slots, ram_slots, useful))
     limiter = "cpu" if recommended == cpu_slots else "ram" if recommended == ram_slots else "jobs-left"
@@ -315,9 +317,10 @@ def estimate(ws: Path, *, home: Path | None = None, jobs: int | None = None, sam
     if mach.get("drive") in ("removable", "network"):
         reasons_ask.append(f"the workspace is on a {mach['drive']} drive: more parallel reads may be risky")
     if unmeasured:
-        notes.append(f"{len(unmeasured)} of the longest jobs have no RAM measurement yet: they reserve 3x their input "
-                     "until one job of their extractor finishes in this workspace, then its measured peak x "
-                     f"{budget.RAM_MARGIN} (times above assume 3x)")
+        notes.append(f"{len(unmeasured)} of the longest jobs have no RAM measurement yet: they reserve a default (3x "
+                     f"their input; {budget.RAM_UNSIZED_SHARE:.0%} of the RAM for analyses, {budget.RAM_HEAVY_SHARE:.0%} "
+                     "for heavy tools) until one job of their extractor finishes in this workspace, then its measured "
+                     f"peak x {budget.RAM_MARGIN} (times above assume the defaults)")
     if study_running and running:
         lost = sum(j.get("elapsed_s", 0) for j in running)
         notes.append(f"a study is running: changing --jobs means stopping it; its {len(running)} running jobs restart "
