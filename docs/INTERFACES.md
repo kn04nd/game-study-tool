@@ -84,7 +84,7 @@ GS_HOME/<slug>/
                        the scheduler's RAM rule), ETA per --jobs by simulating the scheduler, decision auto|ask)
                        Scheduler RAM rule (src/gst/pipeline/budget.py): a job reserves its extractor's measured
                        peak_ram x 1.5 (peak_ram = max of the worker's own peak and the runner's 5 s samples of the
-                       worker's process tree, so child tools count; done and failed jobs); unmeasured: heavy = 40%
+                       worker's process tree, so child tools count; done and failed jobs, and jobs planned again keep their last peak); unmeasured: heavy = 40%
                        of total RAM, cpu without input size (analyses) = 25%, else 3x the unit (io: 64 MB). A job
                        starts when free RAM minus what running jobs may still take (reservation minus their process
                        tree's working set) minus its reservation stays >= max(2 GB, 20% of free RAM)

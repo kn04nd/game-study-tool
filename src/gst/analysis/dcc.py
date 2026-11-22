@@ -251,7 +251,7 @@ def gltf_names(ctx, table: NameTable) -> dict:
     gens: collections.Counter = collections.Counter()
     sig: collections.Counter = collections.Counter()
     files = 0
-    for p in find_files(root) if root.is_dir() else []:
+    for p in find_files(root, ctx.hidden_export_dirs()) if root.is_dir() else []:
         try:
             j, _ = load(p, with_bin=False)
         except Exception:

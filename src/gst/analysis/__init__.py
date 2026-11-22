@@ -334,6 +334,13 @@ class Context:
                     self.log(f"asset level {level}: {len(self._hidden)} map containers left out")
         return self._hidden
 
+    def hidden_export_dirs(self) -> set[str]:
+        """Export folder names (``assets/unity/<Type>/<source>/``) of the hidden files: what an earlier ``full``
+        run exported from the map containers, which analyses walking ``assets/`` skip below ``full``."""
+        from gst.engines.unity.export import source_folder
+
+        return {source_folder(rel) for rel in self.hidden_files()}
+
     def summaries(self):
         """Per-file inventory summaries (``inventory.summaries``) without the hidden files."""
         from gst.engines.unity import inventory

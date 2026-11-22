@@ -11,7 +11,8 @@ covered by the unit tests and the guides in `docs/tools/`. Contracts: `docs/INTE
   the process tree every 5 s, so a short spike between samples is missed. A unit much richer than the ones measured
   (same extractor, same size) can still exceed its reservation; the free-RAM floor (2 GB or 20% of the free RAM) is
   the safety net. Programs outside gst that grow after a job started are not foreseen.
-- `gst jobs estimate` learns from done jobs only: an extractor that never ran anywhere gets a guess (the median
+- `gst jobs estimate` and the RAM rule learn from finished runs (done jobs, and jobs planned again keep the time and
+  peak RAM of their last run): an extractor that never ran anywhere gets a guess (the median
   per-byte rate of the workspace for big units, a constant for small ones), flagged `guess` and a reason to ask the
   user. The CPU load is one short sample; a study's own workers are subtracted as one core each.
 - Asset levels: map containers are recognized for Unity only (bundles of built scenes). Godot and Unreal levels

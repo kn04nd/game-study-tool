@@ -248,3 +248,38 @@ def test_analysis_context_hides_map_containers_below_full(tmp_path, monkeypatch)
     normal = analysis.Context(tmp_path, game, spec, options={"assets": "normal"})
     assert normal.inventory_files(("Transform",)) == ["Game_Data/resources.assets"]
     assert [s["file"] for s in normal.summaries()] == ["Game_Data/resources.assets"]
+
+
+def test_ram_model_keeps_the_peak_of_jobs_planned_again(tmp_path):
+    from gst.pipeline import budget
+
+    with JobsDB(tmp_path / "jobs.db") as db:
+        db.upsert(extractor="analysis.dcc", unit_id="dcc", relpaths=[], inputs=[], fingerprint="f", buildid="1",
+                  category="other", resource="cpu", stage=60, seq=1, size=0, meta={})
+        db.con.execute("UPDATE jobs SET peak_ram=? WHERE unit_id='dcc'", (600 << 20,))  # pending, measured last run
+        model = budget.RamModel.from_con(db.con)
+    assert model.measured("analysis.dcc", 0) == 600 << 20
+    assert budget.job_weight(0, "cpu", "analysis.dcc", model, 32 << 30) == int((600 << 20) * budget.RAM_MARGIN)
+
+
+def test_exports_of_hidden_map_containers_are_skipped(tmp_path, monkeypatch):
+    from gst import analysis
+    from gst.analysis.gltf_summary import find_files
+    from gst.engines.unity import inventory
+
+    inv = tmp_path / "assets" / "unity" / inventory.INVENTORY_DIR
+    inv.mkdir(parents=True)
+    for rel in ("Game_Data/resources.assets", "Game_Data/StreamingAssets/maps/levels0.bundle"):
+        (inv / f"{inventory.safe_rel(rel)}.summary.json").write_text(json.dumps({"file": rel, "types": {}}),
+                                                                     encoding="utf-8")
+    for src in ("resources.assets", "StreamingAssets__maps__levels0.bundle"):
+        d = tmp_path / "assets" / "unity" / "SkinnedMesh" / src
+        d.mkdir(parents=True)
+        (d / "body.gltf").write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(levels, "is_map_container", lambda install, rel: "/maps/" in rel)
+    ctx = analysis.Context(tmp_path, {"install_dir": str(tmp_path)}, analysis.Spec(name="t", func=lambda c: None),
+                           options={"assets": "normal"})
+    assert ctx.hidden_export_dirs() == {"StreamingAssets__maps__levels0.bundle"}
+    found = find_files(tmp_path / "assets", ctx.hidden_export_dirs())
+    assert [p.parent.name for p in found] == ["resources.assets"]
+    assert len(find_files(tmp_path / "assets")) == 2

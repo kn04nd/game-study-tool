@@ -202,7 +202,7 @@ class Sources:
 
 # --- Unity --------------------------------------------------------------------------------------------
 
-def clip_exports(ws: Path) -> tuple[dict[str, str], dict[str, list[str]]]:
+def clip_exports(ws: Path, skip: set[str] | frozenset = frozenset()) -> tuple[dict[str, str], dict[str, list[str]]]:
     """Exported AudioClips from their sidecars: ``file|pid -> workspace path`` and ``name -> [paths]``.
 
     A clip exported from inside a bundle is keyed by its serialized file (the CAB, e.g.
@@ -214,7 +214,7 @@ def clip_exports(ws: Path) -> tuple[dict[str, str], dict[str, list[str]]]:
     if not root.is_dir():
         return by_key, by_name
     for dirpath, dirs, files in os.walk(root):
-        dirs[:] = [d for d in dirs if d not in ("_inventory", "_thumbs", "pcm")]
+        dirs[:] = [d for d in dirs if d not in ("_inventory", "_thumbs", "pcm") and d not in skip]
         for f in files:
             if not f.endswith(".gs.json"):
                 continue
@@ -466,7 +466,7 @@ def audio_catalog(ctx) -> Report:
     refs = ctx.load("audio_refs")
     if refs is not None:
         source = "unity"
-        exports = clip_exports(ws)
+        exports = clip_exports(ws, ctx.hidden_export_dirs())
         events += unity_events(refs, exports, src)
     elif proj is not None:
         source = "godot"

@@ -254,10 +254,11 @@ def generator_note(generators: dict) -> str | None:
 
 # --- the analysis -----------------------------------------------------------------------------------
 
-def find_files(root: Path) -> list[Path]:
+def find_files(root: Path, skip: set[str] | frozenset = frozenset()) -> list[Path]:
+    """glTF/GLB files under ``root``; ``skip``: folder names left out (``Context.hidden_export_dirs``)."""
     out = []
     for dirpath, dirs, files in os.walk(root):
-        dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS and not d.startswith("."))
+        dirs[:] = sorted(d for d in dirs if d not in SKIP_DIRS and d not in skip and not d.startswith("."))
         for f in sorted(files):
             if f.lower().endswith((".glb", ".gltf")):
                 out.append(Path(dirpath) / f)
@@ -307,7 +308,7 @@ def gltf_summary(ctx) -> Report:
         shutil.rmtree(ctx.side_dir(), ignore_errors=True)
     ctx.use("gltf files", root)
     rows = []
-    for p in find_files(root) if root.is_dir() else []:
+    for p in find_files(root, ctx.hidden_export_dirs()) if root.is_dir() else []:
         rel = p.relative_to(ctx.workspace).as_posix()
         try:
             want = bool(detail and detail.search(rel))

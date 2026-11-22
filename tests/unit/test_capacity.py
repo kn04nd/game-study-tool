@@ -135,7 +135,7 @@ def test_ram_model_and_job_weight():
     assert model.measured("unity.textures", 10 * MB) == 200 * MB       # small units: their largest peak
     assert model.measured("unity.meshes", 2 * GB) == 90 * MB           # no big unit measured: the largest peak
     assert model.measured("unity.gltf", GB) == 9 * GB                  # a failed job's peak is a lower bound
-    assert model.measured("unity.fonts", GB) is None                   # unfinished jobs teach nothing
+    assert model.measured("unity.fonts", GB) == 9 * GB                 # planned again: the peak of its last run
     assert budget.job_weight(4 * GB, "cpu", "unity.textures", model) == 2100 * MB
     assert budget.job_weight(2 * GB, "cpu", "unity.sprites", model) == 6 * GB   # not measured: 3x the unit
     # not measured, no input size (analyses) or an external tool (heavy): a share of the machine's RAM

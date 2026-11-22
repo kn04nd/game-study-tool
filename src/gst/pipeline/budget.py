@@ -94,10 +94,13 @@ def ram_weight(size: int, resource: str) -> int:
     return max(RAM_FLOOR, int(size * RAM_FACTOR.get(resource, 1.0)))
 
 
+MEASURED_STATUSES = ("done", "failed", "pending", "running", "paused-disk")
+
+
 class RamModel:
-    """Measured peak RAM per extractor (done or failed jobs with ``peak_ram``; a failed job's peak is a lower bound,
-    e.g. a MemoryError): the largest peak/size ratio of its big units times the size, never below the largest peak
-    of its small units."""
+    """Measured peak RAM per extractor (jobs with ``peak_ram``: done, failed - a lower bound, e.g. a MemoryError -
+    and jobs planned again, pending or running, which keep the peak of their last run): the largest peak/size ratio
+    of its big units times the size, never below the largest peak of its small units."""
 
     def __init__(self, rows=()):
         self.ratio: dict[str, float] = {}
@@ -105,7 +108,7 @@ class RamModel:
         self.peak: dict[str, int] = {}
         for r in rows:
             ext, size, peak = r.get("extractor"), r.get("size") or 0, r.get("peak_ram")
-            if not ext or not peak or r.get("status") not in (None, "done", "failed"):
+            if not ext or not peak or r.get("status") not in (None, *MEASURED_STATUSES):
                 continue
             self.peak[ext] = max(self.peak.get(ext, 0), peak)
             if size >= MEASURE_BIG:
@@ -116,8 +119,9 @@ class RamModel:
     @classmethod
     def from_con(cls, con) -> "RamModel":
         try:
-            cur = con.execute("SELECT extractor, size, peak_ram FROM jobs WHERE status IN ('done', 'failed') "
-                              "AND peak_ram IS NOT NULL")
+            marks = ", ".join("?" * len(MEASURED_STATUSES))
+            cur = con.execute(f"SELECT extractor, size, peak_ram FROM jobs WHERE status IN ({marks}) "
+                              "AND peak_ram IS NOT NULL", MEASURED_STATUSES)
             rows = cur.fetchall()
         except Exception:  # an older jobs.db without the column (read-only connections do not add it)
             return cls()
