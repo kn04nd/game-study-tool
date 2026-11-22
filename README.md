@@ -76,8 +76,8 @@ gst selftest   # environment; --tools runs the pipeline on the sample game (minu
 ## `gst study`: extract everything from a game
 
 ```powershell
-gst study "D:\SteamLibrary\steamapps\common\Pratfall" --dry-run   # plan and estimate; writes nothing
-gst study "D:\SteamLibrary\steamapps\common\Pratfall"             # runs; repeat to resume
+gst study "D:\SteamLibrary\steamapps\common\Pratfall" --dry-run   # plan and the time of each asset level; writes nothing
+gst study "D:\SteamLibrary\steamapps\common\Pratfall" --assets normal   # runs; repeat to resume
 gst status pratfall --watch                                       # progress (jobs/STATUS.md)
 gst coverage pratfall                                             # jobs/COVERAGE.md per category
 ```
@@ -91,8 +91,20 @@ gst coverage pratfall                                             # jobs/COVERAG
 Job order: loose files, code (decompile, index, REA), asset inventory, export of every type, analyses
 (`analysis/*.json`) and, last, the heavy ones (AssetRipper project, Ghidra).
 
+Code and assets run as two tracks side by side: the code notes can start while the assets still export. How
+much of the assets to study is asked once per workspace (`--assets`, then kept in game.json; a run without it stops
+and prints the estimate of each level):
+
+- `none`: code only;
+- `basic`: asset inventory, map list and overview analyses;
+- `normal`: every export and asset analysis except the map/level containers (Unity scene bundles);
+- `full`: everything, maps and the AssetRipper project included.
+
+Every 5 minutes `gst study` prints a `status:` line per track and updates `jobs/STATUS.md`.
+
 Options:
 
+- `--assets none|basic|normal|full`;
 - `--only` and `--skip`: extractors, prefixes (`code`) or categories;
 - `--jobs N`;
 - `--retry-failed`;

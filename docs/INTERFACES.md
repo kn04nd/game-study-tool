@@ -70,11 +70,14 @@ GS_HOME/<slug>/
   game.json            "gs_workspace": 1 stays; v2 adds "gst_workspace": 2
   recon/ decomp/ assets/ dumps/ traces/ notes/ index/ logs/   (v1 layout, unchanged)
   jobs/
-    plan.json          chosen extractors, units, estimate (written by gst study; --dry-run writes nothing)
+    plan.json          chosen extractors, units, estimate (written by gst study; --dry-run writes nothing); each
+                       extractor entry has `track` (code|assets), `level` and `unit_ids` = what this plan may run
+                       (the runner runs no other pending job: jobs of another level or --skip stay pending)
     jobs.db            SQLite WAL (table jobs: id, extractor, unit_id, relpaths, fingerprint, buildid,
                        status, attempts, started_at, duration_s, peak_ram, outputs, out_bytes, error, tool,
                        tool_version; peak_ram = the worker's peak RAM in bytes, added to older databases on open)
-    STATUS.md          readable progress
+    STATUS.md          readable progress; `## By track (this plan)`: finished/total, failed, running, rough time
+                       left per track, refreshed every 5 min (also a `status:` stderr line and a `tracks` event)
                        (`gst jobs estimate`, src/gst/pipeline/capacity.py, read-only: machine CPUs/load/RAM/disk,
                        time per pending job from done jobs here and in other workspaces (`overhead + rate*size` per
                        extractor, else category for units >= 64 MB, else a flagged guess), parallel limits (CPU,
@@ -204,7 +207,26 @@ analysis the `"<name>.<k>"` keys (they win) and the shared ones without a dot.
   [--file REGEX] [--name-filter REGEX]`; `gst analyze --all`. `--json` output = the dict of `run`.
 - `gst study`: each analysis becomes the extractor `analysis.<name>` (stage 60, `after_earlier_stages`, `after` = the
   analyses of `analysis:<x>`), one job each. A missing requirement = job `skipped` with the reason. Options:
-  `gst study --opt prefabs.marker=EnemyParent` (or a shared `--opt file=...`).
+  `gst study --opt prefabs.marker=EnemyParent` (or a shared `--opt file=...`). Code inputs add `after` too
+  (`code.index` -> `code.index`, `dumps.rea` -> `rea.import`); a code-track analysis drops an optional `uses` of an
+  asset-track analysis (`systems` does not wait for `prefabs`). The shared option `assets` (the level) makes
+  `Context.summaries()` / `inventory_files()` / `rows()` leave out map containers below `full`; `gst analyze`
+  without it reads everything.
+
+### Asset levels and tracks (`src/gst/pipeline/levels.py`)
+
+- Tracks: `code` = `files.*`, `code.*`, `rea.*`, `analysis.code_architecture`, `analysis.systems`; `assets` = the
+  rest. They share the scheduler's slots; `after_earlier_stages` (planning reruns and runner waits) looks only at
+  the same track; explicit `after` crosses tracks.
+- `gst study --assets none|basic|normal|full`, kept in game.json `assets_level`. `basic` = inventories, `maps.list`
+  and `BASIC` analyses (catalogs, dcc, audio_refs, audio_catalog, unreal_assets, godot_pck); `normal` = every other
+  asset extractor except `FULL` (AssetRipper project, terrain, navmesh, video) and except, for `unity.*`, the units
+  that are map containers (`is_map_container`: a UnityFS bundle with a `BuildPlayer-<scene>` CAB); `full` = all. An
+  extractor named exactly in `--only` runs at any level.
+- No level and a plan with asset extractors: `study.AssetLevelNeeded`, exit code 2, `--json` = `{"error": "asset
+  level needed", "levels": ...}`. `--dry-run` always adds `levels` (`capacity.level_estimates`: per level `jobs`,
+  `in_bytes`, `left_out_bytes`, `code_s`, `assets_s`, `total_s`, `guessed_s`; asset analyses scaled to the non-map
+  share of the Unity data below `full`).
 
 ### How to add an analysis
 

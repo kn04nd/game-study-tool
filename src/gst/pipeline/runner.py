@@ -6,6 +6,12 @@ workers join a Job Object that dies with this process, so killing ``gst study`` 
 and their tools; the jobs they held stay ``running`` in jobs.db and the next ``gst study`` puts them
 back to ``pending``. There is no time limit unless ``--timeout`` is given; the watchdog only logs a
 warning when a job shows no activity (log, staging folder) for a while.
+
+``planned`` (from ``plan.planned_units``) limits the run to the units of the current plan: a job left pending
+by an earlier plan (another ``--assets`` level, ``--skip``) stays pending and never runs. The two tracks
+(``levels.TRACKS``) share the slots; ``after_earlier_stages`` waits only for the same track. Every
+``status_every`` seconds (default 5 min) the runner writes a per-track line (done/total, running, time left) to
+stderr, the study log (event ``tracks``) and jobs/STATUS.md.
 """
 
 from __future__ import annotations
@@ -17,14 +23,15 @@ import time
 from pathlib import Path
 
 from gst.common import human_size
-from gst.pipeline import budget
+from gst.pipeline import budget, levels
 from gst.pipeline.jobs import FAILED, PAUSED, PENDING, RUNNING, JobsDB
-from gst.pipeline.progress import Progress, write_status
+from gst.pipeline.progress import Progress, track_line, track_rows, write_status
 from gst.pipeline.worker import FINALIZE, PARTIAL
 
 HEAVY_SLOTS = 1
 PEAK_SAMPLE_S = 5.0  # how often the runner samples each worker's process tree RAM
 WATCHDOG_S = 1800.0
+STATUS_EVERY_S = 300.0  # per-track progress line (stderr, study log, STATUS.md)
 POLL_S = 0.25
 
 
@@ -108,8 +115,12 @@ def _activity(paths: list[Path]) -> tuple:
 
 class Runner:
     def __init__(self, ws: Path, *, jobs: int | None = None, timeout: float | None = None, min_free: int | None = None,
-                 watchdog_s: float = WATCHDOG_S, progress: Progress | None = None, python: str | None = None):
+                 watchdog_s: float = WATCHDOG_S, progress: Progress | None = None, python: str | None = None,
+                 planned: set[tuple[str, str]] | None = None, status_every: float = STATUS_EVERY_S):
         self.ws = ws
+        self.planned = planned
+        self.status_every = status_every
+        self.tracks: list[dict] = []
         self.db_file = ws / "jobs" / "jobs.db"
         self.slots = max(1, jobs or max(1, min(4, (os.cpu_count() or 2) // 2)))
         self.timeout = timeout
@@ -156,6 +167,19 @@ class Runner:
         if getattr(cls, "after_earlier_stages", False) and any(s < cls.stage for s in active_stages or ()):
             return True
         return any(dep in active for dep in cls.after)
+
+    def _pending(self, db: JobsDB) -> list[dict]:
+        rows = db.pending()
+        if self.planned is None:
+            return rows
+        return [j for j in rows if (j["extractor"], j["unit_id"]) in self.planned]
+
+    def _report_tracks(self, db: JobsDB) -> None:
+        self.tracks = track_rows(db, self.planned, list(self.running.values()), self.slots)
+        self.progress.event("tracks", tracks=self.tracks)
+        line = track_line(self.tracks)
+        if line:
+            self.progress.say(f"status: {line}")
 
     # --- processes -------------------------------------------------------------------------------
 
@@ -232,12 +256,13 @@ class Runner:
         started = finished = 0
         paused = False
         last_status = 0.0
+        last_tracks = time.time()
         with JobsDB(self.db_file) as db:
             self.ram_model = budget.RamModel.from_con(db.con)
             try:
                 while True:
                     self._reap(db)
-                    pending = db.pending()
+                    pending = self._pending(db)
                     if not pending and not self.running:
                         break
                     if pending and not self._disk_ok():
@@ -251,12 +276,15 @@ class Runner:
                             break
                         time.sleep(1)
                         continue
-                    active = db.active_extractors() if pending else set()
+                    active = ({j["extractor"] for j in pending} | {r["extractor"] for r in self.running.values()}
+                              if pending else set())
                     heavy = sum(1 for r in self.running.values() if r["resource"] == "heavy")
                     # an extractor's <finalize> job waits for every other unit of that extractor
                     unit_work = {j["extractor"] for j in pending if j["unit_id"] != FINALIZE}
                     unit_work |= {r["extractor"] for r in self.running.values()}
-                    active_stages = {j["stage"] for j in pending} | {r.get("stage") or 0 for r in self.running.values()}
+                    stages: dict[str, set[int]] = {t: set() for t in levels.TRACKS}
+                    for j in [*pending, *self.running.values()]:
+                        stages[levels.track_of(j["extractor"])].add(j.get("stage") or 0)
                     for job in pending:
                         if len(self.running) >= self.slots:
                             break
@@ -264,7 +292,8 @@ class Runner:
                             continue
                         if job["unit_id"] == FINALIZE and job["extractor"] in unit_work:
                             continue
-                        if self._blocked_by_deps(job["extractor"], active - {job["extractor"]}, active_stages):
+                        if self._blocked_by_deps(job["extractor"], active - {job["extractor"]},
+                                                 stages[levels.track_of(job["extractor"])]):
                             continue
                         if not self._ram_ok(self._weight(job)):
                             break
@@ -272,8 +301,11 @@ class Runner:
                         unit_work.add(job["extractor"])
                         started += 1
                         heavy += job["resource"] == "heavy"
+                    if time.time() - last_tracks >= self.status_every:
+                        self._report_tracks(db)
+                        last_tracks = time.time()
                     if time.time() - last_status > 5:
-                        write_status(self.ws, db, running=list(self.running.values()), started=t0)
+                        write_status(self.ws, db, running=list(self.running.values()), started=t0, tracks=self.tracks)
                         last_status = time.time()
                     time.sleep(POLL_S)
             except KeyboardInterrupt:
@@ -283,7 +315,8 @@ class Runner:
                 self.progress.warn("interrupted: running jobs went back to pending")
                 raise
             finally:
-                write_status(self.ws, db, running=list(self.running.values()), started=t0)
+                self.tracks = track_rows(db, self.planned, list(self.running.values()), self.slots)
+                write_status(self.ws, db, running=list(self.running.values()), started=t0, tracks=self.tracks)
             counts = db.counts()
         finished = started
         totals: dict[str, int] = {}

@@ -189,7 +189,7 @@ def addressables(ctx) -> dict:
     active_bundles = {bundle_file(i).lower() for i in decoded[out["active"]]["bundles"]} if out["active"] else set()
     from gst.engines.unity import inventory
 
-    for s in inventory.summaries(ctx.inventory_dir()):
+    for s in ctx.summaries():
         if "/aa/" in s["file"]:
             b = {"file": s["file"], "objects": s.get("objects", 0),
                  "types": dict(sorted(s.get("types", {}).items(), key=lambda kv: (-kv[1], kv[0]))),
@@ -233,7 +233,7 @@ def catalogs(ctx) -> Report:
 
         writer = ValueWriter(str(side))
     files = []
-    for s in inventory.summaries(ctx.inventory_dir()):
+    for s in ctx.summaries():
         if "MonoBehaviour" in s.get("types", {}) and not (fpat and not fpat.search(s["file"])):
             if wanted is None or s.get("scripts") is None or wanted & set(s["scripts"]):
                 files.append(s["file"])

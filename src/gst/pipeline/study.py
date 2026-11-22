@@ -1,6 +1,11 @@
 """``gst study <folder|slug>``: resolve or create the workspace, recon when missing or when the build
 changed (a new build gets a sibling workspace ``<slug>@<buildid>``), plan, print the estimate, run,
-write COVERAGE.md."""
+write COVERAGE.md.
+
+Asset level (``pipeline.levels``): ``options["assets"]`` or the workspace's ``assets_level`` (game.json, saved by
+the first run that chose one). A real run whose plan has asset extractors and no level raises
+:class:`AssetLevelNeeded` with the estimate of each level: the user picks one (``--assets``). ``--dry-run``
+always returns that estimate (``levels``)."""
 
 from __future__ import annotations
 
@@ -119,9 +124,28 @@ def resolve(target: str, *, deep: bool = False, say=lambda text: None, dry_run: 
     return ws, ensure_v2(ws, workspace.load(ws))
 
 
+class AssetLevelNeeded(GsError):
+    """No asset level chosen yet for this workspace: ``estimates`` = ``capacity.level_estimates``."""
+
+    def __init__(self, ws: Path, estimates: dict):
+        from gst.pipeline import capacity
+
+        self.workspace = ws
+        self.estimates = estimates
+        super().__init__("choose how much of the assets to study: gst study <game> --assets none|basic|normal|full\n"
+                         + capacity.render_levels(estimates))
+
+
+def needs_level(game: dict, options: dict) -> bool:
+    from gst.pipeline import levels, plan
+
+    classes = plan.selected((game.get("engine") or {}).get("key"), options.get("only"), options.get("skip"))
+    return any(levels.track_of(c.name) == "assets" for c in classes)
+
+
 def run(target: str, *, options: dict, dry_run: bool = False, jobs: int | None = None, timeout: float | None = None,
         min_free: int | None = None, quiet: bool = False) -> dict:
-    from gst.pipeline import coverage, plan
+    from gst.pipeline import capacity, coverage, levels, plan
     from gst.pipeline.jobs import JobsDB, StudyLock
     from gst.pipeline.progress import Progress
     from gst.pipeline.runner import Runner
@@ -137,12 +161,24 @@ def run(target: str, *, options: dict, dry_run: bool = False, jobs: int | None =
             sys.stderr.write(f"gst: {text}\n")
 
     ws, game = resolve(target, say=say, dry_run=dry_run)
-    options = {**options, "min_free": min_free, "timeout": timeout}
+    level = levels.check(options.get("assets")) or levels.check(game.get("assets_level"))
+    options = {**options, "assets": level, "min_free": min_free, "timeout": timeout}
+    home = config.gs_home()
     if dry_run:  # writes nothing: no workspace, folder, plan.json, jobs.db or registry entry
         would = game.pop("_dry_run", None)
-        p = plan.build(ws, game, options=options, write=False)
-        return {"workspace": str(ws), "dry_run": True, "would_create": would, "plan": p,
-                "seconds": round(time.time() - t0, 1)}
+        full = plan.build(ws, game, options={**options, "assets": "full", "_todo": True}, write=False)
+        p = full if level in (None, "full") else plan.build(ws, game, options=options, write=False)
+        est = capacity.level_estimates(ws, game, options=options, home=home, jobs=jobs, plan_full=full)
+        for e in p["extractors"]:
+            e.pop("todo", None)
+        return {"workspace": str(ws), "dry_run": True, "would_create": would, "plan": p, "assets": level,
+                "levels": est, "seconds": round(time.time() - t0, 1)}
+    if level is None and needs_level(game, options):
+        say("no asset level chosen yet: estimating each level")
+        raise AssetLevelNeeded(ws, capacity.level_estimates(ws, game, options=options, home=home, jobs=jobs))
+    if level is not None and game.get("assets_level") != level:
+        game["assets_level"] = level
+        workspace.save(ws, game)
     lock = StudyLock(ws)
     lock.acquire()
     try:
@@ -157,7 +193,8 @@ def run(target: str, *, options: dict, dry_run: bool = False, jobs: int | None =
         p = plan.build(ws, game, options=options, write=True)
         progress.event("plan", totals=p["totals"], seconds=p["seconds"])
         say(plan.render(p).replace("\n", "\ngst: "))
-        runner = Runner(ws, jobs=jobs, timeout=timeout, min_free=min_free, progress=progress)
+        runner = Runner(ws, jobs=jobs, timeout=timeout, min_free=min_free, progress=progress,
+                        planned=plan.planned_units(p))
         summary = runner.run()
         with JobsDB(ws / "jobs" / "jobs.db") as db:
             cov = coverage.build(ws, db)

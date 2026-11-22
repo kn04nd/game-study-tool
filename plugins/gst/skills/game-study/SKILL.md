@@ -77,12 +77,32 @@ Write the plan in STUDY.md under `## Plano`: question → layer → tool → ord
 | Maps and levels (always) | level files, container, terrain, placed objects, scripts, load flow | **study-maps**: `gst maps list`, a reader proved by `gst fmt roundtrip`, `gst maps raster` |
 | Logic | systems, formulas, state machines | code + data → specs in `notes/logic/` (delegate one subsystem per `code-navigator` agent) |
 
-Extract first, then read: `gst study` runs every extractor and analysis of the engine as resumable jobs
-(`gst status`, `gst jobs list`, `gst coverage`); the notes start from `analysis/*.json`. Before a long run, or when
-the user asks why it is slow, run `gst jobs estimate` (needs a planned study; `--json` for the numbers): with
-`decision: auto` start `gst study <slug> --jobs <recommended>`; with `decision: ask` show the user the time per
-`--jobs` value and the reasons, and let them choose. Changing `--jobs` of a running study means stopping it (its
-running jobs restart). Once it finished, the
+Extract first, then read: `gst study` runs the extractors and analyses of the engine as resumable jobs
+(`gst status`, `gst jobs list`, `gst coverage`); the notes start from `analysis/*.json`. It runs two tracks side by
+side: **code** (decompile, index, REA, code analyses) and **assets**, whose depth is the asset level.
+
+**Always ask the asset level before the first extraction** of a workspace (a real run without one stops with exit
+code 2 and the table below; the choice is then kept in game.json, so ask again only if the user wants another
+level). Run `gst study <game> --dry-run --json` (reads only) and take `levels.levels[]`: per level `jobs`,
+`assets_s`, `code_s`, `total_s`. Ask with AskUserQuestion, in pt-BR, one option per level with its time
+(`total_s`; say it is an estimate, rougher when `guessed_s` is large):
+
+- `none`: só o código, sem assets.
+- `basic`: inventário dos assets, lista dos mapas e análises gerais: o suficiente para um .md de como os assets
+  são organizados.
+- `normal`: tudo de `basic` mais exportações e análises de prefabs, malhas, rigs, animações, áudio, texturas,
+  shaders, sem os contêineres de mapa (bundles de cena): um .md detalhado dos assets.
+- `full`: tudo, incluindo os mapas/níveis e o projeto completo do AssetRipper (o mais lento, de longe).
+
+Then start `gst study <game> --assets <level>` in the background (no `--quiet`), the stderr to
+`logs/study-run.log`. Every 5 minutes it writes a `status:` line per track (finished/total, failures, time left,
+what is running) there, in `logs/study-*.jsonl` (event `tracks`) and in `jobs/STATUS.md` (`## By track`). Give the
+user that update in one short pt-BR line every 5 minutes until both tracks finish, and say when the code track is
+done: code notes can start while the assets still run. Before a long run, or when the user asks why it is slow,
+run `gst jobs estimate` (needs a planned study; `--json` for the numbers): with `decision: auto` add
+`--jobs <recommended>`; with `decision: ask` show the user the time per `--jobs` value and the reasons, and let
+them choose. Changing `--jobs` or the level of a running study means stopping it (its running jobs restart); jobs
+of another level stay pending and never run. Once it finished, the
 workflow `/gst:study-all` plans one agent per system, mechanic or asset family (the user's `focus` list from
 `gst config show` first), runs them in waves, consolidates ARCHITECTURE.md, runs verify-claims and
 `gst report --check`.

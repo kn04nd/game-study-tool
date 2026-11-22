@@ -36,6 +36,7 @@ import collections
 import importlib
 import json
 import os
+import re
 import time
 import traceback
 from dataclasses import dataclass, field
@@ -317,6 +318,29 @@ class Context:
     def inventory_dir(self) -> Path:
         return _inventory_dir(self.workspace)
 
+    def hidden_files(self) -> set[str]:
+        """Inventoried files this run leaves out: map containers below asset level ``full`` (option ``assets``,
+        set by ``gst study --assets``; ``gst analyze`` without it reads everything)."""
+        if getattr(self, "_hidden", None) is None:
+            from gst.engines.unity import inventory
+            from gst.pipeline import levels
+
+            level = self.opt("assets")
+            self._hidden = set()
+            if level and levels.rank(level) < levels.rank("full"):
+                self._hidden = {s["file"] for s in inventory.summaries(self.inventory_dir())
+                                if levels.is_map_container(self.install_dir, s.get("file", ""))}
+                if self._hidden:
+                    self.log(f"asset level {level}: {len(self._hidden)} map containers left out")
+        return self._hidden
+
+    def summaries(self):
+        """Per-file inventory summaries (``inventory.summaries``) without the hidden files."""
+        from gst.engines.unity import inventory
+
+        hidden = self.hidden_files()
+        return (s for s in inventory.summaries(self.inventory_dir()) if s.get("file") not in hidden)
+
     def rows(self, *, files=None, types=None, name: str | None = None):
         """Stream Unity inventory rows (``inventory.iter_rows``); records the inventory as an input."""
         from gst.engines.unity import inventory
@@ -324,15 +348,18 @@ class Context:
         inv = self.inventory_dir()
         if "unity.inventory" not in self.inputs:
             self.use("unity.inventory", inv / inventory.INDEX if (inv / inventory.INDEX).is_file() else inv)
+        hidden = self.hidden_files()
+        if hidden and (files is None or isinstance(files, str)):
+            files = [s["file"] for s in self.summaries() if not (isinstance(files, str) and not re.search(files, s["file"], re.I))]
+        elif hidden:
+            files = [f for f in files if f not in hidden]
         return inventory.iter_rows(inv, files=files, types=types, name=name)
 
     def inventory_files(self, types: Iterable[str] | None = None) -> list[str]:
         """Install relpaths of the inventoried files holding any of ``types`` (all when None), sorted."""
-        from gst.engines.unity import inventory
-
         wanted = set(types or ())
         out = []
-        for s in inventory.summaries(self.inventory_dir()):
+        for s in self.summaries():
             if not wanted or wanted & set(s.get("types", {})):
                 out.append(s["file"])
         return sorted(out)

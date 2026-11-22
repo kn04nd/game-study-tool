@@ -23,6 +23,10 @@ def register(sub, parent) -> None:
                                     "build gets a sibling workspace <slug>@<buildid>), plan every extractor of the engine, "
                                     "print the estimate and run. No limits on size, count or time; rerun to resume.")
     st.add_argument("target", help="install folder or workspace slug")
+    st.add_argument("--assets", choices=("none", "basic", "normal", "full"),
+                    help="how much of the assets to study (asked once per workspace, then kept in game.json): none; "
+                         "basic = inventory, map list and overview analyses; normal = every export and asset analysis "
+                         "except the map/level containers; full = everything. --dry-run shows the time of each")
     st.add_argument("--only", action="append", help="extractors, prefixes (code) or categories to run (comma-separated)")
     st.add_argument("--skip", action="append", help="extractors, prefixes or categories to leave out")
     st.add_argument("--jobs", type=int, help="parallel jobs (default: half the CPUs, at most 4; heavy tools run one at a time)")
@@ -77,15 +81,21 @@ def cmd_study(args) -> int:
     from gst.pipeline import budget, plan, study
 
     options: dict = {"only": _csv(args.only), "skip": _csv(args.skip), "force": _csv(args.force),
-                     "retry_failed": args.retry_failed}
+                     "retry_failed": args.retry_failed, "assets": args.assets}
     for item in args.opt:
         key, sep, value = item.partition("=")
         if not sep:
             raise GsError(f"--opt takes KEY=VALUE, got {item!r}")
         options[key.strip()] = value.strip()
     min_free = budget.parse_size(args.min_free)
-    result = study.run(args.target, options=options, dry_run=args.dry_run, jobs=args.jobs, timeout=args.timeout,
-                       min_free=min_free, quiet=args.quiet or args.json)
+    from gst.pipeline import capacity
+
+    try:
+        result = study.run(args.target, options=options, dry_run=args.dry_run, jobs=args.jobs, timeout=args.timeout,
+                           min_free=min_free, quiet=args.quiet or args.json)
+    except study.AssetLevelNeeded as exc:
+        emit({"workspace": str(exc.workspace), "error": "asset level needed", "levels": exc.estimates}, args.json, str(exc))
+        return 2
     if args.dry_run:
         would = result.get("would_create") or {}
         head = f"workspace: {result['workspace']}"
@@ -94,7 +104,10 @@ def cmd_study(args) -> int:
                      + (f" as a sibling of {would['sibling_of']}, new build" if would.get("sibling_of") else "") + ")")
         elif would.get("recon"):
             head += " (no recon yet: this plan used an in-memory recon; a real run writes it)"
-        emit(result, args.json, head + "\n" + plan.render(result["plan"]) + "\n(dry run: nothing ran, nothing was written)")
+        emit(result, args.json, head + "\n" + plan.render(result["plan"]) + "\n" + capacity.render_levels(result["levels"])
+             + (f"\nchosen for this workspace: --assets {result['assets']}" if result.get("assets") else
+                "\nno asset level chosen yet: a real run needs --assets <level>")
+             + "\n(dry run: nothing ran, nothing was written)")
         return 0
     run = result["run"]
     totals = ", ".join(f"{k} {v}" for k, v in sorted(run["totals"].items()))

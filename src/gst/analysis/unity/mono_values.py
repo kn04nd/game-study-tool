@@ -135,7 +135,7 @@ def mono_values(ctx) -> Report:
     aggs: dict[str, ScriptAgg] = {}
     untyped: collections.Counter = collections.Counter()
     files = []
-    for s in inventory.summaries(ctx.inventory_dir()):
+    for s in ctx.summaries():
         if "MonoBehaviour" not in s.get("types", {}):
             continue
         if wanted is not None and s.get("scripts") is not None and not (wanted & set(s["scripts"])):

@@ -14,6 +14,13 @@ covered by the unit tests and the guides in `docs/tools/`. Contracts: `docs/INTE
 - `gst jobs estimate` learns from done jobs only: an extractor that never ran anywhere gets a guess (the median
   per-byte rate of the workspace for big units, a constant for small ones), flagged `guess` and a reason to ask the
   user. The CPU load is one short sample; a study's own workers are subtracted as one core each.
+- Asset levels: map containers are recognized for Unity only (bundles of built scenes). Godot and Unreal levels
+  live inside packs/paks that are one unit each, so `normal` there still exports every level; only the extractor
+  lists differ. The level estimate of an asset analysis below `full` is its past time scaled by the share of the
+  non-map data, a rough guess (the analyses do not read every byte alike). The time left in the 5-minute status
+  line comes from the same model, spread over the slots.
+- Changing the level does not rerun the analyses by itself: going down keeps the results computed at the higher
+  level; going up reruns them because the new units of the inventory and exports run first.
 - The watchdog only warns; there is no default timeout (by design). A stuck third-party tool keeps running until
   you stop it or pass `--timeout`.
 - `gst audio index` looks at `assets/audio` by default. For Unity clips run `gst audio index assets/unity/AudioClip`

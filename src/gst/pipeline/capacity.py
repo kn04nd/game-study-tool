@@ -10,6 +10,9 @@
 - ETA: a simulation of the scheduler (slots, one heavy job at a time, ``after`` / ``after_earlier_stages``,
   the RAM rule) for a few ``--jobs`` values.
 - Decision: ``auto`` (take the recommendation) or ``ask`` (show the table to the user), with the reasons.
+- Only the units of the last plan (``jobs/plan.json``) count: pending jobs of an earlier plan never run.
+- ``level_estimates``: the time of each asset level (``pipeline.levels``) before the first run, from one
+  read-only plan at ``full`` (map containers flagged), for ``gst study --dry-run`` and the asset-level question.
 
 Read-only: opens jobs.db files read-only and writes nothing.
 """
@@ -22,7 +25,7 @@ import statistics
 import time
 from pathlib import Path
 
-from gst.pipeline import budget
+from gst.pipeline import budget, levels
 
 BIG = 64 << 20            # samples at least this large fit the per-byte rate
 GUESS_OVERHEAD_S = 5.0    # no history at all: a few seconds per job ...
@@ -80,9 +83,10 @@ def machine(ws: Path, *, sample_s: float = SAMPLE_S) -> dict:
 
 # --- history ------------------------------------------------------------------------------------------
 
-def _connect_ro(path: Path) -> sqlite3.Connection | None:
-    """Read-only connection that still sees a running study's WAL; falls back to ``immutable`` (may be stale)."""
-    for query in ("mode=ro", "immutable=1"):
+def _connect_ro(path: Path, *, immutable: bool = False) -> sqlite3.Connection | None:
+    """Read-only connection that still sees a running study's WAL; falls back to ``immutable`` (may be stale).
+    ``immutable``: only that one, which writes no -wal/-shm side file (``gst study --dry-run`` writes nothing)."""
+    for query in (("immutable=1",) if immutable else ("mode=ro", "immutable=1")):
         try:
             con = sqlite3.connect(f"{Path(path).resolve().as_uri()}?{query}", uri=True)
             con.row_factory = sqlite3.Row
@@ -97,8 +101,8 @@ def _columns(con: sqlite3.Connection) -> set[str]:
     return {r[1] for r in con.execute("PRAGMA table_info(jobs)")}
 
 
-def read_jobs(db_file: Path) -> list[dict]:
-    con = _connect_ro(db_file)
+def read_jobs(db_file: Path, *, immutable: bool = False) -> list[dict]:
+    con = _connect_ro(db_file, immutable=immutable)
     if con is None:
         return []
     try:
@@ -114,7 +118,7 @@ def read_jobs(db_file: Path) -> list[dict]:
     return rows
 
 
-def other_histories(ws: Path, home: Path | None) -> list[dict]:
+def other_histories(ws: Path, home: Path | None, *, immutable: bool = False) -> list[dict]:
     """Done jobs of the other workspaces under GS_HOME (their timing teaches the estimate)."""
     out: list[dict] = []
     if home is None or not Path(home).is_dir():
@@ -124,7 +128,8 @@ def other_histories(ws: Path, home: Path | None) -> list[dict]:
         db_file = child / "jobs" / "jobs.db"
         if not db_file.is_file() or os.path.normcase(str(child.resolve())) == me:
             continue
-        out += [r for r in read_jobs(db_file) if r["status"] == "done" and r.get("duration_s") is not None]
+        out += [r for r in read_jobs(db_file, immutable=immutable)
+                if r["status"] == "done" and r.get("duration_s") is not None]
     return out
 
 
@@ -132,7 +137,9 @@ class Model:
     """Expected seconds of one job: ``overhead + rate * size`` per extractor (fallback: category, guess)."""
 
     def __init__(self, own: list[dict], others: list[dict]):
-        done = lambda rows: [r for r in rows if r["status"] == "done" and r.get("duration_s") is not None]  # noqa: E731
+        # a job planned again (pending, or running now) keeps the duration of its last finished run: still history
+        timed = ("done", "pending", "running", "paused-disk")
+        done = lambda rows: [r for r in rows if r["status"] in timed and r.get("duration_s") is not None]  # noqa: E731
         self.sources = (("this workspace", done(own)), ("other workspaces", done(others)))
 
     @staticmethod
@@ -185,10 +192,17 @@ def _rules(extractor: str) -> tuple[tuple[str, ...], bool]:
     return tuple(cls.after), bool(getattr(cls, "after_earlier_stages", False))
 
 
+def _stages(jobs) -> dict[str, set[int]]:
+    out: dict[str, set[int]] = {t: set() for t in levels.TRACKS}
+    for j in jobs:
+        out[levels.track_of(j["extractor"])].add(j.get("stage") or 0)
+    return out
+
+
 def simulate(running: list[dict], pending: list[dict], slots: int, ram_available: int, *, weight=None) -> float:
     """Seconds until every job finished, scheduling like ``Runner.run``: jobs in (stage, seq) order, at most
-    ``slots`` at once, one ``heavy``, ``after`` / ``after_earlier_stages`` waits, the RAM rule. ``running`` jobs
-    carry ``left_s``; pending ones ``est_s``."""
+    ``slots`` at once, one ``heavy``, ``after`` / ``after_earlier_stages`` waits (same track only), the RAM rule.
+    ``running`` jobs carry ``left_s``; pending ones ``est_s``."""
     weight = weight or (lambda j: j.get("ram_weight") or budget.ram_weight(j.get("size") or 0, j.get("resource") or "cpu"))
     rules = {j["extractor"]: _rules(j["extractor"]) for j in pending}
     clock = 0.0
@@ -196,7 +210,7 @@ def simulate(running: list[dict], pending: list[dict], slots: int, ram_available
     queue = [dict(j) for j in pending]
     while queue or active:
         live_ext = {j["extractor"] for j in queue} | {j["extractor"] for j in active}
-        live_stages = {j.get("stage") or 0 for j in queue} | {j.get("stage") or 0 for j in active}
+        live_stages = _stages([*queue, *active])
         started = False
         for job in list(queue):
             if len(active) >= slots:
@@ -204,7 +218,7 @@ def simulate(running: list[dict], pending: list[dict], slots: int, ram_available
             if job.get("resource") == "heavy" and any(a.get("resource") == "heavy" for a in active):
                 continue
             after, after_stages = rules.get(job["extractor"], ((), False))
-            if after_stages and any(s < (job.get("stage") or 0) for s in live_stages):
+            if after_stages and any(s < (job.get("stage") or 0) for s in live_stages[levels.track_of(job["extractor"])]):
                 continue
             if any(dep in live_ext and dep != job["extractor"] for dep in after):
                 continue
@@ -259,6 +273,9 @@ def estimate(ws: Path, *, home: Path | None = None, jobs: int | None = None, sam
     pending_rows = [r for r in own if r["status"] == "pending"]
     if not study_running:  # a dead study's "running" jobs go back to pending on the next gst study
         pending_rows = [r for r in own if r["status"] in ("running", "pending", "paused-disk")]
+    planned = _planned(ws)
+    if planned is not None:  # pending jobs outside the last plan never run
+        pending_rows = [r for r in pending_rows if (r["extractor"], r["unit_id"]) in planned]
 
     jobs_out, running, pending = [], [], []
     for r in running_rows + pending_rows:
@@ -337,6 +354,84 @@ def estimate(ws: Path, *, home: Path | None = None, jobs: int | None = None, sam
         "decision": "ask" if reasons_ask else "auto", "reasons": reasons_ask, "notes": notes,
         "jobs": jobs_out,
     }
+
+
+def _planned(ws: Path) -> set[tuple[str, str]] | None:
+    from gst.common import read_json
+    from gst.pipeline.plan import planned_units
+
+    p = read_json(Path(ws) / "jobs" / "plan.json", None)
+    return planned_units(p) if isinstance(p, dict) and p.get("extractors") else None
+
+
+def level_estimates(ws: Path, game: dict, *, options: dict | None = None, home: Path | None = None,
+                    jobs: int | None = None, mach: dict | None = None, plan_full: dict | None = None) -> dict:
+    """Time of each asset level, from a read-only plan at ``full`` whose units carry a map-container flag:
+    ``{"levels": [{level, jobs, in_bytes, left_out_bytes, code_s, assets_s, total_s, guessed_s}], "slots"}``.
+    ``code_s``/``assets_s`` simulate each track alone, ``total_s`` both together (they share the slots)."""
+    from gst.pipeline import plan as plan_mod
+    from gst.pipeline.jobs import db_path
+
+    ws = Path(ws)
+    mach = mach or machine(ws, sample_s=0)
+    own = read_jobs(db_path(ws), immutable=True) if db_path(ws).exists() else []  # writes no -wal/-shm
+    model = Model(own, other_histories(ws, home, immutable=True))
+    ram_model = budget.RamModel(own)
+    if plan_full is None:
+        plan_full = plan_mod.build(ws, game, options={**(options or {}), "assets": "full", "_todo": True}, write=False)
+    slots = jobs or default_slots(mach["cpus"])
+    items = []
+    for e in plan_full["extractors"]:
+        for unit_id, size, is_map in e.get("todo") or []:
+            job = {"extractor": e["name"], "unit_id": unit_id, "category": e["category"], "resource": e["resource"],
+                   "stage": e["stage"], "seq": len(items), "size": size or 0}
+            est, basis = model.estimate(job)
+            job.update(est_s=est, basis=basis, map=bool(is_map), track=e["track"],
+                       ram_weight=budget.job_weight(size or 0, e["resource"], e["name"], ram_model, mach["ram_total"]))
+            items.append(job)
+    share = _non_map_share(game)
+    rows = []
+    for level in levels.LEVELS:
+        mine = [j for j in items if levels.included(j["extractor"], level) and (level == "full" or not j["map"])]
+        if level != "full" and share < 1.0:  # asset analyses read only the non-map files below full
+            mine = [{**j, "est_s": j["est_s"] * share} if j["track"] == "assets" and j["extractor"].startswith("analysis.")
+                    else j for j in mine]
+        code = [j for j in mine if j["track"] == "code"]
+        assets = [j for j in mine if j["track"] == "assets"]
+        sim = lambda js: round(simulate([], js, slots, mach["ram_available"])) if js else 0  # noqa: E731
+        left_out = sum(j["size"] for j in items if j["track"] == "assets") - sum(j["size"] for j in assets)
+        rows.append({"level": level, "jobs": len(assets), "in_bytes": sum(j["size"] for j in assets),
+                     "left_out_bytes": left_out, "code_s": sim(code), "assets_s": sim(assets), "total_s": sim(mine),
+                     "guessed_s": round(sum(j["est_s"] for j in mine if j["basis"].startswith("guess")))})
+    return {"levels": rows, "slots": slots, "code_jobs": sum(1 for j in items if j["track"] == "code")}
+
+
+def _non_map_share(game: dict) -> float:
+    """Share of the Unity data bytes outside map containers (1.0 for other engines or without map containers):
+    the history of an asset analysis comes from runs that read everything, the levels below full read this share."""
+    if not str((game.get("engine") or {}).get("key") or "").startswith("unity") or not game.get("install_dir"):
+        return 1.0
+    from gst.engines.unity import loader
+
+    total = maps = 0
+    try:
+        for rel, _kind, size in loader.iter_unity_files(Path(game["install_dir"])):
+            total += size
+            maps += size if levels.is_map_container(game["install_dir"], rel) else 0
+    except OSError:
+        return 1.0
+    return (total - maps) / total if total and maps else 1.0
+
+
+def render_levels(result: dict) -> str:
+    """The asset-level table of ``gst study --dry-run`` (English; the skill asks the user in pt-BR)."""
+    lines = [f"asset levels (gst study --assets <level>; estimates for --jobs {result['slots']}, code and assets run "
+             "side by side):"]
+    for r in result["levels"]:
+        guess = f"; {_hm(r['guessed_s'])} of it guessed (no history)" if r["guessed_s"] else ""
+        lines.append(f"  {r['level']:<7} {r['jobs']:>5} asset jobs {_size(r['in_bytes']):>9}  assets ~{_hm(r['assets_s'])}, "
+                     f"code ~{_hm(r['code_s'])}, whole study ~{_hm(r['total_s'])}{guess}")
+    return "\n".join(lines)
 
 
 def _hm(seconds: float) -> str:

@@ -121,6 +121,10 @@ legacy gs (workspaces and plugin): `docs/MIGRATION.md`.
   only writer: `jobs/`, `analysis/`, `legacy.<folder>` jobs `done` with `tool=legacy`, COVERAGE.md, game.json
   `gst_workspace: 2` + `gst_migrated` (temp file + rename, gs keys kept). Idempotent; never moves, deletes or touches
   `registry.json`. `gst workspace` lists GS_HOME. Contract: docs/INTERFACES.md section 12; user guide: docs/MIGRATION.md.
+- `src/gst/pipeline/levels.py` - asset levels (`--assets none|basic|normal|full`, game.json `assets_level`) and the
+  code/assets tracks: `plan.build` drops extractors and map-container units by level, the runner runs only
+  `plan.planned_units` and waits per track, `capacity.level_estimates` prices each level for the question the
+  game-study skill asks before the first run.
 - `gst study --dry-run` writes nothing at all (no workspace, `<slug>@<buildid>` sibling, recon, plan.json, registry
   entry): `pipeline/study.resolve(dry_run=True)` reconns in memory; keep it that way (`test_study_cli.py` snapshots
   GS_HOME).

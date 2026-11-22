@@ -76,7 +76,7 @@ def textures(ctx) -> Report:
         m["file"] = rel
         m["shader_name"] = index.get(m["shader"] or "", "?" if sh else None)
         mats.append(m)
-    atlases = sum(s.get("types", {}).get("SpriteAtlas", 0) for s in inventory.summaries(ctx.inventory_dir()))
+    atlases = sum(s.get("types", {}).get("SpriteAtlas", 0) for s in ctx.summaries())
     return build_report(texs, mats, have_shaders=sh is not None, atlas_min=int(ctx.opt("atlas_min", 3)),
                         top=int(ctx.opt("top", 25)), sprite_atlases=atlases)
 

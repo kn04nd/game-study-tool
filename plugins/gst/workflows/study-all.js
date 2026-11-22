@@ -21,6 +21,7 @@ const READY = {
     running: { type: 'integer' },
     pending: { type: 'integer' },
     failed: { type: 'array', items: { type: 'string' } },
+    assets: { type: 'string' },
   },
 }
 
@@ -81,9 +82,12 @@ const askedFocus = Array.isArray(args) ? args : opts.focus || null
 
 phase('Check')
 const ready = await agent(
-  'In the current study workspace check that `gst study` finished: run `gst status`, `gst jobs list` and `gst coverage`. ' +
-    'ready = no job is running or pending (failed or skipped jobs are fine: list the failed ones by name). ' +
-    'Do not start, retry or reset any job. Summarize in 2 lines what was extracted and analyzed.',
+  'In the current study workspace check that `gst study` finished: run `gst status`, `gst jobs list` and `gst coverage`, ' +
+    'and read jobs/STATUS.md (`## By track (this plan)`) and `assets_level` in game.json. ready = no job of the last ' +
+    'plan is running or pending: both tracks finished (failed or skipped jobs are fine: list the failed ones by name; ' +
+    'pending jobs outside the last plan, from another asset level, never run and do not count). Do not start, retry ' +
+    'or reset any job. Return `assets` = the asset level (none, basic, normal, full; empty when not set). Summarize ' +
+    'in 2 lines what was extracted and analyzed.',
   { label: 'check', phase: 'Check', schema: READY, agentType: 'gst:code-navigator', effort: 'low' },
 )
 if (!ready || !ready.ready) {
@@ -91,6 +95,18 @@ if (!ready || !ready.ready) {
   return { ready: false, summary: ready ? ready.summary : null, next: 'run gst study <game> (rerun resumes), then /gst:study-all' }
 }
 if (ready.failed && ready.failed.length) log(`failed jobs (their outputs are missing): ${ready.failed.join(', ')}`)
+const level = ready.assets || 'full'
+log(`asset level: ${level}`)
+const levelNote = {
+  none: 'The asset level is none: no asset was extracted or analyzed, so plan no models or character task; the audio ' +
+    'and maps tasks work from the code only (say so in their notes).',
+  basic: 'The asset level is basic: only the inventory, the map list and the overview analyses (catalogs, dcc, ' +
+    'audio_refs, audio_catalog) exist; no exports, no prefabs/rig/animation analyses. Asset tasks describe how the ' +
+    'assets are organized from those, and say what a normal level would add.',
+  normal: 'The asset level is normal: exports and asset analyses exist for everything except the map containers ' +
+    '(scene bundles): the maps task lists them from analysis/maps and the code, without their content.',
+  full: '',
+}[level] || ''
 
 phase('Plan')
 const plan = await agent(
@@ -112,7 +128,7 @@ const plan = await agent(
     'game gets a task, ordered as the focus list; then the gameplay systems that matter most; always one audio task, ' +
     'one maps task and, when the game has decompiled code, one code task (kind code, slug arquitetura-codigo, template ' +
     'arquitetura-codigo: structure, libraries, entry points, design patterns, performance techniques). Only plan what ' +
-    'the data supports (a focus item absent from this game: leave it out).',
+    'the data supports (a focus item absent from this game: leave it out). ' + levelNote,
   { label: 'plan', phase: 'Plan', schema: PLAN, agentType: 'gst:code-navigator' },
 )
 const tasks = plan.tasks

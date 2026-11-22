@@ -258,7 +258,7 @@ def test_study_all_maps_every_kind_to_an_agent_and_template():
 
     text = (PLUGIN / "workflows" / "study-all.js").read_text(encoding="utf-8")
     kinds = re.findall(r"^\s+(\w+): \['gst:([a-z-]+)', '([a-z0-9-]+)', '([a-z]+)'\]", text, re.M)
-    assert len(kinds) == 8
+    assert len(kinds) == 9
     for _kind, agent, template, _layer in kinds:
         assert (PLUGIN / "agents" / f"{agent}.md").is_file()
         assert template in notetemplates.TEMPLATES
