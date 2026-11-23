@@ -27,6 +27,10 @@ def register(sub, parent) -> None:
                     help="how much of the assets to study (asked once per workspace, then kept in game.json): none; "
                          "basic = inventory, map list and overview analyses; normal = every export and asset analysis "
                          "except the map/level containers; full = everything. --dry-run shows the time of each")
+    st.add_argument("--unity-project", choices=("yes", "no"),
+                    help="Unity: also export the whole Unity project with AssetRipper (prefabs and scenes you open in "
+                         "the editor; asked once per workspace, kept in game.json). Below --assets full it leaves the "
+                         "map containers out. --dry-run shows its time")
     st.add_argument("--only", action="append", help="extractors, prefixes (code) or categories to run (comma-separated)")
     st.add_argument("--skip", action="append", help="extractors, prefixes or categories to leave out")
     st.add_argument("--jobs", type=int, help="parallel jobs (default: half the CPUs, at most 4; heavy tools run one at a time)")
@@ -81,7 +85,8 @@ def cmd_study(args) -> int:
     from gst.pipeline import budget, plan, study
 
     options: dict = {"only": _csv(args.only), "skip": _csv(args.skip), "force": _csv(args.force),
-                     "retry_failed": args.retry_failed, "assets": args.assets}
+                     "retry_failed": args.retry_failed, "assets": args.assets,
+                     "unity_project": args.unity_project}
     for item in args.opt:
         key, sep, value = item.partition("=")
         if not sep:
@@ -94,7 +99,9 @@ def cmd_study(args) -> int:
         result = study.run(args.target, options=options, dry_run=args.dry_run, jobs=args.jobs, timeout=args.timeout,
                            min_free=min_free, quiet=args.quiet or args.json)
     except study.AssetLevelNeeded as exc:
-        emit({"workspace": str(exc.workspace), "error": "asset level needed", "levels": exc.estimates}, args.json, str(exc))
+        error = "asset level needed" if "assets" in exc.missing else "unity project choice needed"
+        emit({"workspace": str(exc.workspace), "error": error, "missing": exc.missing, "levels": exc.estimates},
+             args.json, str(exc))
         return 2
     if args.dry_run:
         would = result.get("would_create") or {}
@@ -104,10 +111,15 @@ def cmd_study(args) -> int:
                      + (f" as a sibling of {would['sibling_of']}, new build" if would.get("sibling_of") else "") + ")")
         elif would.get("recon"):
             head += " (no recon yet: this plan used an in-memory recon; a real run writes it)"
+        project = ""
+        if result.get("unity_project") is not None:
+            project = f"\nunity project: {'yes' if result['unity_project'] else 'no'}"
+        elif result["levels"].get("project"):
+            project = "\nunity project not chosen yet: a real run needs --unity-project yes|no"
         emit(result, args.json, head + "\n" + plan.render(result["plan"]) + "\n" + capacity.render_levels(result["levels"])
              + (f"\nchosen for this workspace: --assets {result['assets']}" if result.get("assets") else
                 "\nno asset level chosen yet: a real run needs --assets <level>")
-             + "\n(dry run: nothing ran, nothing was written)")
+             + project + "\n(dry run: nothing ran, nothing was written)")
         return 0
     run = result["run"]
     totals = ", ".join(f"{k} {v}" for k, v in sorted(run["totals"].items()))

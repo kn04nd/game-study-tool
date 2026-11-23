@@ -220,13 +220,19 @@ analysis the `"<name>.<k>"` keys (they win) and the shared ones without a dot.
   the same track; explicit `after` crosses tracks.
 - `gst study --assets none|basic|normal|full`, kept in game.json `assets_level`. `basic` = inventories, `maps.list`
   and `BASIC` analyses (catalogs, dcc, audio_refs, audio_catalog, unreal_assets, godot_pck); `normal` = every other
-  asset extractor except `FULL` (AssetRipper project, terrain, navmesh, video) and except, for `unity.*`, the units
+  asset extractor except `FULL` (terrain, navmesh, video) and except, for `unity.*`, the units
   that are map containers (`is_map_container`: a UnityFS bundle with a `BuildPlayer-<scene>` CAB); `full` = all. An
   extractor named exactly in `--only` runs at any level.
-- No level and a plan with asset extractors: `study.AssetLevelNeeded`, exit code 2, `--json` = `{"error": "asset
-  level needed", "levels": ...}`. `--dry-run` always adds `levels` (`capacity.level_estimates`: per level `jobs`,
-  `in_bytes`, `left_out_bytes`, `code_s`, `assets_s`, `total_s`, `guessed_s`; asset analyses scaled to the non-map
-  share of the Unity data below `full`).
+- Unity project (`unity.assetripper_project`, `levels.PROJECT`): its own choice, `gst study --unity-project yes|no`,
+  kept in game.json `unity_project` (no choice = planned at `full` only, as before). Below `full` it loads a staging
+  copy of the install without the map containers (`assetripper.export(exclude=...)`, `<workspace>/tmp/assetripper-install`,
+  removed afterwards); the unit fingerprint says with or without maps, so moving to `full` exports again.
+- No level and a plan with asset extractors, or a Unity plan with no `unity_project` choice:
+  `study.AssetLevelNeeded` (`missing` = `assets` and/or `unity_project`), exit code 2, `--json` = `{"error": "asset
+  level needed" | "unity project choice needed", "missing": [...], "levels": ...}`. `--dry-run` always adds `levels`
+  (`capacity.level_estimates`: per level `jobs`, `in_bytes`, `left_out_bytes`, `code_s`, `assets_s`, `total_s`,
+  `guessed_s`, without the project; asset analyses scaled to the non-map share of the Unity data below `full`; plus
+  `project` = `{in_bytes, est_s, with_maps_bytes, with_maps_s, guessed}` for Unity, else null) and `unity_project`.
 
 ### How to add an analysis
 

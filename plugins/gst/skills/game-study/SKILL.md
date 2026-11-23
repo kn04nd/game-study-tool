@@ -92,9 +92,18 @@ level). Run `gst study <game> --dry-run --json` (reads only) and take `levels.le
   são organizados.
 - `normal`: tudo de `basic` mais exportações e análises de prefabs, malhas, rigs, animações, áudio, texturas,
   shaders, sem os contêineres de mapa (bundles de cena): um .md detalhado dos assets.
-- `full`: tudo, incluindo os mapas/níveis e o projeto completo do AssetRipper (o mais lento, de longe).
+- `full`: tudo, incluindo os mapas/níveis (o mais lento, de longe).
 
-Then start `gst study <game> --assets <level>` in the background (no `--quiet`), the stderr to
+**Unity games: in the same AskUserQuestion, also ask whether they want the Unity project** (`levels.project` of the
+dry-run is not null; a real run without the choice also stops with exit code 2, `missing` lists what is left). Its
+time is `levels.project.est_s` (without the map containers; `with_maps_s` at `full`). Options in pt-BR:
+
+- `sim`: gerar também o projeto Unity com o AssetRipper (prefabs e cenas montados, para abrir no editor do Unity
+  na mesma versão do jogo); sem os contêineres de mapa, a não ser no nível `full`.
+- `não`: sem projeto Unity.
+
+Then start `gst study <game> --assets <level>` (plus `--unity-project yes|no` for Unity) in the background (no
+`--quiet`), the stderr to
 `logs/study-run.log`. Every 5 minutes it writes a `status:` line per track (finished/total, failures, time left,
 what is running) there, in `logs/study-*.jsonl` (event `tracks`) and in `jobs/STATUS.md` (`## By track`). Give the
 user that update in one short pt-BR line every 5 minutes until both tracks finish, and say when the code track is

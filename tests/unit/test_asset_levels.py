@@ -283,3 +283,61 @@ def test_exports_of_hidden_map_containers_are_skipped(tmp_path, monkeypatch):
     found = find_files(tmp_path / "assets", ctx.hidden_export_dirs())
     assert [p.parent.name for p in found] == ["resources.assets"]
     assert len(find_files(tmp_path / "assets")) == 2
+
+
+def test_unity_project_is_its_own_choice():
+    name = "unity.assetripper_project"
+    assert [levels.included(name, lv, True) for lv in levels.LEVELS] == [True] * 4
+    assert [levels.included(name, lv, False) for lv in levels.LEVELS] == [False] * 4
+    assert levels.included(name, "full") and not levels.included(name, "normal")  # no choice: as before
+    assert levels.check_project("yes") is True and levels.check_project("no") is False
+    assert levels.check_project(None) is None
+    with pytest.raises(Exception):
+        levels.check_project("maybe")
+    assert name not in {c.name for c in plan.selected("unity-mono", level="full", project=False)}
+    assert name in {c.name for c in plan.selected("unity-mono", level="none", project=True)}
+
+
+def test_study_asks_for_the_unity_project():
+    from gst.pipeline import study
+
+    unity = {"engine": {"key": "unity-mono"}}
+    assert study.needs_project(unity, {}) and not study.needs_project(unity, {"skip": ["unity.assetripper_project"]})
+    assert not study.needs_project({"engine": {"key": "godot-4"}}, {})
+    exc = study.AssetLevelNeeded("ws", {"levels": [], "slots": 1, "project": None}, ("unity_project",))
+    assert exc.missing == ["unity_project"] and "--unity-project yes|no" in str(exc)
+    assert "choose how much of the assets" not in str(exc)
+
+
+def test_project_export_leaves_map_containers_out_below_full(tmp_path, monkeypatch):
+    from types import SimpleNamespace
+
+    from gst.assets import assetripper
+    from gst.engines.unity import loader
+
+    files = [("Game_Data/resources.assets", "assets", 100), ("Game_Data/StreamingAssets/maps/levels0.bundle", "bundle", 900)]
+    monkeypatch.setattr(loader, "iter_unity_files", lambda install: iter(files))
+    monkeypatch.setattr(loader, "resource_size", lambda install, rel: 0)
+    monkeypatch.setattr(levels, "is_map_container", lambda install, rel: "/maps/" in rel)
+    ext = registry.get("unity.assetripper_project")()
+    ctx = lambda level: SimpleNamespace(install_dir=str(tmp_path), options={"assets": level}, game={"buildid": "7"})  # noqa: E731
+    normal, full = next(ext.discover(ctx("normal"))), next(ext.discover(ctx("full")))
+    assert (normal.size, full.size) == (100, 1000) and normal.fingerprint != full.fingerprint
+    assert ext._excluded(ctx("normal")) == ["Game_Data/StreamingAssets/maps/levels0.bundle"]
+    # the staging copy the export loads instead of the install
+    install = tmp_path / "Game"
+    (install / "Game_Data" / "StreamingAssets" / "maps").mkdir(parents=True)
+    (install / "Game_Data" / "resources.assets").write_bytes(b"r" * 10)
+    (install / "Game_Data" / "StreamingAssets" / "maps" / "levels0.bundle").write_bytes(b"m" * 50)
+    staging = tmp_path / "ws" / "tmp" / "assetripper-install"
+    assert assetripper.stage_install(install, staging, ["Game_Data/StreamingAssets/maps/levels0.bundle"]) == 10
+    assert (staging / "Game_Data" / "resources.assets").exists()
+    assert not (staging / "Game_Data" / "StreamingAssets" / "maps" / "levels0.bundle").exists()
+    assert (install / "Game_Data" / "StreamingAssets" / "maps" / "levels0.bundle").exists()  # install untouched
+
+
+def test_render_levels_prices_the_unity_project():
+    est = {"levels": [], "slots": 2,
+           "project": {"in_bytes": 2 << 30, "est_s": 300, "with_maps_bytes": 16 << 30, "with_maps_s": 12600, "guessed": False}}
+    text = capacity.render_levels(est)
+    assert "--unity-project yes" in text and "5 min" in text and "3 h 30 min" in text

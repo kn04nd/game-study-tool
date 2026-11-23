@@ -105,6 +105,8 @@ Every 5 minutes `gst study` prints a `status:` line per track and updates `jobs/
 Options:
 
 - `--assets none|basic|normal|full`;
+- `--unity-project yes|no` (Unity: also export the Unity project with AssetRipper, without the map containers below
+  `full`; asked once like the level);
 - `--only` and `--skip`: extractors, prefixes (`code`) or categories;
 - `--jobs N`;
 - `--retry-failed`;

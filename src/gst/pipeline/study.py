@@ -5,7 +5,8 @@ write COVERAGE.md.
 Asset level (``pipeline.levels``): ``options["assets"]`` or the workspace's ``assets_level`` (game.json, saved by
 the first run that chose one). A real run whose plan has asset extractors and no level raises
 :class:`AssetLevelNeeded` with the estimate of each level: the user picks one (``--assets``). ``--dry-run``
-always returns that estimate (``levels``)."""
+always returns that estimate (``levels``). Unity: the whole-project export (AssetRipper) is a separate yes/no
+choice (``options["unity_project"]`` or game.json ``unity_project``), asked the same way."""
 
 from __future__ import annotations
 
@@ -125,15 +126,21 @@ def resolve(target: str, *, deep: bool = False, say=lambda text: None, dry_run: 
 
 
 class AssetLevelNeeded(GsError):
-    """No asset level chosen yet for this workspace: ``estimates`` = ``capacity.level_estimates``."""
+    """A choice is missing for this workspace: the asset level and/or (Unity) the whole project export.
+    ``missing`` = ["assets", "unity_project"] subset; ``estimates`` = ``capacity.level_estimates``."""
 
-    def __init__(self, ws: Path, estimates: dict):
+    def __init__(self, ws: Path, estimates: dict, missing: tuple[str, ...] = ("assets",)):
         from gst.pipeline import capacity
 
         self.workspace = ws
         self.estimates = estimates
-        super().__init__("choose how much of the assets to study: gst study <game> --assets none|basic|normal|full\n"
-                         + capacity.render_levels(estimates))
+        self.missing = list(missing)
+        asks = []
+        if "assets" in missing:
+            asks.append("choose how much of the assets to study: gst study <game> --assets none|basic|normal|full")
+        if "unity_project" in missing:
+            asks.append("choose whether to export the whole Unity project (AssetRipper): --unity-project yes|no")
+        super().__init__("\n".join(asks) + "\n" + capacity.render_levels(estimates))
 
 
 def needs_level(game: dict, options: dict) -> bool:
@@ -141,6 +148,14 @@ def needs_level(game: dict, options: dict) -> bool:
 
     classes = plan.selected((game.get("engine") or {}).get("key"), options.get("only"), options.get("skip"))
     return any(levels.track_of(c.name) == "assets" for c in classes)
+
+
+def needs_project(game: dict, options: dict) -> bool:
+    """Does the plan have the whole-project export (Unity) to say yes or no to?"""
+    from gst.pipeline import levels, plan
+
+    classes = plan.selected((game.get("engine") or {}).get("key"), options.get("only"), options.get("skip"))
+    return any(c.name in levels.PROJECT for c in classes)
 
 
 def run(target: str, *, options: dict, dry_run: bool = False, jobs: int | None = None, timeout: float | None = None,
@@ -162,22 +177,35 @@ def run(target: str, *, options: dict, dry_run: bool = False, jobs: int | None =
 
     ws, game = resolve(target, say=say, dry_run=dry_run)
     level = levels.check(options.get("assets")) or levels.check(game.get("assets_level"))
-    options = {**options, "assets": level, "min_free": min_free, "timeout": timeout}
+    project = levels.check_project(options.get("unity_project"))
+    if project is None:
+        project = levels.check_project(game.get("unity_project"))
+    options = {**options, "assets": level, "unity_project": project, "min_free": min_free, "timeout": timeout}
     home = config.gs_home()
     if dry_run:  # writes nothing: no workspace, folder, plan.json, jobs.db or registry entry
         would = game.pop("_dry_run", None)
-        full = plan.build(ws, game, options={**options, "assets": "full", "_todo": True}, write=False)
-        p = full if level in (None, "full") else plan.build(ws, game, options=options, write=False)
+        full = plan.build(ws, game, options={**options, "assets": "full", "unity_project": True, "_todo": True},
+                          write=False)
+        p = (full if level in (None, "full") and project in (None, True)
+             else plan.build(ws, game, options=options, write=False))
         est = capacity.level_estimates(ws, game, options=options, home=home, jobs=jobs, plan_full=full)
         for e in p["extractors"]:
             e.pop("todo", None)
         return {"workspace": str(ws), "dry_run": True, "would_create": would, "plan": p, "assets": level,
-                "levels": est, "seconds": round(time.time() - t0, 1)}
-    if level is None and needs_level(game, options):
-        say("no asset level chosen yet: estimating each level")
-        raise AssetLevelNeeded(ws, capacity.level_estimates(ws, game, options=options, home=home, jobs=jobs))
+                "unity_project": project, "levels": est, "seconds": round(time.time() - t0, 1)}
+    missing = tuple(m for m, need in (("assets", level is None and needs_level(game, options)),
+                                      ("unity_project", project is None and needs_project(game, options))) if need)
+    if missing:
+        say(f"choice needed ({', '.join(missing)}): estimating each option")
+        raise AssetLevelNeeded(ws, capacity.level_estimates(ws, game, options=options, home=home, jobs=jobs), missing)
+    changed = False
     if level is not None and game.get("assets_level") != level:
         game["assets_level"] = level
+        changed = True
+    if project is not None and game.get("unity_project") is not project:
+        game["unity_project"] = project
+        changed = True
+    if changed:
         workspace.save(ws, game)
     lock = StudyLock(ws)
     lock.acquire()

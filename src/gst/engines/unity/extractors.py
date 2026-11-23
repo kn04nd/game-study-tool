@@ -386,17 +386,31 @@ class UnityAddressables(Extractor):
 
 @register(*ENGINES)
 class UnityAssetRipperProject(Extractor):
-    """The whole Unity project reconstructed by AssetRipper (heavy, last in the plan)."""
+    """The whole Unity project reconstructed by AssetRipper (heavy, last in the plan). Planned by the unity_project
+    choice (``pipeline.levels.PROJECT``); below the ``full`` asset level it leaves the map containers out."""
 
     name, category, resource = "unity.assetripper_project", "other", "heavy"
     stage = 70  # heavy, last in the plan
     after: tuple[str, ...] = ("unity.inventory",)
 
+    @staticmethod
+    def _excluded(ctx: Context) -> list[str]:
+        from gst.pipeline import levels
+
+        if levels.rank(levels.check(ctx.options.get("assets"))) >= levels.rank("full"):
+            return []
+        return levels.map_containers(ctx.install_dir)
+
     def discover(self, ctx: Context) -> Iterable[Unit]:
         total = 0
+        excluded = set(self._excluded(ctx))
         for rel, _kind, size in loader.iter_unity_files(ctx.install_dir):
-            total += size + loader.resource_size(ctx.install_dir, rel)
-        yield Unit(id="project", extractor=self.name, relpaths=[], size=total, meta={"last": True})
+            if rel not in excluded:
+                total += size + loader.resource_size(ctx.install_dir, rel)
+        # with or without the maps is part of the fingerprint: moving to full exports the project again
+        yield Unit(id="project", extractor=self.name, relpaths=[], size=total,
+                   fingerprint=f"project:{build_of(ctx)}:{'no-maps' if excluded else 'all'}",
+                   meta={"last": True, "maps_left_out": len(excluded)})
 
     def run(self, unit: Unit, ctx: Context) -> Result:
         from gst import tools
@@ -410,9 +424,10 @@ class UnityAssetRipperProject(Extractor):
         out = assetripper.fresh_dir(base, f"project@{build_of(ctx)}")
         try:
             info = assetripper.export(ctx.workspace, ctx.install_dir, mode="project", out=out,
-                                      timeout=ctx.options.get("timeout"))
+                                      timeout=ctx.options.get("timeout"), exclude=self._excluded(ctx))
         except GsError as exc:
             return Result(status="failed", error=str(exc), tool="AssetRipper")
         return Result(outputs=[Path(info["out"]).relative_to(ctx.workspace).as_posix()], out_bytes=info["bytes"],
                       tool="AssetRipper", tool_version=info.get("tool_version", ""),
-                      notes=[f"{info['files']} files in {info['seconds']} s"])
+                      notes=[f"{info['files']} files in {info['seconds']} s"
+                             + (f", {info['excluded']} map containers left out" if info.get("excluded") else "")])

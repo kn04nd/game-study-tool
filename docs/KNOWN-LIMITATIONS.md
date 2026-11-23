@@ -39,7 +39,14 @@ covered by the unit tests and the guides in `docs/tools/`. Contracts: `docs/INTE
 
 ## Unity
 
-- The AssetRipper project export (`unity.assetripper_project`) has not been measured on a real game.
+- The AssetRipper project export (`unity.assetripper_project`) was measured once, on PEAK without its map containers
+  (1.7 GB of data: about 5 min, 3.8 GB of RAM, 29,764 files); with PEAK's 14 GB of map bundles it ran 3.5 h without
+  finishing. The project opens in the game's Unity version, but the game's shaders are not the originals and the
+  decompiled scripts may not compile (Safe Mode -> Ignore). `gst assets project` still loads the whole install (no
+  map exclusion there yet). The project's time with the map containers (`--assets full`) is a linear estimate
+  (PEAK: ~49 min shown) and much too low there: AssetRipper's time and RAM grow faster than the bytes. The staging
+  copy (the install minus the map containers) takes its size on the workspace disk while the export runs, outside
+  the `--min-free` estimate.
 - A bundle whose single block is larger than half the free RAM (single-block LZMA) becomes `unsupported` with the note
   "fallback assetripper"; the per-bundle AssetRipper fallback itself is not implemented.
 - Scene animators were measured on R.E.P.O., Safari-TV and PEAK's `level0-4`; PEAK's 2 GB map bundles

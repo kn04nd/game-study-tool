@@ -6,6 +6,7 @@ Order: loose files, code (decompile, then index), asset inventory, exports, anal
 ``--only``/``--skip`` take extractor names, name prefixes (``code`` = ``code.*``) or categories.
 ``options["assets"]`` (the asset level, ``pipeline.levels``) drops the asset extractors above it and, below
 ``full``, the units that are map containers; an extractor named exactly in ``--only`` is kept at any level.
+``options["unity_project"]`` (yes/no) plans or drops the whole-project export (``levels.PROJECT``).
 Each entry carries its ``track`` (code | assets) and ``unit_ids`` = what this plan may run (the runner runs no
 other pending job).
 """
@@ -49,15 +50,15 @@ def policy_block(cls, game: dict) -> str | None:
 
 
 def selected(engine_key: str | None, only: list[str] | None = None, skip: list[str] | None = None,
-             level: str | None = None) -> list[type]:
+             level: str | None = None, project: bool | None = None) -> list[type]:
     classes = registry.for_engine(engine_key)
     if only:
         classes = [c for c in classes if matches(c, only)]
     if skip:
         classes = [c for c in classes if not matches(c, skip)]
-    if level is not None:
+    if level is not None or project is not None:
         named = {p.strip() for p in only or ()}
-        classes = [c for c in classes if c.name in named or levels.included(c.name, level)]
+        classes = [c for c in classes if c.name in named or levels.included(c.name, level, project)]
     order = {c.name: i for i, c in enumerate(classes)}
     return sorted(classes, key=lambda c: (c.stage, order[c.name]))
 
@@ -73,6 +74,7 @@ def build(ws: Path, game: dict, *, options: dict | None = None, write: bool = Tr
     force = set(options.get("force") or [])
     retry = bool(options.get("retry_failed"))
     level = levels.check(options.get("assets"))
+    project = levels.check_project(options.get("unity_project"))
     collect = bool(options.get("_todo"))  # estimate mode: list the units that would run (with a map flag)
     plan = {"workspace": str(ws), "game": game.get("name"), "engine": engine_key, "buildid": buildid,
             "verdict": game.get("verdict"), "created_at": time.strftime("%Y-%m-%dT%H:%M:%S"), "options": options,
@@ -85,7 +87,7 @@ def build(ws: Path, game: dict, *, options: dict | None = None, write: bool = Tr
     try:
         if db is not None:
             db.con.execute("BEGIN")
-        for cls in selected(engine_key, options.get("only"), options.get("skip"), level):
+        for cls in selected(engine_key, options.get("only"), options.get("skip"), level, project):
             ext = cls()
             ctx = context_for(ws, game, options, out_subdir=getattr(cls, "out_subdir", ""))
             unit_fps: list[str] = []
@@ -171,7 +173,7 @@ def build(ws: Path, game: dict, *, options: dict | None = None, write: bool = Tr
                       "to_run": sum(e["to_run"] for e in ex), "already_done": sum(e["already_done"] for e in ex),
                       "blocked": sum(e["blocked"] for e in ex), "est_out": sum(e["est_out"] for e in ex),
                       "left_out": sum(e["left_out"] for e in ex), "left_out_bytes": sum(e["left_out_bytes"] for e in ex),
-                      "assets": level,
+                      "assets": level, "unity_project": project,
                       "disk_free": budget.disk_free(ws), "min_free": options.get("min_free")}
     plan["seconds"] = round(time.time() - t0, 1)
     if write:

@@ -17,7 +17,11 @@ Levels (``gst study --assets <level>``; chosen once per workspace, kept in game.
   assets are organized.
 - ``normal``: plus every export and asset analysis, except the map/level containers (Unity scene bundles,
   ``is_map_container``) and the ``FULL`` extractors: a detailed note on prefabs, meshes, rigs, animations, audio.
-- ``full``: everything, map containers and the whole-project export included.
+- ``full``: everything, map containers included.
+
+The whole Unity project (``unity.assetripper_project``, AssetRipper) is a separate yes/no choice, not a level
+(``gst study --unity-project yes|no``, kept in game.json ``unity_project``): below ``full`` it leaves the map
+containers out (``map_containers``), which is what keeps it in minutes instead of hours.
 """
 
 from __future__ import annotations
@@ -35,7 +39,8 @@ BASIC = frozenset({
     "analysis.catalogs", "analysis.dcc", "analysis.audio_refs", "analysis.audio_catalog",
     "analysis.unreal_assets", "analysis.godot_pck",
 })
-FULL = frozenset({"unity.assetripper_project", "unity.terrain", "unity.navmesh", "unity.video"})
+FULL = frozenset({"unity.terrain", "unity.navmesh", "unity.video"})
+PROJECT = frozenset({"unity.assetripper_project"})  # planned by the unity_project choice, not by the level
 # extractors that read map containers even below ``full`` (they only list them)
 LIST_ONLY = frozenset({"maps.list"})
 
@@ -50,7 +55,7 @@ def min_level(name: str) -> str:
         return "none"
     if name in BASIC:
         return "basic"
-    if name in FULL:
+    if name in FULL or name in PROJECT:
         return "full"
     return "normal"
 
@@ -59,8 +64,11 @@ def rank(level: str | None) -> int:
     return LEVELS.index(level) if level in LEVELS else len(LEVELS) - 1
 
 
-def included(name: str, level: str | None) -> bool:
-    """Is the extractor planned at ``level``? ``None`` = no level chosen: everything (``full``)."""
+def included(name: str, level: str | None, project: bool | None = None) -> bool:
+    """Is the extractor planned at ``level``? ``None`` = no level chosen: everything (``full``). The project
+    export follows ``project`` (the unity_project choice); with no choice, it follows ``full`` as before."""
+    if name in PROJECT and project is not None:
+        return bool(project)
     return rank(min_level(name)) <= rank(level)
 
 
@@ -91,6 +99,15 @@ def is_map_container(install: Path | str | None, relpath: str) -> bool:
     return _scene_bundle(str(p), st.st_size, st.st_mtime_ns)
 
 
+def map_containers(install: Path | str | None) -> list[str]:
+    """Relative paths of the Unity map containers of an install (``is_map_container``)."""
+    from gst.engines.unity import loader
+
+    if not install:
+        return []
+    return [rel for rel, _kind, _size in loader.iter_unity_files(Path(install)) if is_map_container(install, rel)]
+
+
 def unit_left_out(name: str, relpaths: list[str], level: str | None, install) -> bool:
     """Is this unit left out at ``level``? Below ``full``, Unity extractors skip map containers (except the
     ones that only list them)."""
@@ -108,3 +125,17 @@ def check(level: str | None) -> str | None:
 
         raise GsError(f"--assets takes one of {', '.join(LEVELS)}, got {level!r}")
     return level
+
+
+def check_project(value) -> bool | None:
+    """The unity_project choice: ``None`` (not chosen), or yes/no as a bool."""
+    if value is None or isinstance(value, bool):
+        return value
+    text = str(value).strip().lower()
+    if text in ("yes", "y", "true", "1", "sim", "s"):
+        return True
+    if text in ("no", "n", "false", "0", "nao", "não"):
+        return False
+    from gst.common import GsError
+
+    raise GsError(f"--unity-project takes yes or no, got {value!r}")

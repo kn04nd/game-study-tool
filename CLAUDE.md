@@ -124,7 +124,8 @@ legacy gs (workspaces and plugin): `docs/MIGRATION.md`.
 - `src/gst/pipeline/levels.py` - asset levels (`--assets none|basic|normal|full`, game.json `assets_level`) and the
   code/assets tracks: `plan.build` drops extractors and map-container units by level, the runner runs only
   `plan.planned_units` and waits per track, `capacity.level_estimates` prices each level for the question the
-  game-study skill asks before the first run.
+  game-study skill asks before the first run. The Unity project export is its own choice (`--unity-project yes|no`,
+  game.json `unity_project`, `levels.PROJECT`); below `full` it runs on a staging copy without the map containers.
 - `gst study --dry-run` writes nothing at all (no workspace, `<slug>@<buildid>` sibling, recon, plan.json, registry
   entry): `pipeline/study.resolve(dry_run=True)` reconns in memory; keep it that way (`test_study_cli.py` snapshots
   GS_HOME).

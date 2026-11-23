@@ -367,8 +367,10 @@ def _planned(ws: Path) -> set[tuple[str, str]] | None:
 def level_estimates(ws: Path, game: dict, *, options: dict | None = None, home: Path | None = None,
                     jobs: int | None = None, mach: dict | None = None, plan_full: dict | None = None) -> dict:
     """Time of each asset level, from a read-only plan at ``full`` whose units carry a map-container flag:
-    ``{"levels": [{level, jobs, in_bytes, left_out_bytes, code_s, assets_s, total_s, guessed_s}], "slots"}``.
-    ``code_s``/``assets_s`` simulate each track alone, ``total_s`` both together (they share the slots)."""
+    ``{"levels": [{level, jobs, in_bytes, left_out_bytes, code_s, assets_s, total_s, guessed_s}], "slots",
+    "project"}``. ``code_s``/``assets_s`` simulate each track alone, ``total_s`` both together (they share the
+    slots). The levels leave the whole-project export out; ``project`` (Unity, else None) prices it alone:
+    ``{in_bytes, est_s, with_maps_bytes, with_maps_s, guessed}`` (without the map containers / with them at full)."""
     from gst.pipeline import plan as plan_mod
     from gst.pipeline.jobs import db_path
 
@@ -378,7 +380,8 @@ def level_estimates(ws: Path, game: dict, *, options: dict | None = None, home: 
     model = Model(own, other_histories(ws, home, immutable=True))
     ram_model = budget.RamModel(own)
     if plan_full is None:
-        plan_full = plan_mod.build(ws, game, options={**(options or {}), "assets": "full", "_todo": True}, write=False)
+        plan_full = plan_mod.build(ws, game, options={**(options or {}), "assets": "full", "unity_project": True,
+                                                      "_todo": True}, write=False)
     slots = jobs or default_slots(mach["cpus"])
     items = []
     for e in plan_full["extractors"]:
@@ -390,9 +393,16 @@ def level_estimates(ws: Path, game: dict, *, options: dict | None = None, home: 
                        ram_weight=budget.job_weight(size or 0, e["resource"], e["name"], ram_model, mach["ram_total"]))
             items.append(job)
     share = _non_map_share(game)
+    project = None
+    for j in items:
+        if j["extractor"] in levels.PROJECT:
+            no_maps = _project_bytes(ws, game, j["extractor"], j["size"])
+            est, basis = model.estimate({**j, "size": no_maps})
+            project = {"in_bytes": no_maps, "est_s": round(est), "with_maps_bytes": j["size"],
+                       "with_maps_s": round(j["est_s"]), "guessed": basis.startswith("guess")}
     rows = []
     for level in levels.LEVELS:
-        mine = [j for j in items if levels.included(j["extractor"], level) and (level == "full" or not j["map"])]
+        mine = [j for j in items if levels.included(j["extractor"], level, False) and (level == "full" or not j["map"])]
         if level != "full" and share < 1.0:  # asset analyses read only the non-map files below full
             mine = [{**j, "est_s": j["est_s"] * share} if j["track"] == "assets" and j["extractor"].startswith("analysis.")
                     else j for j in mine]
@@ -403,7 +413,20 @@ def level_estimates(ws: Path, game: dict, *, options: dict | None = None, home: 
         rows.append({"level": level, "jobs": len(assets), "in_bytes": sum(j["size"] for j in assets),
                      "left_out_bytes": left_out, "code_s": sim(code), "assets_s": sim(assets), "total_s": sim(mine),
                      "guessed_s": round(sum(j["est_s"] for j in mine if j["basis"].startswith("guess")))})
-    return {"levels": rows, "slots": slots, "code_jobs": sum(1 for j in items if j["track"] == "code")}
+    return {"levels": rows, "slots": slots, "code_jobs": sum(1 for j in items if j["track"] == "code"),
+            "project": project}
+
+
+def _project_bytes(ws: Path, game: dict, name: str, fallback: int) -> int:
+    """Input bytes of the project export below ``full`` (its own discover, without the map containers)."""
+    from gst.extractors import registry
+    from gst.pipeline.worker import context_for
+
+    try:
+        ctx = context_for(ws, game, {"assets": "normal"})
+        return sum(u.size for u in registry.get(name)().discover(ctx))
+    except Exception:
+        return fallback
 
 
 def _non_map_share(game: dict) -> float:
@@ -431,6 +454,12 @@ def render_levels(result: dict) -> str:
         guess = f"; {_hm(r['guessed_s'])} of it guessed (no history)" if r["guessed_s"] else ""
         lines.append(f"  {r['level']:<7} {r['jobs']:>5} asset jobs {_size(r['in_bytes']):>9}  assets ~{_hm(r['assets_s'])}, "
                      f"code ~{_hm(r['code_s'])}, whole study ~{_hm(r['total_s'])}{guess}")
+    pr = result.get("project")
+    if pr:
+        guess = " (guessed: no history)" if pr["guessed"] else ""
+        lines.append(f"unity project (--unity-project yes; AssetRipper, after the other jobs): {_size(pr['in_bytes'])} "
+                     f"~{_hm(pr['est_s'])} without the map containers; at --assets full with them "
+                     f"{_size(pr['with_maps_bytes'])} ~{_hm(pr['with_maps_s'])}{guess}")
     return "\n".join(lines)
 
 
